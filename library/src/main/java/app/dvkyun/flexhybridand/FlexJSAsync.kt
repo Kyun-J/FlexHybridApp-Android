@@ -1,4 +1,4 @@
-package app.dvkyun.flexhybrid
+package app.dvkyun.flexhybridand
 
 import android.webkit.JavascriptInterface
 import android.webkit.WebView

@@ -1,4 +1,4 @@
-package app.dvkyun.flexhybrid
+package app.dvkyun.flexhybridand
 
 import android.graphics.Bitmap
 import android.webkit.WebView

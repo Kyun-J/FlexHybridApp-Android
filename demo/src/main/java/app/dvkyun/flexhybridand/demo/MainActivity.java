@@ -1,11 +1,11 @@
-package app.dvkyun.flexhybrid.demo;
+package app.dvkyun.flexhybridand.demo;
 
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import app.dvkyun.flexhybrid.FlexWebView;
+import app.dvkyun.flexhybridand.FlexWebView;
 
 public class MainActivity extends AppCompatActivity {
 

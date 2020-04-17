@@ -1,4 +1,4 @@
-package app.dvkyun.flexhybrid.demo
+package app.dvkyun.flexhybridand.demo
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

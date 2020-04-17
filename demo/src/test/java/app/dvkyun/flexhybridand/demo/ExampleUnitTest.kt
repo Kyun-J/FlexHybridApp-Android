@@ -1,4 +1,4 @@
-package app.dvkyun.flexhybrid.demo
+package app.dvkyun.flexhybridand.demo
 
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package app.dvkyun.flexhybrid.demo;
+package app.dvkyun.flexhybridand.demo;
 
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
@@ -8,8 +8,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import app.dvkyun.flexhybrid.FlexJSCall;
-import app.dvkyun.flexhybrid.FlexWebView;
+import app.dvkyun.flexhybridand.FlexJSCall;
+import app.dvkyun.flexhybridand.FlexWebView;
 
 public class JSInterface {
 

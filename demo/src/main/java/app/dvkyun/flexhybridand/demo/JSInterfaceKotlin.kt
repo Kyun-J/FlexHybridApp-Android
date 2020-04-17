@@ -1,9 +1,9 @@
-package app.dvkyun.flexhybrid.demo
+package app.dvkyun.flexhybridand.demo
 
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import androidx.appcompat.app.AlertDialog
-import app.dvkyun.flexhybrid.FlexJSAsync
+import app.dvkyun.flexhybridand.FlexJSAsync
 import kotlinx.coroutines.*
 
 

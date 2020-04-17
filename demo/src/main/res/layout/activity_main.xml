@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <app.dvkyun.flexhybrid.FlexWebView
+    <app.dvkyun.flexhybridand.FlexWebView
         android:id="@+id/flex_web_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
