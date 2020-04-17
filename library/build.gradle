@@ -1,7 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply from: 'publish.gradle'
 
 android {
     compileSdkVersion 29
@@ -32,3 +31,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.core:core-ktx:1.2.0'
 }
+
+apply plugin: 'com.github.dcendents.android-maven'
+group='com.github.Kyun-J'
