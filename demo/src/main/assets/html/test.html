@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+</head>
+<script type="text/javascript">
+    let t = 0;
+    const t1 = async () => {
+        console.log('Send to Native --- ' + t);
+        const z = await $flex.testCall(String(t));
+        console.log('Return by Native --- ' + z);
+        t = z;
+    }
+    const t2 = () => {
+        $flex.testAsync(String(t));
+    }
+    $flex.web.receive = function(data) {
+        console.log('Received by Native ---- ' + data);
+    }
+</script>
+<body style="width: 100%; height: 450px;">
+<button onclick='t1()' style="width: 100%; height: 150px;">test Callable</button>
+<button onclick='t2()' style="width: 100%; height: 150px;">test Async</button>
+</body>
+</html>
