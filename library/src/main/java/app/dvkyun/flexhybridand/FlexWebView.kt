@@ -28,7 +28,7 @@ class FlexWebView: WebView {
     init {
         if(mActivity == null) throw FlexException(FlexException.ERROR1)
         flexJsString = try {
-            val reader = BufferedReader(context.assets.open("FlexHybridAnd.min.js").reader())
+            val reader = BufferedReader(context.assets.open("FlexHybridAnd.min.js").reader()) 
             val sb = StringBuilder()
             var line: String?
             while (reader.readLine().also { line = it } != null) {
