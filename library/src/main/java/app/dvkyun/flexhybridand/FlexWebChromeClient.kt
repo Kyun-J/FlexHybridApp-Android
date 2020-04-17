@@ -39,7 +39,7 @@ class FlexWebChromeClient(activity: Activity) : WebChromeClient() {
         mCustomView = view
         setFullscreen(true)
         mCustomViewCallback = callback
-        super.onShowCustomView(view, callback)
+        super.onShowCustomView(view, callback) 
     }
 
 
