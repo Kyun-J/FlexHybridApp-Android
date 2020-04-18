@@ -14,8 +14,10 @@
     const t2 = () => {
         $flex.testAsync(String(t));
     }
-    $flex.web.receive = function(data) {
-        console.log('Received by Native ---- ' + data);
+    window.onload = function() {
+        $flex.web.receive = function(data) {
+            console.log('Received by Native ---- ' + data);
+        }
     }
 </script>
 <body style="width: 100%; height: 450px;">

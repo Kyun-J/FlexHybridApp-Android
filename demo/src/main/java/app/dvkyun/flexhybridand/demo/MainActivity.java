@@ -16,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
         FlexWebView flexWebView = findViewById(R.id.flex_web_view);
 
         flexWebView.setWebContentsDebuggingEnabled(true);
+        flexWebView.setToGlobalFlexWebView(true);
         flexWebView.setBaseUrl("file:///android_asset");
         flexWebView.addJsInterface(new JSInterface(flexWebView));
         flexWebView.addJsInterface(new JSInterfaceKotlin(flexWebView));

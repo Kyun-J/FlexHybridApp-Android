@@ -16,5 +16,6 @@ class FlexException : Exception {
         const val ERROR5 = "BaseUrl is not set. Please specify BaseUrl first"
         const val ERROR6 = "ViewClient or ChromeClient must be FlexViewClient or FlexChromeClient"
         const val ERROR7 = "Callable or Deferred Job already assigned"
+        const val ERROR8 = "Static Global Variable is not initialized."
     }
 }

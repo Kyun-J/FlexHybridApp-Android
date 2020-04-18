@@ -18,6 +18,13 @@ class FlexJSCall {
     private var oExecutor: ThreadPoolExecutor?
     private var isOutExecutor: Boolean
 
+    constructor() {
+        FlexStatic.checkGlobalFlexWebView()
+        mWebView = FlexStatic.globalFlexWebView
+        oExecutor = null
+        isOutExecutor = false
+    }
+
     constructor(webView: WebView) {
         mWebView = webView
         oExecutor = null

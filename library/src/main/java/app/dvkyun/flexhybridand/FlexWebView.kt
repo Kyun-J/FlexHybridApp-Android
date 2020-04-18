@@ -15,9 +15,9 @@ import java.io.BufferedReader
 class FlexWebView: WebView {
 
     private val mActivity: Activity? = FlexStatic.getActivity(context)
-    internal var baseUrl: String? = null
-    internal val flexJsString: String
+    private val flexJsString: String
     private var interfaceCount = 0
+    internal var baseUrl: String? = null
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
@@ -28,7 +28,7 @@ class FlexWebView: WebView {
     init {
         if(mActivity == null) throw FlexException(FlexException.ERROR1)
         flexJsString = try {
-            val reader = BufferedReader(context.assets.open("FlexHybridAnd.min.js").reader()) 
+            val reader = BufferedReader(context.assets.open("FlexHybridAnd.min.js").reader())
             val sb = StringBuilder()
             var line: String?
             while (reader.readLine().also { line = it } != null) {
@@ -85,6 +85,14 @@ class FlexWebView: WebView {
 
     fun evalFlexFunc(funcName: String) {
         FlexStatic.evaluateJavaScript(this,"window.\$flex.web.$funcName()")
+    }
+
+    fun setToGlobalFlexWebView(set: Boolean) {
+        if(set) FlexStatic.globalFlexWebView = this
+    }
+
+    fun flexInitInPage() {
+        FlexStatic.evaluateJavaScript(this, flexJsString)
     }
 
     @SuppressLint("JavascriptInterface")

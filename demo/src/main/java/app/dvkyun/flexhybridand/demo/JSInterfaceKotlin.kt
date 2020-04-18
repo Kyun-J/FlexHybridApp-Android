@@ -14,6 +14,19 @@ class JSInterfaceKotlin(webView: WebView) {
 
     @JavascriptInterface
     fun testAsync(msg: String) : FlexJSAsync {
+        return FlexJSAsync()
+            .setScope(mScope)
+            .launch(mScope.async {
+                AlertDialog.Builder(mWebView.context)
+                    .setTitle("Received by WebView")
+                    .setMessage(msg)
+                    .create()
+                    .show()
+            })
+    }
+
+    @JavascriptInterface
+    fun testAsync2(msg: String) : FlexJSAsync {
         return FlexJSAsync(mWebView)
             .setScope(mScope)
             .launch(mScope.async {

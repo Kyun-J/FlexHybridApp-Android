@@ -13,6 +13,11 @@ class FlexJSAsync {
     private var mDeferred: Deferred<*>? = null
     private lateinit var mScope: CoroutineScope
 
+    constructor() {
+        FlexStatic.checkGlobalFlexWebView()
+        mWebView = FlexStatic.globalFlexWebView
+    }
+
     constructor(webView: WebView) {
         mWebView = webView
     }

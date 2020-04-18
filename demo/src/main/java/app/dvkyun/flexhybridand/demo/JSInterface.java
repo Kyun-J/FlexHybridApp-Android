@@ -23,7 +23,7 @@ public class JSInterface {
 
     @JavascriptInterface
     public FlexJSCall testCall(final String input) {
-        return new FlexJSCall(mWebView).call(new Callable<Integer>() {
+        return new FlexJSCall().call(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
                Thread.sleep(1000);

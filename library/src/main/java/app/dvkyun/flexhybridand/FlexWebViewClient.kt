@@ -9,7 +9,7 @@ class FlexWebViewClient: WebViewClient() {
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
         if(view is FlexWebView && url != null && url.contains(view.baseUrl!!)) {
-            FlexStatic.evaluateJavaScript(view, view.flexJsString)
+            view.flexInitInPage()
         }
     }
 
