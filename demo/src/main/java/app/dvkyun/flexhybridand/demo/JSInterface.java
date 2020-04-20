@@ -22,7 +22,7 @@ public class JSInterface {
     }
 
     @JavascriptInterface
-    public FlexJSCall testCall(final String input) {
+    public FlexJSCall testCall(final int input) {
         return new FlexJSCall().call(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
@@ -30,10 +30,10 @@ public class JSInterface {
                mWebView.post(new Runnable() {
                    @Override
                    public void run() {
-                       ((FlexWebView)mWebView).evalFlexFunc("receive", input.concat("isNative"));
+                       ((FlexWebView)mWebView).evalFlexFunc("receive", Integer.toString(input).concat("isNative"));
                    }
                });
-               return Integer.parseInt(input) + 1;
+               return input + 1;
             }
         });
     }

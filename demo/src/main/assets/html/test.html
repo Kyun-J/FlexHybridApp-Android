@@ -7,9 +7,9 @@
     let t = 0;
     const t1 = async () => {
         console.log('Send to Native --- ' + t);
-        const z = await $flex.testCall(String(t));
+        const z = await $flex.testCall(t);
         console.log('Return by Native --- ' + z);
-        t = z;
+        t = Number(z);
     }
     const t2 = () => {
         $flex.testAsync(String(t));
