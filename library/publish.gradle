@@ -11,8 +11,8 @@ version '0.1.1'
  */
 publish {
     // Required.
-    bintrayUser = 'kyun-j'
-    bintrayKey = 'f5d28894eb7edc02635097b26c5d00b448e0eccf'
+    bintrayUser = System.getenv('BINTRAY_USER')
+    bintrayKey = System.getenv('BINTRAY_API_KEY')
     groupId = this.group
     publishVersion = this.version
     artifactId = 'flexhybridand'
