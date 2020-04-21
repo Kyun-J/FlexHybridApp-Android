@@ -6,12 +6,17 @@ import android.content.ContextWrapper
 import android.os.Build
 import android.webkit.WebView
 
-internal object FlexStatic {
+object FlexStatic {
 
     internal lateinit var globalFlexWebView: FlexWebView
 
     internal fun checkGlobalFlexWebView() {
         if(!::globalFlexWebView.isInitialized) throw FlexException(FlexException.ERROR8)
+    }
+
+    fun getGlobalFlexWebView(): FlexWebView? {
+        if(!::globalFlexWebView.isInitialized) return null
+        return globalFlexWebView
     }
 
     internal fun getActivity(context: Context): Activity? {

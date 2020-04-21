@@ -1,7 +1,6 @@
 package app.dvkyun.flexhybridand.demo;
 
 import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -13,10 +12,10 @@ import app.dvkyun.flexhybridand.FlexWebView;
 
 public class JSInterface {
 
-    private WebView mWebView;
+    private FlexWebView mWebView;
     private ThreadPoolExecutor mExecutor;
 
-    JSInterface(WebView webView) {
+    JSInterface(FlexWebView webView) {
         mWebView = webView;
         mExecutor = new ThreadPoolExecutor(2, 4, 10, TimeUnit.SECONDS, new LinkedBlockingDeque());
     }

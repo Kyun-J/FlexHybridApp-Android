@@ -24,13 +24,17 @@ for(let i = 0 ; i < Number.MAX_VALUE ; i++) {
             $flex[k] =
             function(...args) {
                 return new Promise(resolve => {
-                    const name = 'f' + Math.random().toString(10).substr(2,8);
-                    window[name] = (r) => {
-                        resolve(r);
-                        window[name] = undefined;
-                    };
                     const call = originF[v][k](...args);
-                    call.job(name);
+                    if(typeof call.job === "function") {
+                        const name = 'f' + Math.random().toString(10).substr(2,8);
+                        window[name] = (r) => {
+                            resolve(r);
+                            window[name] = undefined;
+                        };
+                        call.job(name);
+                    } else {
+                        resolve(call);
+                    }
                 });
             }
         }

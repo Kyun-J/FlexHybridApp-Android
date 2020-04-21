@@ -1,7 +1,7 @@
 apply plugin: 'com.novoda.bintray-release'
 
 group 'app.dvkyun.flexhybridand'
-version '0.1.1'
+version '0.1.1-1'
 
 /** Configurations for com.novoda.bintray-release plugin.
  *
@@ -11,8 +11,8 @@ version '0.1.1'
  */
 publish {
     // Required.
-    bintrayUser = System.getenv('BINTRAY_USER')
-    bintrayKey = System.getenv('BINTRAY_API_KEY')
+    bintrayUser = ''
+    bintrayKey = ''
     groupId = this.group
     publishVersion = this.version
     artifactId = 'flexhybridand'

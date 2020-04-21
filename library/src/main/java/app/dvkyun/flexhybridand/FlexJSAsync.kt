@@ -1,7 +1,6 @@
 package app.dvkyun.flexhybridand
 
 import android.webkit.JavascriptInterface
-import android.webkit.WebView
 import kotlinx.coroutines.*
 
 /*
@@ -9,7 +8,7 @@ import kotlinx.coroutines.*
 * */
 class FlexJSAsync {
 
-    private var mWebView: WebView
+    private var mWebView: FlexWebView
     private var mDeferred: Deferred<*>? = null
     private lateinit var mScope: CoroutineScope
 
@@ -18,11 +17,11 @@ class FlexJSAsync {
         mWebView = FlexStatic.globalFlexWebView
     }
 
-    constructor(webView: WebView) {
+    constructor(webView: FlexWebView) {
         mWebView = webView
     }
 
-    constructor(webView: WebView, scope: CoroutineScope) {
+    constructor(webView: FlexWebView, scope: CoroutineScope) {
         mWebView = webView
         mScope = scope
     }
@@ -32,7 +31,7 @@ class FlexJSAsync {
         return this
     }
 
-    fun setWebView(webView: WebView): FlexJSAsync {
+    fun setWebView(webView: FlexWebView): FlexJSAsync {
         mWebView = webView
         return this
     }

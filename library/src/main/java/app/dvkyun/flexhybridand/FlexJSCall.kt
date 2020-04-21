@@ -1,7 +1,6 @@
 package app.dvkyun.flexhybridand
 
 import android.webkit.JavascriptInterface
-import android.webkit.WebView
 import java.util.concurrent.Callable
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.ThreadPoolExecutor
@@ -13,7 +12,7 @@ import java.util.concurrent.TimeUnit
 * */
 class FlexJSCall {
 
-    private var mWebView: WebView
+    private var mWebView: FlexWebView
     private var mCallable: Callable<*>? = null
     private var oExecutor: ThreadPoolExecutor?
     private var isOutExecutor: Boolean
@@ -25,13 +24,13 @@ class FlexJSCall {
         isOutExecutor = false
     }
 
-    constructor(webView: WebView) {
+    constructor(webView: FlexWebView) {
         mWebView = webView
         oExecutor = null
         isOutExecutor = false
     }
 
-    constructor(webView: WebView, executor: ThreadPoolExecutor) {
+    constructor(webView: FlexWebView, executor: ThreadPoolExecutor) {
         mWebView = webView
         oExecutor = executor
         isOutExecutor = true
@@ -43,7 +42,7 @@ class FlexJSCall {
         return this
     }
 
-    fun setWebView(webView: WebView): FlexJSCall {
+    fun setWebView(webView: FlexWebView): FlexJSCall {
         mWebView = webView
         return this
     }
