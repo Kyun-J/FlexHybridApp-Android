@@ -29,7 +29,7 @@ public class JSInterface {
                mWebView.post(new Runnable() {
                    @Override
                    public void run() {
-                       ((FlexWebView)mWebView).evalFlexFunc("receive", Integer.toString(input).concat("isNative"));
+                       mWebView.evalFlexFunc("receive", Integer.toString(input).concat("isNative"));
                    }
                });
                return input + 1;

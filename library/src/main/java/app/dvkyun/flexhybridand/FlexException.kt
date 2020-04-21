@@ -10,7 +10,7 @@ class FlexException : Exception {
 
     companion object {
         const val ERROR1 = "Context must be Activity Context."
-        const val ERROR2 = "Javascript FunctionName Cannot be null."
+        const val ERROR2 = "The name of the returned javascript function is null. When using FlexJSAction, do not call send before it is ready."
         const val ERROR3 = "Callable Object Cannot be null."
         const val ERROR4 = "Deferred Object Cannot be null."
         const val ERROR5 = "BaseUrl is not set. Please specify BaseUrl first"

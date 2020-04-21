@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
         flexWebView.setBaseUrl("file:///android_asset");
         flexWebView.addJsInterface(new JSInterface(flexWebView));
         flexWebView.addJsInterface(new JSInterfaceKotlin(flexWebView));
+        flexWebView.addJsInterface(new JSActionInterface(flexWebView));
         flexWebView.loadUrl("file:///android_asset/html/test.html");
     }
 }
