@@ -31,7 +31,7 @@ dependencies {
 
 # JSInterface Return Promise
 
-> JavastriptInterface에서 Promise 타입으로 Return 받기 위해선 @JavascriptInterface 함수가 FlexJSCall, FlexJSAction, FlexJSAsync(Kotlin Only)중 하나를 Return 해야 합니다.
+JavastriptInterface에서 Promise 타입으로 Return 받기 위해선 @JavascriptInterface 함수가 FlexJSCall, FlexJSAction, FlexJSAsync(Kotlin Only)중 하나를 Return 해야 합니다.
 ```java
 @JavascriptInterface
 public FlexJSCall testCall(final int input) {
@@ -44,7 +44,7 @@ public FlexJSCall testCall(final int input) {
     });
 }
 ```
-> 위와 같이 코드를 작성할 경우, testCall 함수는 1초의 delay 후, WebView 상에서 Promise로 결과를 Return 받습니다.
+위와 같이 코드를 작성할 경우, testCall 함수는 1초의 delay 후, WebView 상에서 Promise로 결과를 Return 받습니다.
 ```js
 const test1 = async () => {
     const t = 0;
@@ -84,33 +84,33 @@ const test1 = async () => {
 > `$flex` Object는 FlexWebView에서 로드한 html 페이지에서 자동 생성됩니다.  
 다만 `$flex`는 FlexWebView에서 BaseUrl로 등록한 페이지의 하위에서만 생성되며 그 외의 페이지를 로드할 경우에는 생성되지 않습니다.  
 ## $flex 구성요소
-> ### `$flex.version`
+> #### `$flex.version`
 > 라이브러리의 버전을 가져옵니다.
 
-> ### `$flex.addEvent(event, callback)`
+> #### `$flex.addEvent(event, callback)`
 > *개발중*  
 > 이벤트 청취자를 추가합니다.
 
-> ### `$flex.init()`
+> #### `$flex.init()`
 > 초기 상태로 되돌립니다. 추가한 이벤트, web 함수가 전부 사라집니다.
 
-> ### `$flex.web`
+> #### `$flex.web`
 > web Object 인자를 통해 함수를 추가하면, `evalFlexFunc`를 통해 해당 함수들을 Native에서 손쉽게 호출할 수 있습니다.   
 
 
 # Native 클래스
 ## **FlexWebView**
-> ### `initialize()`
+> #### `initialize()`
 > FlexWebView에 설정된 WebView Settings를 초기 상태로 되돌립니다.
 
-> ### `setBaseUrl(url: String)`
+> #### `setBaseUrl(url: String)`
 > *BaseUrl을 세팅하지 않으면, FlexWebView는 동작하지 않습니다.*  
 https://github.com 처럼 기본이 되는 url을 설정합니다  
 
-> ### `getBaseUrl(): String?`
+> #### `getBaseUrl(): String?`
 > 설정된 BaseUrl을 Return합니다
 
-> ### `addJsInterface(cls: Any)`
+> #### `addJsInterface(cls: Any)`
 > @JavascriptInterface 함수가 포함된 class를 인자로 받아 인터페이스를 추가합니다.  
 기존 WebView의 addJavascriptInterface()함수와 달리 name 파라미터를 받지 않습니다.  
 이 함수를 통해 추가된 인터페이스는 Web에서 `$flex` Object를 통해 호출할 수 있습니다.
@@ -118,27 +118,27 @@ https://github.com 처럼 기본이 되는 url을 설정합니다
 > const NatieveValue = await $flex.likeThis();
 > ```
 
-> ### `getWebChromeClient(): FlexWebChromeClient`
+> #### `getWebChromeClient(): FlexWebChromeClient`
 > 기존 WebView와 달리 FlexWebChromeClient를 Retrun합니다
 
-> ### `setWebChromeClient(client: WebChromeClient)`
+> #### `setWebChromeClient(client: WebChromeClient)`
 > WebChromeClient를 인자로 받지만, FlexWebChromeClient로 Cast되지 못하면 오류가 발생합니다.
 
-> ### `getWebViewClient(): FlexWebViewClient`
+> #### `getWebViewClient(): FlexWebViewClient`
 > 기존 WebView와 달리 FlexWebViewClien를 Retrun합니다
 
-> ### `setWebViewClient(client: WebViewClient)`
+> #### `setWebViewClient(client: WebViewClient)`
 > WebChromeClient를 인자로 받지만, FlexWebViewClient로 Cast되지 못하면 오류가 발생합니다.
 
-> ### `evalFlexFunc(funcName: String, prompt: Any?)` 
-> ### `evalFlexFunc(funcName: String)`
+> #### `evalFlexFunc(funcName: String, prompt: Any?)` 
+> #### `evalFlexFunc(funcName: String)`
 > Web상에서 `$flex.web` Object 아래에 등록한 함수를 호출합니다.  
 Prompt는 Any를 인자로 받지만, 실제 JS 함수에는 String으로 변환되어 전달됩니다.
 
-> ### `flexInitInPage()`
+> #### `flexInitInPage()`
 > `$flex` Object 를 초기화합니다. `$flex.init()`와 동일합니다.
 
-> ### `setToGlobalFlexWebView(set: Boolean)`
+> #### `setToGlobalFlexWebView(set: Boolean)`
 > *이 함수는 주의가 필요합니다*  
 FlexWebView를 Static하게 global로 등록합니다.  
 `FlexStatic.getGlobalFlexWebView()`을 통해 등록한 FlexWebView를 호출할 수 있습니다.
@@ -152,25 +152,25 @@ FlexWebView를 Static하게 global로 등록합니다.
 ThreadPoolExecutor 및 Callable을 통해 Native 작업을 실시합니다.  
 Native 작업이 종료되면, 등록된 FlexWebView에 Promise형태로 Retrun값을 전달합니다.
 
-> ### `FlexJSCall()`
+> #### `FlexJSCall()`
 > *이 생성자는 주의가 필요합니다*  
 FlexJsCall에 GlobalFlexWebView를 등록하여 생성합니다.  
 Global하게 등록된 FlexWebView가 없으면, 오류가 발생합니다.
 
->### `FlexJSCall(webView: FlexWebView)`
+> #### `FlexJSCall(webView: FlexWebView)`
 > FlexJSCall을 생성합니다.
 
-> ### `FlexJSCall(webView: FlexWebView, executor: ThreadPoolExecutor)`
+> #### `FlexJSCall(webView: FlexWebView, executor: ThreadPoolExecutor)`
 > FlexJSCall을 생성하며, Callable을 특정 ThreadPoolExecutor 안에서 동작하도록 설정합니다.
 
-> ### `setExecutor(executor: ThreadPoolExecutor): FlexJSCall`
+> #### `setExecutor(executor: ThreadPoolExecutor): FlexJSCall`
 > Callable을 특정 ThreadPoolExecutor 안에서 동작하도록 설정합니다.
 설정하지 않을 시, 자체 ThreadPoolExecutor안에서 동작합니다.
 
-> ### `setWebView(webView: FlexWebView): FlexJSCall`
+> #### `setWebView(webView: FlexWebView): FlexJSCall`
 > 등록된 FlexWebView 재설정합니다.
 
-> ### `call(callable: Callable<*>): FlexJSCall`
+> #### `call(callable: Callable<*>): FlexJSCall`
 > callable을 등록합니다. callable내의 return값이 web에 Promise 형태로 전달됩니다.
 
 ## **FlexJSAsync**
@@ -179,24 +179,24 @@ FlexJSAsync은 FlexWebView 객체가 필수로 필요합니다.
 CoroutineScope의 Deferred를 통해 Native 작업을 실시합니다.  
 Native 작업이 종료되면, 등록된 FlexWebView에 Promise형태로 Retrun값을 전달합니다.  
 
-> ### `FlexJSAsync()`
+> #### `FlexJSAsync()`
 > *이 생성자는 주의가 필요합니다*  
 FlexJSAsync에 GlobalFlexWebView를 등록하여 생성합니다.  
 Global하게 등록된 FlexWebView가 없으면, 오류가 발생합니다.
 
-> ### `FlexJSAsync(webView: FlexWebView)`
+> #### `FlexJSAsync(webView: FlexWebView)`
 > FlexJSAsync를 생성합니다.
 
-> ### `FlexJSAsync(webView: FlexWebView, scope: CoroutineScope)`
+> #### `FlexJSAsync(webView: FlexWebView, scope: CoroutineScope)`
 > FlexJSAsync를 생성하며, Defferd 객체가 await 동작할 scope를 설정합니다.
 
-> ### `setScope(scope: CoroutineScope): FlexJSAsync`
+> #### `setScope(scope: CoroutineScope): FlexJSAsync`
 > Defferd 객체가 await 동작할 scope를 설정합니다.  
 설정하지 않을 시, 자체 CoroutineScope(Dispatchers.IO)안에서 동작합니다.
-> ### `setWebView(webView: FlexWebView): FlexJSAsync`
+> #### `setWebView(webView: FlexWebView): FlexJSAsync`
 > 등록된 WebView를 재설정합니다.
 
-> ### `launch(deferred: Deferred<*>): FlexJSAsync`
+> #### `launch(deferred: Deferred<*>): FlexJSAsync`
 > Defferd 객체를 등록합니다. 해당 Defferd의 반환값이 web에 Promise 형태로 전달됩니다.
 
 ## **FlexJSAction**
@@ -205,23 +205,23 @@ FlexJSAction은 FlexJSCall, FlexJSAsync보다 사용 규칙이 유연합니다.
 Callable, Defferd같은 Thread 관련한 설정이 없으며, Ready만 완료되면 직접 Web에 Promise형태로 Retrun값을 전달합니다.  
 개발자가 직접 Flow를 커스텀하여 사용하기에 적합합니다.
 
-> ### `FlexJSAction()`
+> #### `FlexJSAction()`
 > *이 생성자는 주의가 필요합니다*  
 FlexJSAction에 GlobalFlexWebView를 등록하여 생성합니다.  
 Global하게 등록된 FlexWebView가 없으면, 오류가 발생합니다.
 
-> ### `FlexJSAction(webView: FlexWebView)`
+> #### `FlexJSAction(webView: FlexWebView)`
 >FlexJSAction을 생성합니다.
 
-> ### `setWebView(webView: FlexWebView): FlexJSAction`
+> #### `setWebView(webView: FlexWebView): FlexJSAction`
 > 등록된 WebView를 재설정합니다.
 
-> ### `setReadyListener(listener: () -> Any)`
+> #### `setReadyListener(listener: () -> Any)`
 > ReadyListener를 등록합니다. FlexJSAction이 준비 완료되면 인터페이스가 호출됩니다.  
 인터페이스에서 return한 값이 web에 Promise 형태로 전달됩니다.
 
-> ### `isReady(): Boolean`
+> #### `isReady(): Boolean`
 > FlexJSAction의 준비 여부를 반환합니다.
 
-> ### `send(value: Any?)`
+> #### `send(value: Any?)`
 > 직접 web에 값을 전달합니다. FlexJSAction이 준비된 상태가 아니라면 Execption이 발생합니다.
