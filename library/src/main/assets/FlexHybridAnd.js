@@ -15,10 +15,8 @@ Object.defineProperties($flex,
 const originF = {};
 for(let i = 0 ; i < Number.MAX_VALUE ; i++) {
     const v = 'flexAnd' + i;
-    originF[v] = window[v];
-    if(originF[v] === undefined) {
-        break;
-    }
+    if(originF[v] === undefined) originF[v] = window[v];
+    if(originF[v] === undefined) break;
     Object.keys(originF[v]).forEach(k => {
         if(Object.keys($flex).findIndex(n => n === k) === -1) {
             $flex[k] =
