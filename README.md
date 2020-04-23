@@ -1,6 +1,8 @@
 
 [한국어 README](https://github.com/Kyun-J/FlexHybridApp-Android/blob/master/README-ko.md)
 
+### ***iOS version under development***
+
 # FlexibleHybrid
 FlexibleHybridApp is a library that provides various convenience functions to develop HybridApp, such as implementing Web-> Native Call as a promise.
 
@@ -13,7 +15,7 @@ dependencies {
     implementation 'app.dvkyun.flexhybridand:flexhybridand:0.1.2'
 }
 ```
-1. Use jitpack 
+2. Use jitpack 
 
 Add to your project build.gradle
 ```gradle
