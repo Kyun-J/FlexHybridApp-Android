@@ -84,7 +84,7 @@ window.onload = function() {
 ```
 The `$flex` Object is automatically generated from the html page loaded by FlexWebView.  
 However, `$flex` is created only in part of the page registered as BaseUrl in FlexWebView and is not created when loading other pages.
-## $flex 구성요소
+## $flex component
 #### `$flex.version`
 > Get the version of the library.
 
