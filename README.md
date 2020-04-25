@@ -35,7 +35,7 @@ dependencies {
 
 # JavaScriptInterface with Promise Return
 
-To return from JavastriptInterface to Promise type, @JavascriptInterface function must return one of FlexJSCall, FlexJSAction, and FlexJSAsync (Kotlin Only).
+To return from JavascriptInterface to Promise type, @JavascriptInterface function must return one of FlexJSCall, FlexJSAction, and FlexJSAsync (Kotlin Only).
 ```java
 @JavascriptInterface
 public FlexJSCall testCall(final int input) {
@@ -70,7 +70,7 @@ fun likeThis(): FlexJSAction {
 ```js
 // in js
 ....
-const NatieveValue = await $flex.likeThis();
+const NativeValue = await $flex.likeThis();
 ```
 If you create a function in `$flex.web`, you can easily call these functions in Native through `evalFlexFunc` of FlexWebView.
 ```kt
@@ -118,20 +118,20 @@ Set the default url like https://github.com.
 Unlike the existing WebView's addJavascriptInterface () function, it does not receive the name parameter.  
 The interface added through this function can be called through the `$flex` Object on the web.
 > ```js
-> const NatieveValue = await $flex.likeThis();
+> const NativeValue = await $flex.likeThis();
 > ```
 
 #### `getWebChromeClient(): FlexWebChromeClient`
 > Unlike base WebView, it returns FlexWebChromeClient.
 
 #### `setWebChromeClient(client: WebChromeClient)`
-> WebChromeClient is taken as an argument, but an Execption occurs if it cannot be cast to FlexWebChromeClient.
+> WebChromeClient is taken as an argument, but an Exception occurs if it cannot be cast to FlexWebChromeClient.
 
 #### `getWebViewClient(): FlexWebViewClient`
 > Unlike base WebView, it returns FlexWebViewClient.
 
 #### `setWebViewClient(client: WebViewClient)`
-> WebViewClient is taken as an argument, but an Execption occurs if it cannot be cast to FlexWebViewClient.
+> WebViewClient is taken as an argument, but an Exception occurs if it cannot be cast to FlexWebViewClient.
 
 #### `evalFlexFunc(funcName: String, prompt: Any?)` 
 #### `evalFlexFunc(funcName: String)`
@@ -159,7 +159,7 @@ It is suitable for developers to use Flow directly.
 #### `FlexJSAction()`
 > *This constructor needs attention*  
 Create by registering GlobalFlexWebView in FlexJSAction.  
-If there is no Globally registered FlexWebView, an Execption occurs.
+If there is no Globally registered FlexWebView, an Exception occurs.
 
 #### `FlexJSAction(webView: FlexWebView)`
 > Create FlexJSAction.
@@ -175,17 +175,17 @@ The value returned from the interface is delivered to the web in the form of a p
 > Returns whether FlexJSAction is `Ready`.
 
 #### `send(value: Any?)`
-> Pass values directly to the web. Execption occurs if FlexJSAction is not ready.  
+> Pass values directly to the web. Exception occurs if FlexJSAction is not ready.
 
 ## **FlexJSCall**
 > FlexJSCall requires FlexWebView object.  
 Native work through ThreadPoolExecutor and Callable.  
-When the native operation ends, the Retrun value is delivered to the registered FlexWebView in the form of promise.
+When the native operation ends, the Return value is delivered to the registered FlexWebView in the form of promise.
 
 #### `FlexJSCall()`
 > *This constructor needs attention*  
 Create by registering GlobalFlexWebView in FlexJsCall.  
-If there is no Globally registered FlexWebView, an Execption occurs.
+If there is no Globally registered FlexWebView, an Exception occurs.
 
 #### `FlexJSCall(webView: FlexWebView)`
 > Create FlexJSCall.
@@ -207,7 +207,7 @@ If not set, it operates in its own ThreadPoolExecutor.
 > *This class is for Kotlin only.*  
 FlexJSAsync requires FlexWebView object.  
 Native work is performed through Deferred of CoroutineScope.  
-When the native operation ends, the Retrun value is delivered to the registered FlexWebView in the form of promise.
+When the native operation ends, the Return value is delivered to the registered FlexWebView in the form of promise.
 
 #### `FlexJSAsync()`
 > *This constructor needs attention*  

@@ -6,8 +6,8 @@ const events = [];
 window.$flex = {};
 Object.defineProperties($flex,
     {
-        version: { value: '0.1.2', writable: false },
-        addEvent: { value: function(event, callback) { events.push({ e: event, c: callback }) }, writable: false },
+        version: { value: '0.1.3', writable: false },
+        addEventListener: { value: function(event, callback) { events.push({ e: event, c: callback }) }, writable: false },
         init: { value: function() { window.Function(script)(); }, writable: false },
         web: { value: {}, writable: false }
     }
@@ -41,7 +41,7 @@ for(let i = 0 ; i < Number.MAX_VALUE ; i++) {
 }
 const frames = window.frames;
 for(let i = 0 ; i < frames.length; i++) {
-    frames[i].Function("let lib=" + script + ";window.Function(lib)();lib=undefined;")();
+    frames[i].Function("let lib=" + script + ";window.Function(lib)(),lib=void 0;")();
 }
 })();`;
 window.Function(lib)();
