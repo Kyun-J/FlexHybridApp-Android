@@ -13,23 +13,32 @@ Object.defineProperties($flex,
     }
 )
 const originF = {};
+const genFName = () => {
+    const name = 'f' + Math.random().toString(10).substr(2,8);
+    if(window[name] === undefined) {
+        return Promise.resolve(name)
+    } else {
+        return Promise.resolve(genFName())
+    }
+}
 for(let i = 0 ; i < Number.MAX_VALUE ; i++) {
     const v = 'flexAnd' + i;
     if(originF[v] === undefined) originF[v] = window[v];
     if(originF[v] === undefined) break;
     Object.keys(originF[v]).forEach(k => {
-        if(Object.keys($flex).findIndex(n => n === k) === -1) {
+        if($flex[k] === undefined) {
             $flex[k] =
             function(...args) {
                 return new Promise(resolve => {
                     const call = originF[v][k](...args);
                     if(typeof call.job === "function") {
-                        const name = 'f' + Math.random().toString(10).substr(2,8);
-                        window[name] = (r) => {
-                            resolve(r);
-                            window[name] = undefined;
-                        };
-                        call.job(name);
+                        genFName().then(name => {
+                            window[name] = (r) => {
+                                resolve(r);
+                                window[name] = undefined;
+                            };
+                            call.job(name);
+                        });
                     } else {
                         resolve(call);
                     }
