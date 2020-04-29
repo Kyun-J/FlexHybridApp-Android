@@ -2,17 +2,16 @@
 
 let lib = `(function() {
 const script = lib;
-const events = [];
+const listeners = [];
 window.$flex = {};
 Object.defineProperties($flex,
     {
-        version: { value: '0.1.3', writable: false },
-        addEventListener: { value: function(event, callback) { events.push({ e: event, c: callback }) }, writable: false },
+        version: { value: '0.1.2.1', writable: false },
+        addEventListener: { value: function(event, callback) { listeners.push({ e: event, c: callback }) }, writable: false },
         init: { value: function() { window.Function(script)(); }, writable: false },
         web: { value: {}, writable: false }
     }
 )
-const originF = {};
 const genFName = () => {
     const name = 'f' + Math.random().toString(10).substr(2,8);
     if(window[name] === undefined) {
@@ -21,6 +20,14 @@ const genFName = () => {
         return Promise.resolve(genFName())
     }
 }
+const triggerEventListener = (name, val) => {
+    listeners.forEach(element => {
+        if(element.e === name && typeof element.c === 'function') {
+            element.c(val);
+        }
+    });
+}
+const originF = {};
 for(let i = 0 ; i < Number.MAX_VALUE ; i++) {
     const v = 'flexAnd' + i;
     if(originF[v] === undefined) originF[v] = window[v];
@@ -35,7 +42,7 @@ for(let i = 0 ; i < Number.MAX_VALUE ; i++) {
                         genFName().then(name => {
                             window[name] = (r) => {
                                 resolve(r);
-                                window[name] = undefined;
+                                delete window[name];
                             };
                             call.job(name);
                         });
