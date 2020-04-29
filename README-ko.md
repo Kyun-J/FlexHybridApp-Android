@@ -8,7 +8,7 @@ FlexibleHybridApp은 Web->Native Call을 Promise로 구현하는 등, HybridApp�
 모듈의 build.gradle에 다음을 추가.
 ```gradle
 dependencies {
-    implementation 'app.dvkyun.flexhybridand:flexhybridand:0.1.2'
+    implementation 'app.dvkyun.flexhybridand:flexhybridand:0.1.2.1'
 }
 ```
 2. jitpack 사용  
@@ -25,7 +25,7 @@ allprojects {
 그후 모듈의 build.gradle에 다음을 추가
 ```gradle
 dependencies {
-        implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.1.2'
+        implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.1.2.1'
 }
 ```
 
@@ -87,7 +87,7 @@ window.onload = function() {
 #### `$flex.version`
 > 라이브러리의 버전을 가져옵니다.
 
-#### `$flex.addEvent(event, callback)`
+#### `$flex.addEventListener(event, callback)`
 > *개발중*  
 > 이벤트 청취자를 추가합니다.
 

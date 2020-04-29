@@ -12,7 +12,7 @@ FlexibleHybridApp is a library that provides various convenience functions to de
 Add to the module's build.gradle 
 ```gradle
 dependencies {
-    implementation 'app.dvkyun.flexhybridand:flexhybridand:0.1.2'
+    implementation 'app.dvkyun.flexhybridand:flexhybridand:0.1.2.1'
 }
 ```
 2. Use jitpack 
@@ -29,7 +29,7 @@ allprojects {
 Add to the module's build.gradle 
 ```gradle
 dependencies {
-        implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.1.2'
+        implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.1.2.1'
 }
 ```
 
@@ -90,7 +90,7 @@ However, `$flex` is created only in part of the page registered as BaseUrl in Fl
 #### `$flex.version`
 > Get the version of the library.
 
-#### `$flex.addEvent(event, callback)`
+#### `$flex.addEventListener(event, callback)`
 > *developing*  
 > Add an event listener.
 
