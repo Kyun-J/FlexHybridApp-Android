@@ -6,12 +6,18 @@ const listeners = [];
 window.$flex = {};
 Object.defineProperties($flex,
     {
-        version: { value: '0.1.2.1', writable: false },
+        version: { value: '0.2', writable: false },
         addEventListener: { value: function(event, callback) { listeners.push({ e: event, c: callback }) }, writable: false },
         init: { value: function() { window.Function(script)(); }, writable: false },
         web: { value: {}, writable: false }
     }
 )
+const objArrToString = (args) => {
+    for(let i = 0 ; i < args.length ; i++) {
+        if(Array.isArray(args[i]))
+    }
+    return Promise.resolve(args);
+}
 const genFName = () => {
     const name = 'f' + Math.random().toString(10).substr(2,8);
     if(window[name] === undefined) {
@@ -53,12 +59,17 @@ for(let i = 0 ; i < Number.MAX_VALUE ; i++) {
             }
         }
     });
-    window[v] = undefined;
+    delete window[v];
 }
 const frames = window.frames;
 for(let i = 0 ; i < frames.length; i++) {
     frames[i].Function("let lib=" + script + ";window.Function(lib)(),lib=void 0;")();
 }
+setTimeout(() => {
+    if(typeof window.onFlexLoad === 'function') {
+        window.onFlexLoad()
+    }
+},0)
 })();`;
 window.Function(lib)();
 lib = undefined;

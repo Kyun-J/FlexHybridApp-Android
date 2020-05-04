@@ -17,5 +17,6 @@ class FlexException : Exception {
         const val ERROR6 = "ViewClient or ChromeClient must be FlexViewClient or FlexChromeClient"
         const val ERROR7 = "Callable or Deferred Job already assigned"
         const val ERROR8 = "Static Global Variable is not initialized."
+        const val ERROR9 = ""
     }
 }

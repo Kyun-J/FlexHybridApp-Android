@@ -81,7 +81,7 @@ class FlexJSCall {
                 mCallable = null
             }
             mWebView.post {
-                FlexStatic.evaluateJavaScript(mWebView, "$javascriptFunctionName(\'${value.toString()}\');")
+                FlexStatic.evaluateJavaScript(mWebView, "$javascriptFunctionName(${FlexStatic.convertValue(value)});")
             }
             if(!isOutExecutor) {
                 oExecutor?.shutdown()

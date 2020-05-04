@@ -5,6 +5,8 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONObject;
+
 import app.dvkyun.flexhybridand.FlexWebView;
 
 public class MainActivity extends AppCompatActivity {
@@ -22,5 +24,6 @@ public class MainActivity extends AppCompatActivity {
         flexWebView.addJsInterface(new JSInterfaceKotlin(flexWebView));
         flexWebView.addJsInterface(new JSActionInterface(flexWebView));
         flexWebView.loadUrl("file:///android_asset/html/test.html");
+
     }
 }

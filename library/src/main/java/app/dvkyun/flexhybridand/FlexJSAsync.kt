@@ -64,7 +64,7 @@ class FlexJSAsync {
                 mDeferred = null
             }
             launch(Dispatchers.Main) {
-                FlexStatic.evaluateJavaScript(mWebView, "$javascriptFunctionName(\'${value.toString()}\');")
+                FlexStatic.evaluateJavaScript(mWebView, "$javascriptFunctionName(${FlexStatic.convertValue(value)});")
             }
         }
     }

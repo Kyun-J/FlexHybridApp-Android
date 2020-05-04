@@ -1,10 +1,10 @@
 package app.dvkyun.flexhybridand.demo;
 
+import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import app.dvkyun.flexhybridand.FlexJSAction;
 import app.dvkyun.flexhybridand.FlexWebView;
-import kotlin.jvm.functions.Function0;
 
 public class JSActionInterface {
     private FlexWebView mWebView;
@@ -16,18 +16,19 @@ public class JSActionInterface {
     @JavascriptInterface
     public FlexJSAction testAction(final int input) {
         final FlexJSAction action = new FlexJSAction(mWebView);
-        //do something in other thread
-        //{
-            if (action.isReady()) {
-                action.send(input + 1);
-            }
-        //}
-        action.setReadyListener(new Function0<Object>() {
-            @Override
-            public Object invoke() {
-                return input + 1;
-            }
-        });
+        someOtherWork(action, input);
         return action;
     }
+
+    void someOtherWork(FlexJSAction action, int input) {
+        action.promiseReturn(input + 1);
+    }
+
+    @JavascriptInterface
+    public FlexJSAction testAny(final Object input) {
+        final FlexJSAction action = new FlexJSAction(mWebView);
+        action.promiseReturn(null);
+        return action;
+    }
+
 }

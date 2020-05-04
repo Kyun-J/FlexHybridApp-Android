@@ -22,29 +22,29 @@ class FlexJSAction {
         return this
     }
 
-    fun setReadyListener(listener: () -> Any) {
-        readyListener = listener
-    }
-
-    fun isReady(): Boolean {
-        return jsFunctionName != null
-    }
-
     @JavascriptInterface
     fun job(javascriptFunctionName: String?) {
         if(javascriptFunctionName == null) {
             throw FlexException(FlexException.ERROR2)
         }
         jsFunctionName = javascriptFunctionName
-        send(readyListener?.invoke())
+        readyListener?.invoke()
     }
 
-    fun send(value: Any?) {
+    fun promiseReturn(value: Any?) {
         if(jsFunctionName == null) {
-            throw FlexException(FlexException.ERROR2)
-        }
-        mWebView.post {
-            FlexStatic.evaluateJavaScript(mWebView, "$jsFunctionName(\'${value.toString()}\');")
+            readyListener = {
+                readyListener = null
+                mWebView.post {
+                    FlexStatic.evaluateJavaScript(mWebView, "$jsFunctionName(${FlexStatic.convertValue(value)});")
+                    this.jsFunctionName = null
+                }
+            }
+        } else {
+            mWebView.post {
+                FlexStatic.evaluateJavaScript(mWebView, "$jsFunctionName(${FlexStatic.convertValue(value)});")
+                this.jsFunctionName = null
+            }
         }
     }
 

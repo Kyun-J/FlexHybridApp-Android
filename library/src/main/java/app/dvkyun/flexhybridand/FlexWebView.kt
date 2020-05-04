@@ -5,10 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.util.AttributeSet
-import android.webkit.WebChromeClient
-import android.webkit.WebSettings
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 import androidx.annotation.RequiresApi
 import java.io.BufferedReader
 
@@ -17,6 +14,8 @@ class FlexWebView: WebView {
     private val mActivity: Activity? = FlexStatic.getActivity(context)
     private val flexJsString: String
     private var interfaceCount = 0
+    private val interfaces: HashMap<String,(Array<Any?>?) -> Any?> = HashMap()
+
     internal var baseUrl: String? = null
 
     constructor(context: Context) : super(context)
@@ -28,7 +27,7 @@ class FlexWebView: WebView {
     init {
         if(mActivity == null) throw FlexException(FlexException.ERROR1)
         flexJsString = try {
-            val reader = BufferedReader(context.assets.open("FlexHybridAnd.min.js").reader())
+            val reader = BufferedReader(context.assets.open("FlexHybridAnd.js").reader())
             val sb = StringBuilder()
             var line: String?
             while (reader.readLine().also { line = it } != null) {
@@ -79,12 +78,16 @@ class FlexWebView: WebView {
         return baseUrl
     }
 
-    fun evalFlexFunc(funcName: String, prompt: Any?) {
-        FlexStatic.evaluateJavaScript(this,"window.\$flex.web.$funcName('${prompt.toString()}')")
-    }
-
     fun evalFlexFunc(funcName: String) {
         FlexStatic.evaluateJavaScript(this,"window.\$flex.web.$funcName()")
+    }
+
+    fun evalFlexFunc(funcName: String, returnListener: () -> Void) {
+        FlexStatic.evaluateJavaScript(this,"window.\$flex.web.$funcName()")
+    }
+
+    fun evalFlexFunc(funcName: String, argument: Any?) {
+        FlexStatic.evaluateJavaScript(this,"window.\$flex.web.$funcName(${FlexStatic.convertValue(argument)})")
     }
 
     fun setToGlobalFlexWebView(set: Boolean) {
@@ -127,5 +130,12 @@ class FlexWebView: WebView {
     override fun loadUrl(url: String?, additionalHttpHeaders: MutableMap<String, String>?) {
         if(baseUrl == null) throw FlexException(FlexException.ERROR5)
         super.loadUrl(url, additionalHttpHeaders)
+    }
+
+    private class FlexInterface {
+        @JavascriptInterface
+        fun flexInterface(input: String) {
+
+        }
     }
 }
