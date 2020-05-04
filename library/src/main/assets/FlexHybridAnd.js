@@ -28,6 +28,8 @@ const triggerEventListener = (name, val) => {
         }
     });
 }
+const define = window.flexdefine;
+delete window.flexdefine;
 keys.forEach(key => {
     if($flex[key] === undefined) {
         $flex[key] =
@@ -38,7 +40,7 @@ keys.forEach(key => {
                         resolve(r);
                         delete window[name];
                     };
-                    window.flexdefine.flexInterface(JSON.stringify({intName:key,funName:name,arguments:args}));
+                    define.flexInterface(JSON.stringify({intName:key,funName:name,arguments:args}));
                 });
             });
         }
