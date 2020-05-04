@@ -5,9 +5,8 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.json.JSONObject;
-
 import app.dvkyun.flexhybridand.FlexWebView;
+import kotlin.jvm.functions.Function1;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,10 +19,12 @@ public class MainActivity extends AppCompatActivity {
         flexWebView.setWebContentsDebuggingEnabled(true);
         flexWebView.setToGlobalFlexWebView(true);
         flexWebView.setBaseUrl("file:///android_asset");
-        flexWebView.addJsInterface(new JSInterface(flexWebView));
-        flexWebView.addJsInterface(new JSInterfaceKotlin(flexWebView));
-        flexWebView.addJsInterface(new JSActionInterface(flexWebView));
+        flexWebView.setInterface("testCall", new Function1<Object[], Object>() {
+            @Override
+            public Object invoke(Object[] objects) {
+                return ((int) objects[0]) + 1;
+            }
+        });
         flexWebView.loadUrl("file:///android_asset/html/test.html");
-
     }
 }

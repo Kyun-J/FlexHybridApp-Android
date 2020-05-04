@@ -7,15 +7,22 @@ import android.os.Build
 import android.util.AttributeSet
 import android.webkit.*
 import androidx.annotation.RequiresApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 import java.io.BufferedReader
 
 class FlexWebView: WebView {
 
-    private val mActivity: Activity? = FlexStatic.getActivity(context)
-    private val flexJsString: String
-    private var interfaceCount = 0
+    private val mActivity: Activity? = FlexUtil.getActivity(context)
+    private var flexJsString: String
     private val interfaces: HashMap<String,(Array<Any?>?) -> Any?> = HashMap()
-
+    private val actions: HashMap<String,FlexAction> = HashMap()
+    private val scope = CoroutineScope(Dispatchers.Default)
+    private var isAfterFirstLoad = false
     internal var baseUrl: String? = null
 
     constructor(context: Context) : super(context)
@@ -40,6 +47,7 @@ class FlexWebView: WebView {
         }
         webChromeClient = FlexWebChromeClient(mActivity)
         webViewClient = FlexWebViewClient()
+        super.addJavascriptInterface(FlexInterface(), "flexdefine")
         initialize()
     }
 
@@ -71,37 +79,52 @@ class FlexWebView: WebView {
     }
 
     fun setBaseUrl(url: String) {
+        if(baseUrl != null) {
+            throw FlexException(FlexException.ERROR7)
+        }
         baseUrl = url
     }
 
-    fun getBaseUrl(): String? {
-        return baseUrl
+    fun getBaseUrl(): String? = baseUrl
+
+    fun setInterface(name: String, lambda: (Array<Any?>?) -> Any?) {
+        if(isAfterFirstLoad) {
+            //error
+        }
+        if(interfaces[name] != null) {
+            //error
+        }
+        interfaces[name] = lambda
+    }
+
+    fun setAction(name: String, action: FlexAction) {
+        if(isAfterFirstLoad) {
+            //error
+        }
+        if(actions[name] != null) {
+            //error
+        }
+        actions[name] = action
+    }
+
+    fun getAction(name: String): FlexAction? {
+        return actions[name]
     }
 
     fun evalFlexFunc(funcName: String) {
-        FlexStatic.evaluateJavaScript(this,"window.\$flex.web.$funcName()")
+        FlexUtil.evaluateJavaScript(this,"window.\$flex.web.$funcName()")
     }
 
     fun evalFlexFunc(funcName: String, returnListener: () -> Void) {
-        FlexStatic.evaluateJavaScript(this,"window.\$flex.web.$funcName()")
+        FlexUtil.evaluateJavaScript(this,"window.\$flex.web.$funcName()")
     }
 
-    fun evalFlexFunc(funcName: String, argument: Any?) {
-        FlexStatic.evaluateJavaScript(this,"window.\$flex.web.$funcName(${FlexStatic.convertValue(argument)})")
-    }
+//    fun evalFlexFunc(funcName: String, argument: Any?) {
+//        FlexUtil.evaluateJavaScript(this,"window.\$flex.web.$funcName(${FlexUtil.convertValue(argument)})")
+//    }
 
     fun setToGlobalFlexWebView(set: Boolean) {
-        if(set) FlexStatic.globalFlexWebView = this
-    }
-
-    fun flexInitInPage() {
-        FlexStatic.evaluateJavaScript(this, flexJsString)
-    }
-
-    @SuppressLint("JavascriptInterface")
-    fun addJsInterface(cls: Any) {
-        addJavascriptInterface(cls, "flexAnd$interfaceCount")
-        interfaceCount += 1
+        if(set) FlexUtil.globalFlexWebView = this
     }
 
     override fun getWebChromeClient(): FlexWebChromeClient {
@@ -109,7 +132,7 @@ class FlexWebView: WebView {
     }
 
     override fun setWebChromeClient(client: WebChromeClient) {
-        if(client !is FlexWebChromeClient) throw FlexException(FlexException.ERROR6)
+        if(client !is FlexWebChromeClient) throw FlexException(FlexException.ERROR3)
         super.setWebChromeClient(client)
     }
 
@@ -118,24 +141,80 @@ class FlexWebView: WebView {
     }
 
     override fun setWebViewClient(client: WebViewClient) {
-        if(client !is FlexWebViewClient) throw FlexException(FlexException.ERROR6)
+        if(client !is FlexWebViewClient) throw FlexException(FlexException.ERROR3)
         super.setWebViewClient(client)
     }
 
     override fun loadUrl(url: String?) {
-        if(baseUrl == null) throw FlexException(FlexException.ERROR5)
+        if(baseUrl == null) throw FlexException(FlexException.ERROR2)
         super.loadUrl(url)
     }
 
     override fun loadUrl(url: String?, additionalHttpHeaders: MutableMap<String, String>?) {
-        if(baseUrl == null) throw FlexException(FlexException.ERROR5)
+        if(baseUrl == null) throw FlexException(FlexException.ERROR2)
         super.loadUrl(url, additionalHttpHeaders)
     }
 
-    private class FlexInterface {
+    @SuppressLint("JavascriptInterface")
+    override fun addJavascriptInterface(`object`: Any?, name: String?) {
+        if(name == "flexdefine") {
+            //error
+        }
+        super.addJavascriptInterface(`object`, name)
+    }
+
+    internal fun flexInitInPage() {
+        if(!isAfterFirstLoad) {
+            val keys = StringBuilder()
+            if(interfaces.size > 0 && actions.size > 0) {
+                keys.append("[\"")
+                keys.append(interfaces.keys.joinToString(separator = "\",\""))
+                keys.append("\",\"")
+                keys.append(actions.keys.joinToString(separator = "\",\""))
+                keys.append("\"]")
+            } else if(interfaces.size > 0) {
+                keys.append("[\"")
+                keys.append(interfaces.keys.joinToString(separator = "\",\""))
+                keys.append("\"]")
+            } else if(actions.size > 0) {
+                keys.append("[\"")
+                keys.append(actions.keys.joinToString(separator = "\",\""))
+                keys.append("\"]")
+            } else {
+                keys.append("[]")
+            }
+            flexJsString = flexJsString.replaceFirst("keysfromAnd",keys.toString())
+        }
+        isAfterFirstLoad = true
+        FlexUtil.evaluateJavaScript(this, flexJsString)
+    }
+
+    inner class FlexInterface {
         @JavascriptInterface
         fun flexInterface(input: String) {
-
+            scope.launch {
+                try {
+                    val data = JSONObject(input)
+                    val intName : String = data.getString("intName")
+                    val fName : String = data.getString("funName")
+                    val args : JSONArray? = data.getJSONArray("arguments")
+                    if(interfaces[intName] != null) {
+                        val value = interfaces[intName]?.invoke(FlexUtil.convertJSONArray(args))
+                        if(value == null) {
+                            FlexUtil.evaluateJavaScript(this@FlexWebView, "window.${fName}()")
+                        } else {
+                            FlexUtil.evaluateJavaScript(this@FlexWebView, "window.${fName}(${FlexUtil.convertValue(value)})")
+                        }
+                    } else if(actions[intName] != null) {
+                        val action = actions[intName]!!
+                        action.flexWebView = this@FlexWebView
+                        action.doAction.invoke(action, FlexUtil.convertJSONArray(args))
+                        action.setFunName(fName)
+                    }
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
 }
