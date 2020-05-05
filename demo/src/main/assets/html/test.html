@@ -11,6 +11,12 @@
         console.log('Return by Native --- ' + z);
         t = z
     }
+    const t2 = async () => {
+        console.log("Call Action -- " + Date.now());
+        const z = await $flex.testAction();
+        console.log("Response Action -- " + Date.now());
+        console.log("Receive Data -- " + z);
+    }
     window.onFlexLoad = function() {
         $flex.web.receive = function(data) {
             console.log('Received by Native ---- ' + data);
@@ -19,8 +25,7 @@
 </script>
 <body style="width: 100%; height: 600px;">
 <button onclick='t1()' style="width: 100%; height: 150px;">test1</button>
-<!--<button onclick='t2()' style="width: 100%; height: 150px;">test Async</button>-->
-<!--<button onclick='t3()' style="width: 100%; height: 150px;">test Action</button>-->
+<button onclick='t2()' style="width: 100%; height: 150px;">test Action</button>
 <!--<button onclick='$flex.testAny()' style="width: 100%; height: 150px;">test Any</button>-->
 </body>
 </html>

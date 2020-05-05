@@ -1,36 +1,19 @@
 package app.dvkyun.flexhybridand
 
-class FlexAction(action :(self: FlexAction, arguments: Array<Any?>?) -> Unit) {
+class FlexAction(name: String, webView: FlexWebView) {
 
-    internal val doAction: (self: FlexAction, arguments: Array<Any?>?) -> Unit = action
-    private var funName: String? = null
-    private var onReady: (() -> Unit)? = null
-    internal var flexWebView: FlexWebView? = null
+    private var funName: String = name
+    private var flexWebView: FlexWebView = webView
 
-    internal fun setFunName(name: String) {
-        funName = name
-        onReady?.invoke()
-    }
+    internal var afterReturn: (() -> Unit)? = null
 
-    private fun action(response: Any?) {
+    fun promiseReturn(response: Any?) {
         if(response == null) {
             FlexUtil.evaluateJavaScript(flexWebView,"window.${funName}()")
         } else {
             FlexUtil.evaluateJavaScript(flexWebView,"window.${funName}(${FlexUtil.convertValue(response)})")
         }
-        funName = null
-        flexWebView = null
-    }
-
-    fun promiseReturn(response: Any?) {
-        if(funName != null) {
-            action(response)
-        } else {
-            onReady = {
-                onReady = null
-                action(response)
-            }
-        }
+        afterReturn?.invoke()
     }
 
 }
