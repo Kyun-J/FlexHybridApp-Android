@@ -14,13 +14,14 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.BufferedReader
+import java.lang.reflect.Modifier
 import kotlin.random.Random
 
 class FlexWebView: WebView {
 
     private val mActivity: Activity? = FlexUtil.getActivity(context)
-    private var interfaces: HashMap<String,(JSONArray?) -> Any?> = HashMap()
-    private var actions: HashMap<String,(action: FlexAction?, arguments: JSONArray?) -> Unit> = HashMap()
+    private val interfaces: HashMap<String, (arguments: JSONArray?) -> Any?> = HashMap()
+    private val actions: HashMap<String, (action: FlexAction?, arguments: JSONArray?) -> Unit> = HashMap()
     private val returnFromWeb: HashMap<Int,(Any?) -> Unit> = HashMap()
     private val internalInterface = arrayOf("flexreturn")
     private val scope = CoroutineScope(Dispatchers.Default)
@@ -117,12 +118,34 @@ class FlexWebView: WebView {
         actions[name] = action
     }
 
-    fun setFlexInterface(flexInterfaces: FlexInterfaces) {
-        if(isAfterFirstLoad) {
-            throw FlexException(FlexException.ERROR7)
+    fun addFlexInterface(flexInterfaces: Any) {
+        flexInterfaces::class.java.declaredMethods.forEach { method ->
+            if(method.getAnnotation(FlexFuncInterface::class.java) != null) {
+                if(method.modifiers != Modifier.PUBLIC)
+                    throw FlexException(FlexException.ERROR13)
+                if(method.parameterTypes.size != 1 || method.parameterTypes[0].name != JSONArray::class.java.name)
+                    throw FlexException(FlexException.ERROR11)
+                interfaces[method.name] = { arguments ->
+                    method.invoke(flexInterfaces, arguments)
+                }
+            } else if(method.getAnnotation(FlexActionInterface::class.java) != null) {
+                if(method.modifiers != Modifier.PUBLIC)
+                    throw FlexException(FlexException.ERROR13)
+                if(method.parameterTypes.size != 2 || method.parameterTypes[0].name != FlexAction::class.java.name || method.parameterTypes[1].name != JSONArray::class.java.name)
+                    throw FlexException(FlexException.ERROR12)
+                actions[method.name] = { action, arguments ->
+                    method.invoke(flexInterfaces, action, arguments)
+                }
+            }
         }
-        interfaces = flexInterfaces.interfaces
-        actions = flexInterfaces.actions
+        if(flexInterfaces is FlexInterfaces) {
+            flexInterfaces.interfaces.keys.forEach {
+                setInterface(it, flexInterfaces.interfaces[it]!!)
+            }
+            flexInterfaces.actions.keys.forEach {
+                setAction(it, flexInterfaces.actions[it]!!)
+            }
+        }
     }
 
     fun evalFlexFunc(funcName: String) {
@@ -230,7 +253,7 @@ class FlexWebView: WebView {
                         var action: FlexAction? = FlexAction(fName, this@FlexWebView)
                         action?.afterReturn = { action = null }
                         lambda.invoke(action, args)
-                    } else {
+                    }  else {
                         when(internalInterface.indexOf(intName)) {
                             0 -> {
                                 val iData = args!!.getJSONObject(0)

@@ -19,5 +19,8 @@ internal class FlexException : Exception {
         const val ERROR8 = "An interface or action with the same name has already been added."
         const val ERROR9 = "Interface or task name cannot be set to 'flex'."
         const val ERROR10 = "PromiseReturn cannot be called twice in a single FlexAction."
+        const val ERROR11 = "FlexFuncInterface can only have one parameter of JSONArray."
+        const val ERROR12 = "FlexActionInterface can only have 2 parameters in order of FlexAction and JSONArray."
+        const val ERROR13 = "FlexFuncInterface and FlexActionInterface must be public."
     }
 }
