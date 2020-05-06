@@ -1,13 +1,19 @@
 package app.dvkyun.flexhybridand.demo;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.Arrays;
+import java.util.HashMap;
+
 import app.dvkyun.flexhybridand.FlexAction;
+import app.dvkyun.flexhybridand.FlexUtil;
 import app.dvkyun.flexhybridand.FlexWebView;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -15,41 +21,82 @@ import kotlin.jvm.functions.Function2;
 
 public class MainActivity extends AppCompatActivity {
 
-    private HandlerThread testThread = new HandlerThread("testThread");
-    private Handler handler = new Handler(testThread.getLooper());
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        FlexWebView flexWebView = findViewById(R.id.flex_web_view);
+        final FlexWebView flexWebView = findViewById(R.id.flex_web_view);
 
         flexWebView.setWebContentsDebuggingEnabled(true);
         flexWebView.setBaseUrl("file:///android_asset");
-        flexWebView.setInterface("testCall", new Function1<Object[], Object>() {
+        flexWebView.getSettings().setTextZoom(200);
+
+        flexWebView.setInterface("test1", new Function1<JSONArray, Object>() {
             @Override
-            public Object invoke(Object[] arguments) {
-                return ((int) arguments[0]) + 1;
+            public Object invoke(JSONArray arguments) {
+                try {
+                    return arguments.getInt(0) + 1;
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    return null;
+                }
             }
         });
-        flexWebView.setAction("testAction", new Function2<FlexAction, Object[], Unit>() {
+        flexWebView.setAction("test2", new Function2<FlexAction, JSONArray, Unit>() {
             @Override
-            public Unit invoke(final FlexAction flexAction, Object[] arguments) {
-                handler.post(new Runnable() {
+            public Unit invoke(final FlexAction flexAction, JSONArray arguments) {
+                try {
+                    Thread.sleep(1000);
+                    flexAction.promiseReturn(null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        });
+        flexWebView.setInterface("test3", new Function1<JSONArray, Object>() {
+            @Override
+            public Object invoke(JSONArray arguments) {
+                Object[] args = FlexUtil.INSTANCE.convertJSONArray(arguments);
+                HashMap<String,Object> obj = (HashMap) args[0];
+                obj.put("arrayData", Arrays.toString((Object[]) obj.get("arrayData")));
+                Log.i("console", "Receive from web --- " + Arrays.toString(args));
+                return null;
+            }
+        });
+        flexWebView.setAction("test4", new Function2<FlexAction, JSONArray, Unit>() {
+            @Override
+            public Unit invoke(FlexAction flexAction, JSONArray arguments) {
+                HashMap<String,Object> data = new HashMap<>();
+                data.put("intData",1);
+                data.put("StringData","test");
+                data.put("doubleData",1.0000000001);
+                data.put("boolData", false);
+                Object[] arrayData = new Object[3];
+                arrayData[0] = 1;
+                arrayData[1] = 22;
+                arrayData[2] = 333;
+                data.put("arrayData", arrayData);
+                HashMap<String,Object> objectData = new HashMap<>();
+                objectData.put("o1",1);
+                objectData.put("o2",999.9999);
+                objectData.put("o3","dataO3");
+                data.put("objectData", objectData);
+                Log.i("console","Send to web --- " + data.toString());
+                flexAction.promiseReturn(data);
+                return null;
+            }
+        });
+        flexWebView.setInterface("test5", new Function1<JSONArray, Object>() {
+            @Override
+            public Object invoke(JSONArray objects) {
+                flexWebView.evalFlexFunc("webtest", "hi! $flex!", new Function1<Object, Unit>() {
                     @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(1000);
-                            String[] response = new String[2];
-                            response[0] = "1";
-                            response[1] = "010";
-                            flexAction.promiseReturn(response);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                    public Unit invoke(Object response) {
+                        Log.i("console", "Receive from web --- " + response.toString());
+                        return null;
                     }
                 });
-
                 return null;
             }
         });

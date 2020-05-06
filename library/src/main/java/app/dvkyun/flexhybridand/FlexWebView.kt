@@ -19,12 +19,11 @@ import kotlin.random.Random
 class FlexWebView: WebView {
 
     private val mActivity: Activity? = FlexUtil.getActivity(context)
-    private val interfaces: HashMap<String,(Array<Any?>?) -> Any?> = HashMap()
-    private val actions: HashMap<String,(action: FlexAction?, arguments: Array<Any?>?) -> Unit> = HashMap()
+    private var interfaces: HashMap<String,(JSONArray?) -> Any?> = HashMap()
+    private var actions: HashMap<String,(action: FlexAction?, arguments: JSONArray?) -> Unit> = HashMap()
     private val returnFromWeb: HashMap<Int,(Any?) -> Unit> = HashMap()
     private val internalInterface = arrayOf("flexreturn")
     private val scope = CoroutineScope(Dispatchers.Default)
-
 
     private var isAfterFirstLoad = false
     private var flexJsString: String
@@ -52,7 +51,7 @@ class FlexWebView: WebView {
         }
         webChromeClient = FlexWebChromeClient(mActivity)
         webViewClient = FlexWebViewClient()
-        super.addJavascriptInterface(FlexInterface(), "flexdefine")
+        super.addJavascriptInterface(InternalInterface(), "flexdefine")
         initialize()
     }
 
@@ -92,11 +91,11 @@ class FlexWebView: WebView {
 
     fun getBaseUrl(): String? = baseUrl
 
-    fun setInterface(name: String, lambda: (Array<Any?>?) -> Any?) {
+    fun setInterface(name: String, lambda: (JSONArray?) -> Any?) {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR7)
         }
-        if(interfaces[name] != null) {
+        if(interfaces[name] != null || actions[name] != null) {
             throw FlexException(FlexException.ERROR8)
         }
         if(name.contains("flex")) {
@@ -105,11 +104,11 @@ class FlexWebView: WebView {
         interfaces[name] = lambda
     }
 
-    fun setAction(name: String, action: (action: FlexAction?, arguments: Array<Any?>?) -> Unit) {
+    fun setAction(name: String, action: (action: FlexAction?, arguments: JSONArray?) -> Unit) {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR7)
         }
-        if(actions[name] != null) {
+        if(interfaces[name] != null || actions[name] != null) {
             throw FlexException(FlexException.ERROR8)
         }
         if(name.contains("flex")) {
@@ -118,13 +117,21 @@ class FlexWebView: WebView {
         actions[name] = action
     }
 
+    fun setFlexInterface(flexInterfaces: FlexInterfaces) {
+        if(isAfterFirstLoad) {
+            throw FlexException(FlexException.ERROR7)
+        }
+        interfaces = flexInterfaces.interfaces
+        actions = flexInterfaces.actions
+    }
+
     fun evalFlexFunc(funcName: String) {
         FlexUtil.evaluateJavaScript(this,"window.\$flex.web.$funcName()")
     }
 
-    fun evalFlexFunc(funcName: String, returnListener: (Any?) -> Unit) {
+    fun evalFlexFunc(funcName: String, response: (Any?) -> Unit) {
         val tID = Random.nextInt(10000)
-        returnFromWeb[tID] = returnListener
+        returnFromWeb[tID] = response
         FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.${funcName}(); \$flex.flexreturn({ TID: ${tID}, Value: V }); })(); void 0;")
     }
 
@@ -136,9 +143,9 @@ class FlexWebView: WebView {
         }
     }
 
-    fun evalFlexFunc(funcName: String, sendData: Any?, returnListener: (Any?) -> Unit) {
+    fun evalFlexFunc(funcName: String, sendData: Any?, response: (Any?) -> Unit) {
         val tID = Random.nextInt(10000)
-        returnFromWeb[tID] = returnListener
+        returnFromWeb[tID] = response
         if(sendData == null) {
             FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.${funcName}(); \$flex.flexreturn({ TID: ${tID}, Value: V }); })(); void 0;")
         } else {
@@ -202,7 +209,7 @@ class FlexWebView: WebView {
         FlexUtil.evaluateJavaScript(this, flexJsString)
     }
 
-    inner class FlexInterface {
+    inner class InternalInterface {
         @JavascriptInterface
         fun flexInterface(input: String) {
             scope.launch {
@@ -212,7 +219,7 @@ class FlexWebView: WebView {
                     val fName : String = data.getString("funName")
                     val args : JSONArray? = data.getJSONArray("arguments")
                     if(interfaces[intName] != null) {
-                        val value = interfaces[intName]?.invoke(FlexUtil.convertJSONArray(args))
+                        val value = interfaces[intName]?.invoke(args)
                         if(value == null) {
                             FlexUtil.evaluateJavaScript(this@FlexWebView, "window.${fName}()")
                         } else {
@@ -222,7 +229,7 @@ class FlexWebView: WebView {
                         val lambda = actions[intName]!!
                         var action: FlexAction? = FlexAction(fName, this@FlexWebView)
                         action?.afterReturn = { action = null }
-                        lambda.invoke(action, FlexUtil.convertJSONArray(args))
+                        lambda.invoke(action, args)
                     } else {
                         when(internalInterface.indexOf(intName)) {
                             0 -> {

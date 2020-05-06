@@ -7,25 +7,51 @@
     let t = 0;
     const t1 = async () => {
         console.log('Send to Native --- ' + t);
-        const z = await $flex.testCall(t);
+        const z = await $flex.test1(t);
         console.log('Return by Native --- ' + z);
         t = z
     }
     const t2 = async () => {
-        console.log("Call Action -- " + Date.now());
-        const z = await $flex.testAction();
-        console.log("Response Action -- " + Date.now());
-        console.log("Receive Data -- " + z);
+        const d1 = Date.now();
+        console.log("Call Action at -- " + d1);
+        await $flex.test2();
+        const d2 = Date.now();
+        console.log("Receive at -- " + d2);
+        console.log("Delay time -- " + (d2 - d1));
+    }
+    const t3 = async () => {
+        const data = {
+            stringData: "hi",
+            intData: 1,
+            floatData: 100.001,
+            boolData: true,
+            arrayData: [1,2,3,4],
+            objectData: {o1: 1, o2: 2, o3: {o5:6}}
+        }
+        console.log("Send to native -- " + JSON.stringify(data));
+        await $flex.test3(data);
+    }
+    const t4 = async () => {
+        const data = await $flex.test4();
+        console.log("Receive from native -- " + JSON.stringify(data));
+    }
+    const t5 = async () => {
+        await $flex.test5();
     }
     window.onFlexLoad = function() {
-        $flex.web.receive = function(data) {
-            console.log('Received by Native ---- ' + data);
+        console.log('$flex is load complete!')
+        $flex.web.webtest = function(data) {
+            console.log('Received from native ---- ' + data);
+            return Promise.resolve(["hi",1,{"o1":1}]);
         }
     }
 </script>
-<body style="width: 100%; height: 600px;">
-<button onclick='t1()' style="width: 100%; height: 150px;">test1</button>
-<button onclick='t2()' style="width: 100%; height: 150px;">test Action</button>
-<!--<button onclick='$flex.testAny()' style="width: 100%; height: 150px;">test Any</button>-->
+<body style="width: 100%; height: 900px;">
+<button onclick='t1()' style="width: 100%; height: 150px;">test value change in native</button>
+<button onclick='t2()' style="width: 100%; height: 150px;">test Action with 1s delay</button>
+<button onclick='t3()' style="width: 100%; height: 150px;">test object send to native</button>
+<button onclick='t4()' style="width: 100%; height: 150px;">test object receive from native</button>
+<button onclick='t5()' style="width: 100%; height: 150px;">test $flex.web func call</button>
+<button onclick='t6()' style="width: 100%; height: 150px;">test popup dialog</button>
 </body>
 </html>
