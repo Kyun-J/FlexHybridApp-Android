@@ -15,7 +15,7 @@ FlexibleHybridApp is a library that provides several features to develop HybridA
 
 Add the following to the build.gradle of the module.
 ```Gradle
-Dependencies {
+dependencies {
     implementation 'app.dvkyun.flexhybrid:flexhybrid:0.2'
 }
 ```
@@ -32,7 +32,7 @@ allprojects {
 ```
 Then add the following to the build.gradle of the module:
 ```Gradle
-Dependencies {
+dependencies {
     implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.2'
 }
 ```
@@ -55,7 +55,7 @@ Normal Interface by default declares:
 ```kt
 // in Kotlin
 flexWebView.setInterface("Normal") // "Normal" features the function name in Web JavaScript.
-{   argents ->
+{   arguments ->
     // Arguemnts Data from web. Type is JSONARray
     Return "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
 }
@@ -78,7 +78,7 @@ Action Interface is almost the same as Normal Interface, but it delivers a value
 var mAction: FlexAction? = null
 ...
 flexWebView.setAction("Action")
-{   action, items ->
+{   action, arguments ->
     // action is FlexAction Object
     mAction = action
 }
