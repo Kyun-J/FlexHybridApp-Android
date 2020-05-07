@@ -16,7 +16,7 @@ FlexibleHybridApp is a library that provides several features to develop HybridA
 Add the following to the build.gradle of the module.
 ```Gradle
 Dependencies {
-    Implementation 'app.dvkyun.flexhybrid:flexhybrid:0.2'
+    implementation 'app.dvkyun.flexhybrid:flexhybrid:0.2'
 }
 ```
 2. Enable jitpack
@@ -24,7 +24,7 @@ Dependencies {
 Add the following to the project build.gradle
 ```Gradle
 allprojects {
-    Reporters {
+    repositories {
         ...
         maven { url 'https://jitpack.io' }
     }
@@ -33,7 +33,7 @@ allprojects {
 Then add the following to the build.gradle of the module:
 ```Gradle
 Dependencies {
-    Implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.2'
+    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.2'
 }
 ```
 
