@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        flexWebView.addFlexInterface(new FlexInterfaceExample());
+
         flexWebView.loadUrl("file:///android_asset/html/test.html");
 
     }
@@ -75,5 +75,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         KtObject.INSTANCE.setNowAppContext(this);
+        flexWebView.addFlexInterface(new FlexInterfaceExample());
     }
 }
