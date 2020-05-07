@@ -52,7 +52,7 @@ Basically, it compensates for the shortcomings of Android's JavascriptInterface 
 The WebToNative interface of FelxWebView includes the Normal Interface and the Action Interface.
 ### ***Normal Interface***
 Normal Interface by default declares:
-```kt.
+```kt
 // in Kotlin
 flexWebView.setInterface("Normal") // "Normal" features the function name in Web JavaScript.
 {   argents ->
@@ -63,7 +63,7 @@ flexWebView.setInterface("Normal") // "Normal" features the function name in Web
 The first factor in 'setInterface' is the function name on the web, followed by the lambda, which is the code block in which the function operates.
 Arguments delivered to lambda are JSONARray objects that contain the values delivered when calling a function from web.
 You can call a function on the web as shown below.
-```js.
+```js
 // in web javascript
 ...
 const res = await $flex.Normal("data1",2,false");
@@ -73,7 +73,7 @@ The ("data1",2,false) value passed to the function above is communicated by keep
 
 ### ***Action Interface***
 Action Interface is almost the same as Normal Interface, but it delivers a value return to the Web when the action object calls the `promiseReturn` method.
-```kt.
+```kt
 // in Kotlin
 var mAction: FlexAction? = null
 ...
@@ -89,7 +89,7 @@ mAction = null
 ```
 If the `promiseReturn` method is not called, web must be careful to call `promiseReturn` when using Action Interface because the function continues to be pended.
 In addition, FlexAction objects that have already been called `promiseReturn` should not be called more than twice because they will cause an Exception on `promiseReturn` re-call.
-```js.
+```js
 // in web javascript
 ....
 first res = await $flex.Action(); // Pending until promiseReturn is called...
