@@ -19,7 +19,7 @@
         console.log("Receive at -- " + d2);
         console.log("Delay time -- " + (d2 - d1));
     }
-    const t3 = async () => {
+    const t3 = () => {
         const data = {
             stringData: "hi",
             intData: 1,
@@ -29,14 +29,21 @@
             objectData: {o1: 1, o2: 2, o3: {o5:6}}
         }
         console.log("Send to native -- " + JSON.stringify(data));
-        await $flex.test3(data);
+        $flex.test3(data);
     }
     const t4 = async () => {
         const data = await $flex.test4();
         console.log("Receive from native -- " + JSON.stringify(data));
     }
-    const t5 = async () => {
-        await $flex.test5();
+    const t5 = () => {
+        $flex.test5();
+    }
+    const t6 = () => {
+        $flex.test6();
+    }
+    const t7 = async () => {
+        const z = await $flex.test7();
+        console.log("Data from Annotation Action --- " + z);
     }
     window.onFlexLoad = function() {
         console.log('$flex is load complete!')
@@ -46,12 +53,13 @@
         }
     }
 </script>
-<body style="width: 100%; height: 900px;">
+<body style="width: 100%; height: 10500px;">
 <button onclick='t1()' style="width: 100%; height: 150px;">test value change in native</button>
 <button onclick='t2()' style="width: 100%; height: 150px;">test Action with 1s delay</button>
 <button onclick='t3()' style="width: 100%; height: 150px;">test object send to native</button>
 <button onclick='t4()' style="width: 100%; height: 150px;">test object receive from native</button>
 <button onclick='t5()' style="width: 100%; height: 150px;">test $flex.web func call</button>
-<button onclick='t6()' style="width: 100%; height: 150px;">test popup dialog</button>
+<button onclick='t6()' style="width: 100%; height: 150px;">test popup dialog with Annotation interface</button>
+<button onclick='t7()' style="width: 100%; height: 150px;">test Annotation Action interface</button>
 </body>
 </html>

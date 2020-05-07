@@ -39,7 +39,7 @@ class FlexWebView: WebView {
     init {
         if(mActivity == null) throw FlexException(FlexException.ERROR1)
         flexJsString = try {
-            val reader = BufferedReader(context.assets.open("FlexHybridAnd.js").reader())
+            val reader = BufferedReader(context.assets.open("FlexHybridAnd.min.js").reader())
             val sb = StringBuilder()
             var line: String?
             while (reader.readLine().also { line = it } != null) {
@@ -92,7 +92,7 @@ class FlexWebView: WebView {
 
     fun getBaseUrl(): String? = baseUrl
 
-    fun setInterface(name: String, lambda: (JSONArray?) -> Any?) {
+    fun setInterface(name: String, lambda: (JSONArray?) -> Any?): FlexWebView {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR7)
         }
@@ -103,9 +103,10 @@ class FlexWebView: WebView {
             throw FlexException(FlexException.ERROR9)
         }
         interfaces[name] = lambda
+        return this
     }
 
-    fun setAction(name: String, action: (action: FlexAction?, arguments: JSONArray?) -> Unit) {
+    fun setAction(name: String, action: (action: FlexAction?, arguments: JSONArray?) -> Unit): FlexWebView {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR7)
         }
@@ -116,6 +117,7 @@ class FlexWebView: WebView {
             throw FlexException(FlexException.ERROR9)
         }
         actions[name] = action
+        return this
     }
 
     fun addFlexInterface(flexInterfaces: Any) {
@@ -125,7 +127,7 @@ class FlexWebView: WebView {
                     throw FlexException(FlexException.ERROR13)
                 if(method.parameterTypes.size != 1 || method.parameterTypes[0].name != JSONArray::class.java.name)
                     throw FlexException(FlexException.ERROR11)
-                interfaces[method.name] = { arguments ->
+                setInterface(method.name) { arguments ->
                     method.invoke(flexInterfaces, arguments)
                 }
             } else if(method.getAnnotation(FlexActionInterface::class.java) != null) {
@@ -133,7 +135,7 @@ class FlexWebView: WebView {
                     throw FlexException(FlexException.ERROR13)
                 if(method.parameterTypes.size != 2 || method.parameterTypes[0].name != FlexAction::class.java.name || method.parameterTypes[1].name != JSONArray::class.java.name)
                     throw FlexException(FlexException.ERROR12)
-                actions[method.name] = { action, arguments ->
+                setAction(method.name) { action, arguments ->
                     method.invoke(flexInterfaces, action, arguments)
                 }
             }
@@ -269,4 +271,5 @@ class FlexWebView: WebView {
             }
         }
     }
+
 }
