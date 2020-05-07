@@ -12,7 +12,7 @@ internal class FlexException : Exception {
         const val ERROR1 = "Context must be Activity Context."
         const val ERROR2 = "BaseUrl is not set. Please specify BaseUrl first"
         const val ERROR3 = "ViewClient or ChromeClient must be FlexViewClient or FlexChromeClient"
-        const val ERROR4 = "" // 들어올수 없는 타입이 들어왔씁니
+        const val ERROR4 = "Only Web interfaces with Int, DOUBLE, Float, Boolean, Char, String, JSONObject, JSONArray, Array <Any> (Object [], Iterable <Any> (like ArrayList), and Map>String,Any> (like HashMap) data are available."
         const val ERROR5 = "FlexWebView to run javascript is null."
         const val ERROR6 = "BaseUrl cannot be changed after initialization."
         const val ERROR7 = "Interface can only be added before the first page of FlexWebView is loaded."
