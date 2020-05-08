@@ -157,7 +157,7 @@ class FlexWebView: WebView {
     fun evalFlexFunc(funcName: String, response: (Any?) -> Unit) {
         val tID = Random.nextInt(10000)
         returnFromWeb[tID] = response
-        FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.${funcName}(); \$flex.flexreturn({ TID: ${tID}, Value: V }); })(); void 0;")
+        FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.$funcName(); \$flex.flexreturn({ TID: $tID, Value: V }); })(); void 0;")
     }
 
     fun evalFlexFunc(funcName: String, sendData: Any?) {
@@ -172,9 +172,9 @@ class FlexWebView: WebView {
         val tID = Random.nextInt(10000)
         returnFromWeb[tID] = response
         if(sendData == null) {
-            FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.${funcName}(); \$flex.flexreturn({ TID: ${tID}, Value: V }); })(); void 0;")
+            FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.$funcName(); \$flex.flexreturn({ TID: $tID, Value: V }); })(); void 0;")
         } else {
-            FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.${funcName}(${FlexUtil.convertValue(sendData)}); \$flex.flexreturn({ TID: ${tID}, Value: V }); })(); void 0;")
+            FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.$funcName(${FlexUtil.convertValue(sendData)}); \$flex.flexreturn({ TID: $tID, Value: V }); })(); void 0;")
         }
     }
 
