@@ -246,9 +246,9 @@ class FlexWebView: WebView {
                     if(interfaces[intName] != null) {
                         val value = interfaces[intName]?.invoke(args)
                         if(value == null) {
-                            FlexUtil.evaluateJavaScript(this@FlexWebView, "window.${fName}()")
+                            FlexUtil.evaluateJavaScript(this@FlexWebView, "window.$fName()")
                         } else {
-                            FlexUtil.evaluateJavaScript(this@FlexWebView, "window.${fName}(${FlexUtil.convertValue(value)})")
+                            FlexUtil.evaluateJavaScript(this@FlexWebView, "window.$fName(${FlexUtil.convertValue(value)})")
                         }
                     } else if(actions[intName] != null) {
                         val lambda = actions[intName]!!
