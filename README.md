@@ -42,7 +42,7 @@ Basically, it compensates for the shortcomings of Android's JavascriptInterface 
 1. When a native function is called from the Web, **the return of the native function is passed to Promise** on the Web.
 2. When calling the Web function from Native, the return value **can be passed Async** from Web to Native.
 3. In addition to annotations, **you can add an interface by invoking a function that receives the Lambda (interface of Java) of Kotlin as a factor**.
-4. 4. In addition to the basic data type, **JS' array can be delivered as (JSONARray, Array, List) and JS' Object as (JSONObject, Map)**.
+4. In addition to the basic data type, **JS' array can be delivered as (JSONARray, Array, List) and JS' Object as (JSONObject, Map)**.
 5. When calling Native from the Web, **Native code blocks operate within CoroutineScope (Dispatchers.Default) and perform about 1.5 to 2 times better than JavaBridgeThread** in JavascriptInterface.
 6. By specifying BaseUrl in FlexWebView, you can **prevent native and interface on other sites and pages**.
 7. You cannot add an interface after the page is first loaded into FlexWebView and appears on the screen.
@@ -56,7 +56,7 @@ Normal Interface by default declares:
 // in Kotlin
 flexWebView.setInterface("Normal") // "Normal" features the function name in Web JavaScript.
 {   arguments ->
-    // Arguemnts Data from web. Type is JSONARray
+    // Arguemnts Data from web. Type is JSONArray
     Return "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
 }
 ```
@@ -92,7 +92,7 @@ In addition, FlexAction objects that have already been called `promiseReturn` sh
 ```js
 // in web javascript
 ....
-first res = await $flex.Action(); // Pending until promiseReturn is called...
+const res = await $flex.Action(); // Pending until promiseReturn is called...
 // res is ["FlexAction!!, 100]
 ```
 
