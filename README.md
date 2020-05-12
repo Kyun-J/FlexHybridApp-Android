@@ -313,7 +313,7 @@ For details, refer to [WebToNavite Interface](#WebToNative-Interface).
 ```kt
 fun setInterface(name: String, lambda: (JSONArray?) -> Any?): FlexWebView 
 fun setAction(name: String, action: (action: FlexAction?, arguments: JSONArray?) -> Unit): FlexWebView
-fun addFlexInterface(flexInterfaces: Class<*>) 
+fun addFlexInterface(flexInterfaces: Any) 
 ```
 
 ### NativeToWeb Interface Setting

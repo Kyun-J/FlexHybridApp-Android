@@ -306,7 +306,7 @@ FlexWebView에 인터페이스를 추가합니다.
 ```kt
 fun setInterface(name: String, lambda: (JSONArray?) -> Any?): FlexWebView 
 fun setAction(name: String, action: (action: FlexAction?, arguments: JSONArray?) -> Unit): FlexWebView
-fun addFlexInterface(flexInterfaces: Class<*>) 
+fun addFlexInterface(flexInterfaces: Any) 
 ```
 
 ### NativeToWeb Interface Setting
