@@ -5,7 +5,7 @@
 
 # FlexibleHybrid
 
-FlexibleHybridApp is a library that provides several features to develop HybridApp, including the implementation of Web<->Native Interface as Promise.
+FlexibleHybridApp is a library that provides various convenience functions to develop HybridApp, such as implementing interface between WebPage and Native with promises.
 
 # How to add libraries
 
@@ -37,49 +37,69 @@ dependencies {
 }
 ```
 
-# Interface Key Features
+# Interface Key Features of Flex Library
 Basically, it compensates for the shortcomings of Android's JavascriptInterface and has additional restrictions.
 1. When a native function is called from the Web, **the return of the native function is passed to Promise** on the Web.
 2. When calling the Web function from Native, the return value **can be passed Async** from Web to Native.
 3. In addition to annotations, **you can add an interface by invoking a function that receives the Lambda (interface of Java) of Kotlin as a factor**.
-4. In addition to the basic data type, **JS' array can be delivered as (JSONARray, Array, List) and JS' Object as (JSONObject, Map)**.
+4. In addition to the basic data type, **JS array can be delivered as (JSONARray, Array, List) of Kotlin(JAVA) and JS Object as (JSONObject, Map) of Kotlin(JAVA)**.
 5. When calling Native from the Web, **Native code blocks operate within CoroutineScope (Dispatchers.Default) and perform about 1.5 to 2 times better than JavaBridgeThread** in JavascriptInterface.
 6. By specifying BaseUrl in FlexWebView, you can **prevent native and interface on other sites and pages**.
 7. You cannot add an interface after the page is first loaded into FlexWebView and appears on the screen.
 
-# Interface implementation
+# Flex Interface implementation
+## Transferable Data Type
+1. It is possible to transfer general data types and strings, such as Android JavascriptInterface.
+2. It is possible to transfer **JS Array to Kotlin(JAVA) (JSONArray, Array, List) and JS Object to Kotlin(JAVA) (JSONObject, Map)**.
+3. When transferring data of type Array and Object, the data contained in it **must be one of the following data types except Null and undefined**.
+   
+| JS | Kotlin(Java) |
+|:--:|:--:|
+| Number | Int, Long, Float, Double |
+| String | String, Character | 
+| Array [] | JSONArray, Array\<Any>, Iterable\<Any> |
+| Object {} | JSONObject, Map\<String,Any> |
+| undefined (Single Argument Only) | Null (Single Property Only) |
+
 ## WebToNative Interface
-The WebToNative interface of FelxWebView includes the Normal Interface and the Action Interface.
+The WebToNative interface has the following features.
+1. Two types of normal interface, which passes values by function return, and action interface, which passes values by method call
+2. Add interface in the form of lambda and annotation function
+3. Native code blocks operate in a separate Background Scope
+4. The added interface can be called in the form of $flex.function on the web.
+5. $flex Object can be used after window.onFlexLoad is called
+
 ### ***Normal Interface***
-Normal Interface by default declares:
+Normal Interface is basically used as follows.
 ```kt
 // in Kotlin
-flexWebView.setInterface("Normal") // "Normal" features the function name in Web JavaScript.
-{   arguments ->
-    // Arguemnts Data from web. Type is JSONArray
-    Return "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
+flexWebView.setInterface("Normal") // "Normal" becomes the function name in Web JavaScript. 
+{ arguments ->
+    // arguments is Arguemnts Data from web. Type is JSONArray
+    // ["data", 2, false]
+    return "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
 }
 ```
-The first factor in 'setInterface' is the function name on the web, followed by the lambda, which is the code block in which the function operates.
-Arguments delivered to lambda are JSONARray objects that contain the values delivered when calling a function from web.
-You can call a function on the web as shown below.
 ```js
 // in web javascript
 ...
-const res = await $flex.Normal("data1",2,false");
+const res = await $flex.Normal("data1",2,false);
 // res is "HiFlexWeb"
 ```
-The ("data1",2,false) value passed to the function above is communicated by keeping the data type intact in the aggregates of the lambda.
+Specify the function name on the web as the first argument of `setInterface`, and the following lambda becomes a block of code where the function operates.  
+The arguments passed to lambda are JSONArray objects, which contain the values passed when calling the function on the web.  
+When passing a value from lambda to web (when returning), only [Transferable Data Type](#Transferable-Data-Type) is available.
 
 ### ***Action Interface***
-Action Interface is almost the same as Normal Interface, but it delivers a value return to the Web when the action object calls the `promiseReturn` method.
+The Action Interface is almost the same as the Normal Interface, but it returns the value return to the Web at the time of calling the `promiseReturn` method of the action object.
 ```kt
 // in Kotlin
 var mAction: FlexAction? = null
 ...
 flexWebView.setAction("Action")
-{   action, arguments ->
-    // action is FlexAction Object
+{ action, arguments ->
+// arguments is JSONObject, ["Who Are You?"]
+// action is FlexAction Object
     mAction = action
 }
 ...
@@ -87,13 +107,248 @@ flexWebView.setAction("Action")
 mAction.promiseReturn(arrayOf("FlexAction!!!",100));
 mAction = null
 ```
-If the `promiseReturn` method is not called, web must be careful to call `promiseReturn` when using Action Interface because the function continues to be pended.
-In addition, FlexAction objects that have already been called `promiseReturn` should not be called more than twice because they will cause an Exception on `promiseReturn` re-call.
 ```js
 // in web javascript
 ....
-const res = await $flex.Action(); // Pending until promiseReturn is called...
+const res = await $flex.Action("Who Are You?"); // Pending until promiseReturn is called...
 // res is ["FlexAction!!!", 100]
 ```
+The parameter of `promiseReturn` is only available for [Transferable Data Type](#Transferable-Data-Type).  
+If the `promiseReturn` method is not called, the function in the web will be in a pending state, so be careful to call` promiseReturn` when using the Action Interface.  
+In addition, FlexAction object that had already called `promiseReturn` is an exception when calling` promiseReturn`, so you should not call it more than once.  
 
-# Adding...
+### ***Annotation Interface***
+Similar to Android's `@JavascriptInterface`, Interface or Action can be registered through Annotation.
+#### @FlexFunInterface
+`@FlexFunInterface` must comply with the following:
+1. Only one JSONArray parameter can be used. (Exception occurs when adding another parameter)
+2. Return can only use [Transferable Data Type](#Transferable-Data-Type). (Exception occurs when returning another value)
+3. The class containing @FlexFunInterface must be passed as an argument to FlexWebView.addFlexInterface to add an interface.
+```kt
+class MyInterface {
+    @FlexFunInterface
+    fun funInterface(arguments: JSONArray): JSONObject {
+        // .... work something
+        return JSONObject()
+    }
+}
+...
+// in activity
+mFlexWebView.addFlexInterface(MyInterface())
+```
+```js
+...
+const res = await $flex.funInterface();
+// res is {}
+```
+
+#### @FlexActionInterface
+`@FlexActionInterface` must comply with the following:
+1. Parameters must be declared in **the order of FlexAction, JSONArray**, and other parameters cannot be used. (Exception occurs when violation occurs)
+2. Return can be declared, but not used.
+3. When sending the return value to the web, you should use the `promiseReturn` of the passed FlexAction parameter.
+4. The parameters of `promiseReturn` are only available for [Transferable Data Type](#Transferable-Data-Type).
+5. If the `promiseReturn` method cannot be called, the function on the web will be in a pending state, so be careful to call `promiseReturn` when using the Action Interface.
+6. When calling `promiseReturn`, an exception occurs, so you should not call it more than once.
+7. The class containing @FlexActionInterface must be passed as an argument to FlexWebView.addFlexInterface to add the interface.
+```kt
+class MyInterface {
+    @FlexActionInterface
+    fun actionInterface(action: FlexAction, arguments: JSONArray) {
+        // .... work something
+        action.promiseReturn(JSONArray())
+    }
+}
+...
+// in activity
+mFlexWebView.addFlexInterface(MyInterface())
+```
+```js
+...
+const res = await $flex.actionInterface();
+// res is []
+```
+
+### ***class FlexInterfaces***
+It is a separate class that separates only the interface addition function of FlexWebView.  
+Instead of adding an interface directly to FlexWebView, add it to FlexInterfaces and pass it to `FlexWebView.addFlexInterface` to add the interface to FlexWebView.
+```java
+public class FlexInterfaceExample extends FlexInterfaces {
+    FlexInterfaceExample() {
+        this.setInterface("test1", new Function1<JSONArray, Object>() {
+            @Override
+            public Object invoke(JSONArray arguments) {
+               return null;
+            }
+        }).setAction("test2", new Function2<FlexAction, JSONArray, Unit>() {
+            @Override
+            public Unit invoke(final FlexAction flexAction, JSONArray arguments) {
+                ...
+                return null;
+            }
+        }).setInterface("test3", new Function1<JSONArray, Object>() {
+            @Override
+            public Object invoke(JSONArray arguments) {
+                ...
+                return null;
+            }
+        });
+    }
+
+    @FlexFuncInterface
+    public void test4(JSONArray arguments) {
+        ...
+    }
+
+    @FlexActionInterface
+    public void test5(FlexAction action, JSONArray arguments) {
+        action.promiseReturn(null);
+    }
+}
+```
+```kt
+// in activity...
+...
+// add interface test1, test2, test3, test4, test5
+mFlexWebView.addFlexInterface(FlexInterfaceExample())
+let other = FlexInterfaces()
+other.setInterface("test6")
+{ arguments ->
+    return null
+}
+other.setAction("test7")
+{ action, arguments ->
+    action.promiseReturn(null)
+}
+// add interface test6, test7
+mFlexWebView.addFlexInterface(other)
+```
+
+## NativeToWeb Interface
+The NativeToWeb interface has the following features.
+1. If you add a function in the web's $flex.web Object, you can call the function through the `evalFlexFunc` method in Native(FlexWebView).
+2. After calling `window.onFlexLoad` (after creating $flex), you can add a function to $flex.web.
+3. The $flex.web function can pass values ​​to Native through regular return and promise return.
+
+```js
+window.onFlexLoad = () => {
+    $flex.web.webFunc = (data) => {
+        // data is ["data1","data2"]
+        return data[0]; // "data1"
+    }
+    $flex.web.promiseReturn = () => {
+        return Promise.resolve("this is promise")
+    }
+}
+```
+```kt
+...
+// call function, send data, get response
+mFlexWebView.evalFlexFunc("webFunc",arrayOf("data1","data2"))
+{ res ->
+    // res is "data1"
+}
+// just call function
+mFlexWebView.evalFlexFunc("promiseReturn")
+// call function and send data
+mFlexWebView.evalFlexFunc("webFunc",arrayOf("data1","data2"))
+```
+
+# Native Class 
+Describes native classes of libraries including FlexWebView.
+
+## FlexWebView
+FlexWebView has the following features.
+1. It was created by inheriting Android WebView and is very similar to WebView.
+2. WebViewClient, WebChromeClient should use FlexWebViewClient, FlexWebChromeClient class. (If not used, exception occurs)
+3. You can use the existing Android JavascriptInterface. (In this case, you cannot use the Promise pattern interface using $flex.)
+4. BaseUrl must be specified, and $flex Object in WebPage can be used only in the URL containing the corresponding BaseUrl.
+5. Default of WebViewSettings is different from existing WebView.
+
+### WebViewSettings
+FlexWebView defaults to the settings below.  
+This setting is applied when FlexWebView is declared and can be changed at any time.
+```kt
+settings.javaScriptEnabled = true
+settings.displayZoomControls = false
+settings.builtInZoomControls = false
+settings.setSupportZoom(false)
+settings.textZoom = 100
+settings.domStorageEnabled = true
+settings.loadWithOverviewMode = true
+settings.loadsImagesAutomatically = true
+settings.useWideViewPort = true
+settings.cacheMode = WebSettings.LOAD_DEFAULT
+settings.layoutAlgorithm = WebSettings.LayoutAlgorithm.SINGLE_COLUMN
+settings.enableSmoothTransition()
+settings.javaScriptCanOpenWindowsAutomatically = true
+if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+    settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+}
+if(Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
+    setRendererPriorityPolicy(RENDERER_PRIORITY_IMPORTANT, true)
+}
+```
+### BaseUrl
+\$Flex Object can be used only in the page containing the configured BaseUrl.  
+Once set, the BaseUrl cannot be modified again.
+```kt
+fun setBaseUrl(url: String)
+fun getBaseUrl(): String? = baseUrl
+```
+### FlexWebViewClient, FlexWebChromeClient
+FlexWebView must use FlexWebViewClient and FlexWebChromeClient.  
+In the setter, WebChromeClient and WebViewClient are received as arguments, but an exception occurs if the object cannot be Cased with FlexWebViewClient or FlexWebChromeClient.  
+FlexWebChromeClient includes code that enables WebView full screen, so you can switch to full screen by calling requestFullscreen of js.
+```kt
+fun getWebChromeClient(): FlexWebChromeClient
+fun setWebChromeClient(client: WebChromeClient)
+fun getWebViewClient(): FlexWebViewClient
+fun setWebViewClient(client: WebViewClient)
+```
+
+### WebToNative Interface Setting
+Add an interface to the FlexWebView.
+For details, refer to [WebToNavite Interface](#WebToNative-Interface).
+```kt
+fun setInterface(name: String, lambda: (JSONArray?) -> Any?): FlexWebView 
+fun setAction(name: String, action: (action: FlexAction?, arguments: JSONArray?) -> Unit): FlexWebView
+fun addFlexInterface(flexInterfaces: Class<*>) 
+```
+
+### NativeToWeb Interface Setting
+Implement the interface by calling the function added to $ flex.
+For details, refer to [NativeToWeb Interface](#NativeToWeb-Interface).
+```kt
+fun evalFlexFunc(funcName: String)
+fun evalFlexFunc(funcName: String, response: (Any?) -> Unit)
+fun evalFlexFunc(funcName: String, sendData: Any?)
+fun evalFlexFunc(funcName: String, sendData: Any?, response: (Any?) -> Unit)
+```
+
+## FlexAction
+Created when WebToNative interface added with setAction, @FlexActionInterface is called.  
+One available method is promiseReturn, which serves to pass the return value to the web.
+```kt
+fun promiseReturn(response: Any?)
+```
+promiseReturn cannot be used again after one call.  
+If you directly create and use FlexAction Class, there is no effect. Only FlexAction created and delivered on the interface is effective.
+
+## FlexInterfaces
+FlexInterfaces class is a class that separates only setInterface and setAction functions from FlexWebView.  
+Refer to [Interface example](#class-FlexInterfaces) for usage examples.
+```kt
+fun setInterface(name: String, lambda: (JSONArray?) -> Any?): FlexInterfaces
+fun setAction(name: String, action: (action: FlexAction?, arguments: JSONArray?) -> Unit): FlexInterfaces
+```
+
+# $flex Object
+\$flex Object is an object composed of interfaces between FlexWebView and Promise.  
+The components of $ flex Object are as follows.
+```js
+$flex // Object that contains functions that can call Native area as WebToNative
+$flex.version // get Library version
+$flex.web // Object used to add and use functions to be used for NativeToWeb
+```
+For detailed usage, refer to [Flex Interface Implementation](#Flex-Interface-Implementation).
