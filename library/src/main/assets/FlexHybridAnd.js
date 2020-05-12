@@ -7,7 +7,7 @@ const events = [''];
 window.$flex = {};
 Object.defineProperties($flex,
     {
-        version: { value: '0.2', writable: false },
+        version: { value: '0.2.1', writable: false },
         //addEventListener: { value: function(event, callback) { listeners.push({ e: event, c: callback }) }, writable: false },
         web: { value: {}, writable: false }
     }

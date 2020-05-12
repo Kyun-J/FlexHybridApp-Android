@@ -85,7 +85,7 @@ class FlexWebView: WebView {
 
     fun setBaseUrl(url: String) {
         if(baseUrl != null) {
-            throw FlexException(FlexException.ERROR6)
+            throw FlexException(FlexException.ERROR5)
         }
         baseUrl = url
     }
@@ -94,13 +94,13 @@ class FlexWebView: WebView {
 
     fun setInterface(name: String, lambda: (JSONArray?) -> Any?): FlexWebView {
         if(isAfterFirstLoad) {
-            throw FlexException(FlexException.ERROR7)
+            throw FlexException(FlexException.ERROR6)
         }
         if(interfaces[name] != null || actions[name] != null) {
-            throw FlexException(FlexException.ERROR8)
+            throw FlexException(FlexException.ERROR7)
         }
         if(name.contains("flex")) {
-            throw FlexException(FlexException.ERROR9)
+            throw FlexException(FlexException.ERROR8)
         }
         interfaces[name] = lambda
         return this
@@ -108,13 +108,13 @@ class FlexWebView: WebView {
 
     fun setAction(name: String, action: (action: FlexAction?, arguments: JSONArray?) -> Unit): FlexWebView {
         if(isAfterFirstLoad) {
-            throw FlexException(FlexException.ERROR7)
+            throw FlexException(FlexException.ERROR6)
         }
         if(interfaces[name] != null || actions[name] != null) {
-            throw FlexException(FlexException.ERROR8)
+            throw FlexException(FlexException.ERROR7)
         }
         if(name.contains("flex")) {
-            throw FlexException(FlexException.ERROR9)
+            throw FlexException(FlexException.ERROR8)
         }
         actions[name] = action
         return this
@@ -124,17 +124,17 @@ class FlexWebView: WebView {
         flexInterfaces::class.java.declaredMethods.forEach { method ->
             if(method.getAnnotation(FlexFuncInterface::class.java) != null) {
                 if(method.modifiers != Modifier.PUBLIC)
-                    throw FlexException(FlexException.ERROR13)
+                    throw FlexException(FlexException.ERROR12)
                 if(method.parameterTypes.size != 1 || method.parameterTypes[0].name != JSONArray::class.java.name)
-                    throw FlexException(FlexException.ERROR11)
+                    throw FlexException(FlexException.ERROR10)
                 setInterface(method.name) { arguments ->
                     method.invoke(flexInterfaces, arguments)
                 }
             } else if(method.getAnnotation(FlexActionInterface::class.java) != null) {
                 if(method.modifiers != Modifier.PUBLIC)
-                    throw FlexException(FlexException.ERROR13)
-                if(method.parameterTypes.size != 2 || method.parameterTypes[0].name != FlexAction::class.java.name || method.parameterTypes[1].name != JSONArray::class.java.name)
                     throw FlexException(FlexException.ERROR12)
+                if(method.parameterTypes.size != 2 || method.parameterTypes[0].name != FlexAction::class.java.name || method.parameterTypes[1].name != JSONArray::class.java.name)
+                    throw FlexException(FlexException.ERROR11)
                 setAction(method.name) { action, arguments ->
                     method.invoke(flexInterfaces, action, arguments)
                 }
@@ -183,7 +183,7 @@ class FlexWebView: WebView {
     }
 
     override fun setWebChromeClient(client: WebChromeClient) {
-        if(client !is FlexWebChromeClient) throw FlexException(FlexException.ERROR3)
+        if(client !is FlexWebChromeClient) throw FlexException(FlexException.ERROR2)
         super.setWebChromeClient(client)
     }
 
@@ -192,24 +192,14 @@ class FlexWebView: WebView {
     }
 
     override fun setWebViewClient(client: WebViewClient) {
-        if(client !is FlexWebViewClient) throw FlexException(FlexException.ERROR3)
+        if(client !is FlexWebViewClient) throw FlexException(FlexException.ERROR2)
         super.setWebViewClient(client)
-    }
-
-    override fun loadUrl(url: String?) {
-        if(baseUrl == null) throw FlexException(FlexException.ERROR2)
-        super.loadUrl(url)
-    }
-
-    override fun loadUrl(url: String?, additionalHttpHeaders: MutableMap<String, String>?) {
-        if(baseUrl == null) throw FlexException(FlexException.ERROR2)
-        super.loadUrl(url, additionalHttpHeaders)
     }
 
     @SuppressLint("JavascriptInterface")
     override fun addJavascriptInterface(`object`: Any, name: String) {
         if(name.contains("flex")) {
-            throw FlexException(FlexException.ERROR9)
+            throw FlexException(FlexException.ERROR8)
         }
         super.addJavascriptInterface(`object`, name)
     }
