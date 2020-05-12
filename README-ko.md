@@ -46,7 +46,8 @@ dependencies {
 ## 전달 가능한 데이터 타입
 1. Android JavascriptInterface와 같이 일반 자료형 및 문자열 전송 가능합니다. 
 2. **JS의 Array를 JAVA의(JSONArray, Array, List)으로, JS의 Object를 JAVA의(JSONObject, Map)으로** 전송 가능합니다.  
-3. Array와 Object형식의 데이터를 전송할 때 안에 포함된 데이터는 **반드시 Null, undefined를 제외한 아래 자료형 중 하나여야 합니다**.
+3. Array와 Object형식의 데이터를 전송할 때 안에 포함된 데이터는 **반드시 Null, undefined를 제외한 아래 자료형 중 하나여야 합니다**.  
+
 | JS | Kotlin(Java) |
 |:--:|:--:|
 | Number | Int, Long, Float, Double |
