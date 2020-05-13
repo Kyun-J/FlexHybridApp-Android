@@ -12,7 +12,7 @@ class FlexAction(name: String, webView: FlexWebView) {
         afterReturn?.invoke()
         if(isCall) throw FlexException(FlexException.ERROR9)
         isCall = true
-        if(response == null) {
+        if(response == null || response == Unit) {
             FlexUtil.evaluateJavaScript(flexWebView,"window.${funName}()")
         } else {
             FlexUtil.evaluateJavaScript(flexWebView,"window.${funName}(${FlexUtil.convertValue(response)})")
