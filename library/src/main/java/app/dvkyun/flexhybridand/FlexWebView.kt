@@ -130,20 +130,20 @@ class FlexWebView: WebView {
         flexInterfaces::class.members.forEach {
             if(it.hasAnnotation<FlexFuncInterface>()) {
                 if(it.visibility != KVisibility.PUBLIC) {
-                    throw FlexException(FlexException.ERROR13)
+                    throw FlexException(FlexException.ERROR12)
                 }
                 if(it.valueParameters.size != 1 || it.valueParameters[0].type.classifier != JSONArray::class.createType().classifier) {
-                    throw FlexException(FlexException.ERROR11)
+                    throw FlexException(FlexException.ERROR10)
                 }
                 setInterface(it.name) { arguments ->
                     it.call(flexInterfaces, arguments)
                 }
             } else if(it.hasAnnotation<FlexActionInterface>()) {
                 if(it.visibility != KVisibility.PUBLIC) {
-                    throw FlexException(FlexException.ERROR13)
+                    throw FlexException(FlexException.ERROR12)
                 }
                 if(it.valueParameters.size != 2 || it.valueParameters[0].type.classifier != FlexAction::class.createType().classifier || it.valueParameters[1].type.classifier != JSONArray::class.createType().classifier) {
-                    throw FlexException(FlexException.ERROR12)
+                    throw FlexException(FlexException.ERROR11)
                 }
                 setAction(it.name) { action, arguments ->
                     it.call(flexInterfaces, action, arguments)
