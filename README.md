@@ -16,7 +16,7 @@ FlexibleHybridApp is a library that provides various convenience functions to de
 Add the following to the build.gradle of the module.
 ```Gradle
 dependencies {
-    implementation 'app.dvkyun.flexhybrid:flexhybrid:0.2'
+    implementation 'app.dvkyun.flexhybrid:flexhybrid:0.2.1'
 }
 ```
 2. Enable jitpack
@@ -33,7 +33,7 @@ allprojects {
 Then add the following to the build.gradle of the module:
 ```Gradle
 dependencies {
-    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.2'
+    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.2.1'
 }
 ```
 
@@ -59,7 +59,7 @@ Basically, it compensates for the shortcomings of Android's JavascriptInterface 
 | String | String, Character | 
 | Array [] | JSONArray, Array\<Any>, Iterable\<Any> |
 | Object {} | JSONObject, Map\<String,Any> |
-| undefined (Single Argument Only) | Null (Single Property Only) |
+| undefined (Single Argument Only) | Null, Unit (Single Property Only) |
 
 ## WebToNative Interface
 The WebToNative interface has the following features.

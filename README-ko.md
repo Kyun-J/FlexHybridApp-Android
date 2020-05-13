@@ -11,7 +11,7 @@ FlexibleHybridApp은 Web, Native 상호간의 Interface을 Promise로 구현하�
 모듈의 build.gradle에 다음을 추가.
 ```gradle
 dependencies {
-    implementation 'app.dvkyun.flexhybridand:flexhybridand:0.2'
+    implementation 'app.dvkyun.flexhybridand:flexhybridand:0.2.1'
 }
 ```
 2. jitpack 사용  
@@ -28,7 +28,7 @@ allprojects {
 그후 모듈의 build.gradle에 다음을 추가
 ```gradle
 dependencies {
-        implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.2'
+        implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.2.1'
 }
 ```
 
@@ -54,7 +54,7 @@ dependencies {
 | String | String, Character | 
 | Array [] | JSONArray, Array\<Any>, Iterable\<Any> |
 | Object {} | JSONObject, Map\<String,Any> |
-| undefined (Single Argument Only) | Null (Single Property Only) |
+| undefined (Single Argument Only) | Null, Unit (Single Property Only) |
 
 ## WebToNative 인터페이스
 WebToNative 인터페이스는 다음의 특징을 지닙니다.
