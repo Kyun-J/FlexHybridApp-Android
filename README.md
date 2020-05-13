@@ -244,9 +244,13 @@ window.onFlexLoad = () => {
 ```kt
 ...
 // call function, send data, get response
-mFlexWebView.evalFlexFunc("webFunc",arrayOf("data1","data2"))
+mFlexWebView.evalFlexFunc("webFunc",arrayOf("data1","data2")) // same as $flex.web.webFunc(["data1","data2"])
 { res ->
     // res is "data1"
+}
+mFlexWebView.evalFlexFunc("promiseReturn") // same as $flex.web.promiseReturn()
+{ res ->
+    // res is "this is promise"
 }
 // just call function
 mFlexWebView.evalFlexFunc("promiseReturn")
@@ -294,7 +298,7 @@ if(Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
 Once set, the BaseUrl cannot be modified again.
 ```kt
 fun setBaseUrl(url: String)
-fun getBaseUrl(): String? = baseUrl
+fun getBaseUrl(): String?
 ```
 ### FlexWebViewClient, FlexWebChromeClient
 FlexWebView must use FlexWebViewClient and FlexWebChromeClient.  
