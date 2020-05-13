@@ -8,8 +8,11 @@ class FlexWebViewClient: WebViewClient() {
 
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
-        if(view is FlexWebView && url != null && url.contains(view.baseUrl!!)) {
-            view.flexInitInPage()
+        if(view is FlexWebView && url != null) {
+            val baseUrl = view.baseUrl
+            if(baseUrl == null || (url.substring(0, baseUrl.length) == baseUrl)) {
+                view.flexInitInPage()
+            }
         }
     }
 

@@ -22,7 +22,7 @@ object FlexUtil {
             } else if (element is JSONObject) {
                 convertJSONObject(element)!!
             } else {
-                throw FlexException(FlexException.ERROR4)
+                throw FlexException(FlexException.ERROR3)
             }
         }
     }
@@ -39,7 +39,7 @@ object FlexUtil {
             } else if (element is JSONObject) {
                 result[it] = convertJSONObject(element)!!
             } else {
-                throw FlexException(FlexException.ERROR4)
+                throw FlexException(FlexException.ERROR3)
             }
         }
         return result
@@ -58,7 +58,7 @@ object FlexUtil {
 
     internal fun evaluateJavaScript(webView: WebView?, javascript: String) {
         if(webView == null) {
-            throw FlexException(FlexException.ERROR5)
+            throw FlexException(FlexException.ERROR4)
         }
         webView.post {
             val js = "javascript:$javascript"
@@ -86,7 +86,7 @@ object FlexUtil {
                 } else if (it is Array<*> || it is Iterable<*> || it is Map<*,*> || it is JSONArray || it is JSONObject) {
                     vString.append("${convertValue(it)},")
                 } else {
-                    throw FlexException(FlexException.ERROR4)
+                    throw FlexException(FlexException.ERROR3)
                 }
             }
             vString.append("]")
@@ -102,7 +102,7 @@ object FlexUtil {
                 } else if (it is Array<*> || it is Iterable<*> || it is Map<*,*> || it is JSONArray || it is JSONObject) {
                     vString.append("${convertValue(it)},")
                 } else {
-                    throw FlexException(FlexException.ERROR4)
+                    throw FlexException(FlexException.ERROR3)
                 }
             }
             vString.append("]")
@@ -119,7 +119,7 @@ object FlexUtil {
                 } else if (element is Array<*> || element is Iterable<*> || element is Map<*,*> || element is JSONArray || element is JSONObject) {
                     vString.append("${convertValue(element)},")
                 } else {
-                    throw FlexException(FlexException.ERROR4)
+                    throw FlexException(FlexException.ERROR3)
                 }
             }
             vString.append("]")
@@ -129,7 +129,7 @@ object FlexUtil {
             vString.append("{")
             value.forEach {
                 if (it.key !is String) {
-                    throw FlexException(FlexException.ERROR4)
+                    throw FlexException(FlexException.ERROR3)
                 }
                 if (it.value is Int || it.value is Long || it.value is Double || it.value is Float || it.value is Boolean) {
                     vString.append("${it.key}:${it.value},")
@@ -138,7 +138,7 @@ object FlexUtil {
                 } else if (it.value is Array<*> || it.value is Iterable<*> || it.value is Map<*,*> || it.value is JSONArray || it.value is JSONObject) {
                     vString.append("${it.key}:${convertValue(it.value!!)},")
                 } else {
-                    throw FlexException(FlexException.ERROR4)
+                    throw FlexException(FlexException.ERROR3)
                 }
             }
             vString.append("}")
@@ -155,13 +155,13 @@ object FlexUtil {
                 } else if (element is Array<*> || element is Iterable<*> || element is Map<*,*> || element is JSONArray || element is JSONObject) {
                     vString.append("${it}:${convertValue(element)},")
                 } else {
-                    throw FlexException(FlexException.ERROR4)
+                    throw FlexException(FlexException.ERROR3)
                 }
             }
             vString.append("}")
             vString.toString()
         } else {
-            throw FlexException(FlexException.ERROR4)
+            throw FlexException(FlexException.ERROR3)
         }
     }
 

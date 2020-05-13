@@ -9,10 +9,10 @@ open class FlexInterfaces {
 
     fun setInterface(name: String, lambda: (JSONArray?) -> Any?): FlexInterfaces {
         if(interfaces[name] != null || actions[name] != null) {
-            throw FlexException(FlexException.ERROR8)
+            throw FlexException(FlexException.ERROR7)
         }
         if(name.contains("flex")) {
-            throw FlexException(FlexException.ERROR9)
+            throw FlexException(FlexException.ERROR8)
         }
         interfaces[name] = lambda
         return this
@@ -20,10 +20,10 @@ open class FlexInterfaces {
 
     fun setAction(name: String, action: (action: FlexAction?, arguments: JSONArray?) -> Unit): FlexInterfaces {
         if(interfaces[name] != null || actions[name] != null) {
-            throw FlexException(FlexException.ERROR8)
+            throw FlexException(FlexException.ERROR7)
         }
         if(name.contains("flex")) {
-            throw FlexException(FlexException.ERROR9)
+            throw FlexException(FlexException.ERROR8)
         }
         actions[name] = action
         return this

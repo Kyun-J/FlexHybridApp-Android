@@ -16,6 +16,11 @@ import org.json.JSONObject
 import java.io.BufferedReader
 import java.lang.reflect.Modifier
 import kotlin.random.Random
+import kotlin.reflect.KProperty
+import kotlin.reflect.KVisibility
+import kotlin.reflect.full.createType
+import kotlin.reflect.full.hasAnnotation
+import kotlin.reflect.full.valueParameters
 
 class FlexWebView: WebView {
 
@@ -85,7 +90,7 @@ class FlexWebView: WebView {
 
     fun setBaseUrl(url: String) {
         if(baseUrl != null) {
-            throw FlexException(FlexException.ERROR6)
+            throw FlexException(FlexException.ERROR5)
         }
         baseUrl = url
     }
@@ -94,13 +99,13 @@ class FlexWebView: WebView {
 
     fun setInterface(name: String, lambda: (JSONArray?) -> Any?): FlexWebView {
         if(isAfterFirstLoad) {
-            throw FlexException(FlexException.ERROR7)
+            throw FlexException(FlexException.ERROR6)
         }
         if(interfaces[name] != null || actions[name] != null) {
-            throw FlexException(FlexException.ERROR8)
+            throw FlexException(FlexException.ERROR7)
         }
         if(name.contains("flex")) {
-            throw FlexException(FlexException.ERROR9)
+            throw FlexException(FlexException.ERROR8)
         }
         interfaces[name] = lambda
         return this
@@ -108,35 +113,40 @@ class FlexWebView: WebView {
 
     fun setAction(name: String, action: (action: FlexAction?, arguments: JSONArray?) -> Unit): FlexWebView {
         if(isAfterFirstLoad) {
-            throw FlexException(FlexException.ERROR7)
+            throw FlexException(FlexException.ERROR6)
         }
         if(interfaces[name] != null || actions[name] != null) {
-            throw FlexException(FlexException.ERROR8)
+            throw FlexException(FlexException.ERROR7)
         }
         if(name.contains("flex")) {
-            throw FlexException(FlexException.ERROR9)
+            throw FlexException(FlexException.ERROR8)
         }
         actions[name] = action
         return this
     }
 
+    @ExperimentalStdlibApi
     fun addFlexInterface(flexInterfaces: Any) {
-        flexInterfaces::class.java.declaredMethods.forEach { method ->
-            if(method.getAnnotation(FlexFuncInterface::class.java) != null) {
-                if(method.modifiers != Modifier.PUBLIC)
+        flexInterfaces::class.members.forEach {
+            if(it.hasAnnotation<FlexFuncInterface>()) {
+                if(it.visibility != KVisibility.PUBLIC) {
                     throw FlexException(FlexException.ERROR13)
-                if(method.parameterTypes.size != 1 || method.parameterTypes[0].name != JSONArray::class.java.name)
-                    throw FlexException(FlexException.ERROR11)
-                setInterface(method.name) { arguments ->
-                    method.invoke(flexInterfaces, arguments)
                 }
-            } else if(method.getAnnotation(FlexActionInterface::class.java) != null) {
-                if(method.modifiers != Modifier.PUBLIC)
+                if(it.valueParameters.size != 1 || it.valueParameters[0].type.classifier != JSONArray::class.createType().classifier) {
+                    throw FlexException(FlexException.ERROR11)
+                }
+                setInterface(it.name) { arguments ->
+                    it.call(flexInterfaces, arguments)
+                }
+            } else if(it.hasAnnotation<FlexActionInterface>()) {
+                if(it.visibility != KVisibility.PUBLIC) {
                     throw FlexException(FlexException.ERROR13)
-                if(method.parameterTypes.size != 2 || method.parameterTypes[0].name != FlexAction::class.java.name || method.parameterTypes[1].name != JSONArray::class.java.name)
+                }
+                if(it.valueParameters.size != 2 || it.valueParameters[0].type.classifier != FlexAction::class.createType().classifier || it.valueParameters[1].type.classifier != JSONArray::class.createType().classifier) {
                     throw FlexException(FlexException.ERROR12)
-                setAction(method.name) { action, arguments ->
-                    method.invoke(flexInterfaces, action, arguments)
+                }
+                setAction(it.name) { action, arguments ->
+                    it.call(flexInterfaces, action, arguments)
                 }
             }
         }
@@ -157,11 +167,11 @@ class FlexWebView: WebView {
     fun evalFlexFunc(funcName: String, response: (Any?) -> Unit) {
         val tID = Random.nextInt(10000)
         returnFromWeb[tID] = response
-        FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.${funcName}(); \$flex.flexreturn({ TID: ${tID}, Value: V }); })(); void 0;")
+        FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.$funcName(); \$flex.flexreturn({ TID: $tID, Value: V }); })(); void 0;")
     }
 
     fun evalFlexFunc(funcName: String, sendData: Any?) {
-        if(sendData == null) {
+        if(sendData == null || sendData == Unit) {
             FlexUtil.evaluateJavaScript(this,"window.\$flex.web.$funcName()")
         } else {
             FlexUtil.evaluateJavaScript(this,"window.\$flex.web.$funcName(${FlexUtil.convertValue(sendData)})")
@@ -171,10 +181,10 @@ class FlexWebView: WebView {
     fun evalFlexFunc(funcName: String, sendData: Any?, response: (Any?) -> Unit) {
         val tID = Random.nextInt(10000)
         returnFromWeb[tID] = response
-        if(sendData == null) {
+        if(sendData == null || sendData == Unit) {
             FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.${funcName}(); \$flex.flexreturn({ TID: ${tID}, Value: V }); })(); void 0;")
         } else {
-            FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.${funcName}(${FlexUtil.convertValue(sendData)}); \$flex.flexreturn({ TID: ${tID}, Value: V }); })(); void 0;")
+            FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.$funcName(${FlexUtil.convertValue(sendData)}); \$flex.flexreturn({ TID: $tID, Value: V }); })(); void 0;")
         }
     }
 
@@ -183,7 +193,7 @@ class FlexWebView: WebView {
     }
 
     override fun setWebChromeClient(client: WebChromeClient) {
-        if(client !is FlexWebChromeClient) throw FlexException(FlexException.ERROR3)
+        if(client !is FlexWebChromeClient) throw FlexException(FlexException.ERROR2)
         super.setWebChromeClient(client)
     }
 
@@ -192,24 +202,14 @@ class FlexWebView: WebView {
     }
 
     override fun setWebViewClient(client: WebViewClient) {
-        if(client !is FlexWebViewClient) throw FlexException(FlexException.ERROR3)
+        if(client !is FlexWebViewClient) throw FlexException(FlexException.ERROR2)
         super.setWebViewClient(client)
-    }
-
-    override fun loadUrl(url: String?) {
-        if(baseUrl == null) throw FlexException(FlexException.ERROR2)
-        super.loadUrl(url)
-    }
-
-    override fun loadUrl(url: String?, additionalHttpHeaders: MutableMap<String, String>?) {
-        if(baseUrl == null) throw FlexException(FlexException.ERROR2)
-        super.loadUrl(url, additionalHttpHeaders)
     }
 
     @SuppressLint("JavascriptInterface")
     override fun addJavascriptInterface(`object`: Any, name: String) {
         if(name.contains("flex")) {
-            throw FlexException(FlexException.ERROR9)
+            throw FlexException(FlexException.ERROR8)
         }
         super.addJavascriptInterface(`object`, name)
     }
@@ -245,10 +245,10 @@ class FlexWebView: WebView {
                     val args : JSONArray? = data.getJSONArray("arguments")
                     if(interfaces[intName] != null) {
                         val value = interfaces[intName]?.invoke(args)
-                        if(value == null) {
+                        if(value == null || value == Unit) {
                             FlexUtil.evaluateJavaScript(this@FlexWebView, "window.${fName}()")
                         } else {
-                            FlexUtil.evaluateJavaScript(this@FlexWebView, "window.${fName}(${FlexUtil.convertValue(value)})")
+                            FlexUtil.evaluateJavaScript(this@FlexWebView, "window.$fName(${FlexUtil.convertValue(value)})")
                         }
                     } else if(actions[intName] != null) {
                         val lambda = actions[intName]!!
