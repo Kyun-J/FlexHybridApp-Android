@@ -16,6 +16,11 @@ import org.json.JSONObject
 import java.io.BufferedReader
 import java.lang.reflect.Modifier
 import kotlin.random.Random
+import kotlin.reflect.KProperty
+import kotlin.reflect.KVisibility
+import kotlin.reflect.full.createType
+import kotlin.reflect.full.hasAnnotation
+import kotlin.reflect.full.valueParameters
 
 class FlexWebView: WebView {
 
@@ -120,26 +125,50 @@ class FlexWebView: WebView {
         return this
     }
 
+    @ExperimentalStdlibApi
     fun addFlexInterface(flexInterfaces: Any) {
-        flexInterfaces::class.java.declaredMethods.forEach { method ->
-            if(method.getAnnotation(FlexFuncInterface::class.java) != null) {
-                if(method.modifiers != Modifier.PUBLIC)
+        flexInterfaces::class.members.forEach {
+            if(it.hasAnnotation<FlexFuncInterface>()) {
+                if(it.visibility != KVisibility.PUBLIC) {
                     throw FlexException(FlexException.ERROR13)
-                if(method.parameterTypes.size != 1 || method.parameterTypes[0].name != JSONArray::class.java.name)
-                    throw FlexException(FlexException.ERROR11)
-                setInterface(method.name) { arguments ->
-                    method.invoke(flexInterfaces, arguments)
                 }
-            } else if(method.getAnnotation(FlexActionInterface::class.java) != null) {
-                if(method.modifiers != Modifier.PUBLIC)
+                if(it.valueParameters.size != 1 || it.valueParameters[0].type.classifier != JSONArray::class.createType().classifier) {
+                    throw FlexException(FlexException.ERROR11)
+                }
+                setInterface(it.name) { arguments ->
+                    it.call(flexInterfaces, arguments)
+                }
+            } else if(it.hasAnnotation<FlexActionInterface>()) {
+                if(it.visibility != KVisibility.PUBLIC) {
                     throw FlexException(FlexException.ERROR13)
-                if(method.parameterTypes.size != 2 || method.parameterTypes[0].name != FlexAction::class.java.name || method.parameterTypes[1].name != JSONArray::class.java.name)
+                }
+                if(it.valueParameters.size != 2 || it.valueParameters[0].type.classifier != FlexAction::class.createType().classifier || it.valueParameters[1].type.classifier != JSONArray::class.createType().classifier) {
                     throw FlexException(FlexException.ERROR12)
-                setAction(method.name) { action, arguments ->
-                    method.invoke(flexInterfaces, action, arguments)
+                }
+                setAction(it.name) { action, arguments ->
+                    it.call(flexInterfaces, action, arguments)
                 }
             }
         }
+//        flexInterfaces::class.java.declaredMethods.forEach { method ->
+//            if(method.getAnnotation(FlexFuncInterface::class.java) != null) {
+//                if(method.modifiers != Modifier.PUBLIC)
+//                    throw FlexException(FlexException.ERROR13)
+//                if(method.parameterTypes.size != 1 || method.parameterTypes[0].name != JSONArray::class.java.name)
+//                    throw FlexException(FlexException.ERROR11)
+//                setInterface(method.name) { arguments ->
+//                    method.invoke(flexInterfaces, arguments)
+//                }
+//            } else if(method.getAnnotation(FlexActionInterface::class.java) != null) {
+//                if(method.modifiers != Modifier.PUBLIC)
+//                    throw FlexException(FlexException.ERROR13)
+//                if(method.parameterTypes.size != 2 || method.parameterTypes[0].name != FlexAction::class.java.name || method.parameterTypes[1].name != JSONArray::class.java.name)
+//                    throw FlexException(FlexException.ERROR12)
+//                setAction(method.name) { action, arguments ->
+//                    method.invoke(flexInterfaces, action, arguments)
+//                }
+//            }
+//        }
         if(flexInterfaces is FlexInterfaces) {
             flexInterfaces.interfaces.keys.forEach {
                 setInterface(it, flexInterfaces.interfaces[it]!!)
@@ -161,7 +190,7 @@ class FlexWebView: WebView {
     }
 
     fun evalFlexFunc(funcName: String, sendData: Any?) {
-        if(sendData == null) {
+        if(sendData == null || sendData == Unit) {
             FlexUtil.evaluateJavaScript(this,"window.\$flex.web.$funcName()")
         } else {
             FlexUtil.evaluateJavaScript(this,"window.\$flex.web.$funcName(${FlexUtil.convertValue(sendData)})")
@@ -171,7 +200,7 @@ class FlexWebView: WebView {
     fun evalFlexFunc(funcName: String, sendData: Any?, response: (Any?) -> Unit) {
         val tID = Random.nextInt(10000)
         returnFromWeb[tID] = response
-        if(sendData == null) {
+        if(sendData == null || sendData == Unit) {
             FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.${funcName}(); \$flex.flexreturn({ TID: ${tID}, Value: V }); })(); void 0;")
         } else {
             FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.${funcName}(${FlexUtil.convertValue(sendData)}); \$flex.flexreturn({ TID: ${tID}, Value: V }); })(); void 0;")
@@ -245,7 +274,7 @@ class FlexWebView: WebView {
                     val args : JSONArray? = data.getJSONArray("arguments")
                     if(interfaces[intName] != null) {
                         val value = interfaces[intName]?.invoke(args)
-                        if(value == null) {
+                        if(value == null || value == Unit) {
                             FlexUtil.evaluateJavaScript(this@FlexWebView, "window.${fName}()")
                         } else {
                             FlexUtil.evaluateJavaScript(this@FlexWebView, "window.${fName}(${FlexUtil.convertValue(value)})")
