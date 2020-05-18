@@ -12,7 +12,7 @@ import android.webkit.WebChromeClient
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 
-class FlexWebChromeClient(activity: Activity) : WebChromeClient() {
+open class FlexWebChromeClient(activity: Activity) : WebChromeClient() {
 
     private var mActivity: Activity = activity
 

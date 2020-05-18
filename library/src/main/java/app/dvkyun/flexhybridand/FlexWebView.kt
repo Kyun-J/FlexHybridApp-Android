@@ -14,15 +14,13 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.BufferedReader
-import java.lang.reflect.Modifier
 import kotlin.random.Random
-import kotlin.reflect.KProperty
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.createType
-import kotlin.reflect.full.hasAnnotation
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.valueParameters
 
-class FlexWebView: WebView {
+open class FlexWebView: WebView {
 
     private val mActivity: Activity? = FlexUtil.getActivity(context)
     private val interfaces: HashMap<String, (arguments: JSONArray?) -> Any?> = HashMap()
@@ -92,6 +90,9 @@ class FlexWebView: WebView {
         if(baseUrl != null) {
             throw FlexException(FlexException.ERROR5)
         }
+        if(!url.startsWith("http://") && !url.startsWith("http://") && !url.startsWith("file://")) {
+            throw FlexException(FlexException.ERROR13)
+        }
         baseUrl = url
     }
 
@@ -125,10 +126,9 @@ class FlexWebView: WebView {
         return this
     }
 
-    @ExperimentalStdlibApi
     fun addFlexInterface(flexInterfaces: Any) {
         flexInterfaces::class.members.forEach {
-            if(it.hasAnnotation<FlexFuncInterface>()) {
+            if(it.findAnnotation<FlexFuncInterface>() != null) {
                 if(it.visibility != KVisibility.PUBLIC) {
                     throw FlexException(FlexException.ERROR12)
                 }
@@ -138,7 +138,7 @@ class FlexWebView: WebView {
                 setInterface(it.name) { arguments ->
                     it.call(flexInterfaces, arguments)
                 }
-            } else if(it.hasAnnotation<FlexActionInterface>()) {
+            } else if(it.findAnnotation<FlexActionInterface>() != null) {
                 if(it.visibility != KVisibility.PUBLIC) {
                     throw FlexException(FlexException.ERROR12)
                 }

@@ -21,5 +21,6 @@ internal class FlexException : Exception {
         const val ERROR10 = "FlexFuncInterface can only have one parameter of JSONArray."
         const val ERROR11 = "FlexActionInterface can only have 2 parameters in order of FlexAction and JSONArray."
         const val ERROR12 = "FlexFuncInterface and FlexActionInterface must be public."
+        const val ERROR13 = "The BaseUrl can only use file://, http://, https:// protocols."
     }
 }

@@ -16,7 +16,7 @@ FlexibleHybridApp is a library that provides various convenience functions to de
 Add the following to the build.gradle of the module.
 ```Gradle
 dependencies {
-    implementation 'app.dvkyun.flexhybrid:flexhybrid:0.2.1'
+    implementation 'app.dvkyun.flexhybrid:flexhybrid:0.2.1.1'
 }
 ```
 2. Enable jitpack
@@ -33,7 +33,7 @@ allprojects {
 Then add the following to the build.gradle of the module:
 ```Gradle
 dependencies {
-    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.2.1'
+    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.2.1.1'
 }
 ```
 
@@ -351,6 +351,7 @@ fun setAction(name: String, action: (action: FlexAction?, arguments: JSONArray?)
 \$flex Object is an object composed of interfaces between FlexWebView and Promise.  
 The components of $ flex Object are as follows.
 ```js
+window.onFlexLoad // $flex is called upon completion of loading.
 $flex // Object that contains functions that can call Native area as WebToNative
 $flex.version // get Library version
 $flex.web // Object used to add and use functions to be used for NativeToWeb
