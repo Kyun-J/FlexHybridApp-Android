@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
                 arrayData[2] = 333;
                 data.put("arrayData", arrayData);
                 HashMap<String,Object> objectData = new HashMap<>();
-                objectData.put("o1",1);
+                objectData.put("o1",null);
                 objectData.put("o2",999.9999);
                 objectData.put("o3","dataO3");
                 data.put("objectData", objectData);

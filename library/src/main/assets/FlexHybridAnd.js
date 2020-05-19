@@ -7,9 +7,10 @@ const events = [''];
 window.$flex = {};
 Object.defineProperties($flex,
     {
-        version: { value: '0.2.1', writable: false },
+        version: { value: '0.2.2', writable: false, enumerable: true },
         //addEventListener: { value: function(event, callback) { listeners.push({ e: event, c: callback }) }, writable: false },
-        web: { value: {}, writable: false }
+        web: { value: {}, writable: false, enumerable: true },
+        flex: { value: {}, writable: false, enumerable: false }
     }
 )
 const genFName = () => {
@@ -36,15 +37,16 @@ keys.forEach(key => {
             function(...args) {
                 return new Promise(resolve => {
                     genFName().then(name => {
-                        window[name] = (r) => {
+                        $flex.flex[name] = (r) => {
                             resolve(r);
-                            delete window[name];
+                            delete $flex.flex[name];
                         };
                         define.flexInterface(JSON.stringify({intName:key,funName:name,arguments:args}));
                     });
                 });
             },
-            writable: false
+            writable: false,
+            enumerable: true
         });
     }
 });

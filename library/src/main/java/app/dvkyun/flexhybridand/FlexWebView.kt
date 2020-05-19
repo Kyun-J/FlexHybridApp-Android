@@ -161,7 +161,7 @@ open class FlexWebView: WebView {
     }
 
     fun evalFlexFunc(funcName: String) {
-        FlexUtil.evaluateJavaScript(this,"window.\$flex.web.$funcName()")
+        FlexUtil.evaluateJavaScript(this,"\$flex.flex.\$flex.web.$funcName()")
     }
 
     fun evalFlexFunc(funcName: String, response: (Any?) -> Unit) {
@@ -172,9 +172,9 @@ open class FlexWebView: WebView {
 
     fun evalFlexFunc(funcName: String, sendData: Any?) {
         if(sendData == null || sendData == Unit) {
-            FlexUtil.evaluateJavaScript(this,"window.\$flex.web.$funcName()")
+            FlexUtil.evaluateJavaScript(this,"\$flex.flex.\$flex.web.$funcName()")
         } else {
-            FlexUtil.evaluateJavaScript(this,"window.\$flex.web.$funcName(${FlexUtil.convertValue(sendData)})")
+            FlexUtil.evaluateJavaScript(this,"\$flex.flex.\$flex.web.$funcName(${FlexUtil.convertValue(sendData)})")
         }
     }
 
@@ -246,9 +246,9 @@ open class FlexWebView: WebView {
                     if(interfaces[intName] != null) {
                         val value = interfaces[intName]?.invoke(args)
                         if(value == null || value == Unit) {
-                            FlexUtil.evaluateJavaScript(this@FlexWebView, "window.${fName}()")
+                            FlexUtil.evaluateJavaScript(this@FlexWebView, "\$flex.flex.${fName}()")
                         } else {
-                            FlexUtil.evaluateJavaScript(this@FlexWebView, "window.$fName(${FlexUtil.convertValue(value)})")
+                            FlexUtil.evaluateJavaScript(this@FlexWebView, "\$flex.flex.$fName(${FlexUtil.convertValue(value)})")
                         }
                     } else if(actions[intName] != null) {
                         val lambda = actions[intName]!!

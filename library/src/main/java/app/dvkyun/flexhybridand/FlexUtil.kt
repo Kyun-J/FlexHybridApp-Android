@@ -21,6 +21,8 @@ object FlexUtil {
                 convertJSONArray(element)!!
             } else if (element is JSONObject) {
                 convertJSONObject(element)!!
+            } else if (element == null) {
+                null
             } else {
                 throw FlexException(FlexException.ERROR3)
             }
@@ -29,17 +31,21 @@ object FlexUtil {
 
     fun convertJSONObject(value: JSONObject?): Map<*,*>? {
         if(value == null) return null
-        val result = HashMap<String, Any>()
+        val result = HashMap<String, Any?>()
         value.keys().forEach {
-            val element = value[it]
-            if (element is Int || element is Double || element is Boolean || element is String) {
-                result[it] = element
-            } else if (element is JSONArray) {
-                result[it] = convertJSONArray(element)!!
-            } else if (element is JSONObject) {
-                result[it] = convertJSONObject(element)!!
+            if (value.isNull(it)) {
+                result[it] = null
             } else {
-                throw FlexException(FlexException.ERROR3)
+                val element = value[it]
+                if (element is Int || element is Double || element is Boolean || element is String) {
+                    result[it] = element
+                } else if (element is JSONArray) {
+                    result[it] = convertJSONArray(element)!!
+                } else if (element is JSONObject) {
+                    result[it] = convertJSONObject(element)!!
+                } else {
+                    throw FlexException(FlexException.ERROR3)
+                }
             }
         }
         return result
@@ -70,7 +76,7 @@ object FlexUtil {
         }
     }
 
-    internal fun convertValue(value: Any): String {
+    internal fun convertValue(value: Any?): String {
         return if (value is Int || value is Long || value is Double || value is Float || value is Boolean) {
             "$value"
         } else if (value is String || value is Char) {
@@ -79,7 +85,9 @@ object FlexUtil {
             val vString = StringBuilder()
             vString.append("[")
             value.forEach {
-                if (it is Int || it is Long || it is Double || it is Float || it is Boolean) {
+                if (it == null) {
+                    vString.append("null,")
+                } else if (it is Int || it is Long || it is Double || it is Float || it is Boolean) {
                     vString.append("${it},")
                 } else if (it is String || it is Char) {
                     vString.append("'${it}',")
@@ -95,7 +103,9 @@ object FlexUtil {
             val vString = StringBuilder()
             vString.append("[")
             value.forEach {
-                if (it is Int || it is Long || it is Double || it is Float || it is Boolean) {
+                if (it == null) {
+                    vString.append("null,")
+                } else if (it is Int || it is Long || it is Double || it is Float || it is Boolean) {
                     vString.append("${it},")
                 } else if (it is String || it is Char) {
                     vString.append("'${it}',")
@@ -112,7 +122,9 @@ object FlexUtil {
             vString.append("[")
             for(i in 0 until value.length()) {
                 val element = value[i]
-                if (element is Int || element is Long || element is Double || element is Float || element is Boolean) {
+                if (element == null) {
+                    vString.append("null,")
+                } else if (element is Int || element is Long || element is Double || element is Float || element is Boolean) {
                     vString.append("${element},")
                 } else if (element is String || element is Char) {
                     vString.append("'${element}',")
@@ -131,7 +143,9 @@ object FlexUtil {
                 if (it.key !is String) {
                     throw FlexException(FlexException.ERROR3)
                 }
-                if (it.value is Int || it.value is Long || it.value is Double || it.value is Float || it.value is Boolean) {
+                if (it.value == null) {
+                    vString.append("${it.key}: null,")
+                } else if (it.value is Int || it.value is Long || it.value is Double || it.value is Float || it.value is Boolean || it.value == null) {
                     vString.append("${it.key}:${it.value},")
                 } else if (it.value is String || it.value is Char) {
                     vString.append("${it.key}:'${it.value}',")
@@ -147,19 +161,25 @@ object FlexUtil {
             val vString = StringBuilder()
             vString.append("{")
             value.keys().forEach {
-                val element = value[it]
-                if (element is Int || element  is Long || element  is Double || element is Float || element  is Boolean) {
-                    vString.append("${it}:${element},")
-                } else if (element is String || element is Char) {
-                    vString.append("${it}:'${element}',")
-                } else if (element is Array<*> || element is Iterable<*> || element is Map<*,*> || element is JSONArray || element is JSONObject) {
-                    vString.append("${it}:${convertValue(element)},")
+                if(value.isNull(it)) {
+                    vString.append("${it}: null,")
                 } else {
-                    throw FlexException(FlexException.ERROR3)
+                    val element = value[it]
+                    if (element is Int || element  is Long || element  is Double || element is Float || element  is Boolean) {
+                        vString.append("${it}:${element},")
+                    } else if (element is String || element is Char) {
+                        vString.append("${it}:'${element}',")
+                    } else if (element is Array<*> || element is Iterable<*> || element is Map<*,*> || element is JSONArray || element is JSONObject) {
+                        vString.append("${it}:${convertValue(element)},")
+                    } else {
+                        throw FlexException(FlexException.ERROR3)
+                    }
                 }
             }
             vString.append("}")
             vString.toString()
+        } else if(value == null) {
+            "null"
         } else {
             throw FlexException(FlexException.ERROR3)
         }

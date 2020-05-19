@@ -1,7 +1,7 @@
 apply plugin: 'com.novoda.bintray-release'
 
 group 'app.dvkyun.flexhybridand'
-version '0.2.1.1'
+version '0.2.2'
 
 /** Configurations for com.novoda.bintray-release plugin.
  *

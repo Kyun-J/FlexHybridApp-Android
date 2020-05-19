@@ -13,9 +13,9 @@ class FlexAction(name: String, webView: FlexWebView) {
         if(isCall) throw FlexException(FlexException.ERROR9)
         isCall = true
         if(response == null || response == Unit) {
-            FlexUtil.evaluateJavaScript(flexWebView,"window.${funName}()")
+            FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}()")
         } else {
-            FlexUtil.evaluateJavaScript(flexWebView,"window.${funName}(${FlexUtil.convertValue(response)})")
+            FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(${FlexUtil.convertValue(response)})")
         }
     }
 

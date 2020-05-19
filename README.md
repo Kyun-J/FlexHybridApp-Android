@@ -16,7 +16,7 @@ FlexibleHybridApp is a library that provides various convenience functions to de
 Add the following to the build.gradle of the module.
 ```Gradle
 dependencies {
-    implementation 'app.dvkyun.flexhybrid:flexhybrid:0.2.1.1'
+    implementation 'app.dvkyun.flexhybrid:flexhybrid:0.2.2'
 }
 ```
 2. Enable jitpack
@@ -33,7 +33,7 @@ allprojects {
 Then add the following to the build.gradle of the module:
 ```Gradle
 dependencies {
-    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.2.1.1'
+    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.2.2'
 }
 ```
 
@@ -51,7 +51,7 @@ Basically, it compensates for the shortcomings of Android's JavascriptInterface 
 ## Transferable Data Type
 1. It is possible to transfer general data types and strings, such as Android JavascriptInterface.
 2. It is possible to transfer **JS Array to Kotlin(JAVA) (JSONArray, Array, List) and JS Object to Kotlin(JAVA) (JSONObject, Map)**.
-3. When transferring data of type Array and Object, the data contained in it **must be one of the following data types except Null and undefined**.
+3. When transferring data of type Array and Object, the data contained in it **must be one of the following data types**.
    
 | JS | Kotlin(Java) |
 |:--:|:--:|
@@ -59,7 +59,7 @@ Basically, it compensates for the shortcomings of Android's JavascriptInterface 
 | String | String, Character | 
 | Array [] | JSONArray, Array\<Any>, Iterable\<Any> |
 | Object {} | JSONObject, Map\<String,Any> |
-| undefined (Single Argument Only) | Null, Unit (Single Property Only) |
+| undefined (Single Argument Only), null | Null, Unit (Single Property Only) |
 
 ## WebToNative Interface
 The WebToNative interface has the following features.

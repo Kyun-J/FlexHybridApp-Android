@@ -11,7 +11,7 @@ internal class FlexException : Exception {
     internal companion object {
         const val ERROR1 = "Context must be Activity Context."
         const val ERROR2 = "ViewClient or ChromeClient must be FlexViewClient or FlexChromeClient"
-        const val ERROR3 = "Only Web interfaces with Int, DOUBLE, Float, Boolean, Char, String, JSONObject, JSONArray, Array <Any> (Object [], Iterable <Any> (like ArrayList), and Map>String,Any> (like HashMap) data are available."
+        const val ERROR3 = "Only Web interfaces with Null, Int, DOUBLE, Float, Boolean, Char, String, JSONObject, JSONArray, Array <Any> (Object [], Iterable <Any> (like ArrayList), and Map>String,Any> (like HashMap) data are available."
         const val ERROR4 = "FlexWebView to run javascript is null."
         const val ERROR5 = "BaseUrl cannot be changed after initialization."
         const val ERROR6 = "Interface can only be added before the first page of FlexWebView is loaded."
