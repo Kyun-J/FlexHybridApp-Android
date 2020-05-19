@@ -185,26 +185,4 @@ object FlexUtil {
         }
     }
 
-    private const val TAG = "FLEXHYBRID"
-
-    internal fun INFO(msg: Any?) {
-        android.util.Log.i(TAG, msg.toString())
-    }
-
-    internal fun DEBUG(msg: Any?) {
-        android.util.Log.d(TAG, msg.toString())
-    }
-
-    internal fun VERBOSE(msg: Any?) {
-        android.util.Log.v(TAG, msg.toString())
-    }
-
-    internal fun WARN(msg: Any?) {
-        android.util.Log.w(TAG, msg.toString())
-    }
-
-    internal fun ERR(msg: Any?) {
-        android.util.Log.e(TAG, msg.toString())
-    }
-
 }
