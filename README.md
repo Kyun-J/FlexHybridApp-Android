@@ -59,7 +59,7 @@ Basically, it compensates for the shortcomings of Android's JavascriptInterface 
 | String | String, Character | 
 | Array [] | JSONArray, Array\<Any>, Iterable\<Any> |
 | Object {} | JSONObject, Map\<String,Any> |
-| undefined (Single Argument Only), null | Null, Unit |
+| undefined (Single Argument Only), null | Null |
 
 ## WebToNative Interface
 The WebToNative interface has the following features.
