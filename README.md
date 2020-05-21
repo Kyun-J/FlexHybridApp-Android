@@ -16,7 +16,7 @@ FlexibleHybridApp is a library that provides various convenience functions to de
 Add the following to the build.gradle of the module.
 ```Gradle
 dependencies {
-    implementation 'app.dvkyun.flexhybrid:flexhybrid:0.2.2'
+    implementation 'app.dvkyun.flexhybrid:flexhybrid:0.2.2.1'
 }
 ```
 2. Enable jitpack
@@ -33,7 +33,7 @@ allprojects {
 Then add the following to the build.gradle of the module:
 ```Gradle
 dependencies {
-    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.2.2'
+    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.2.2.1'
 }
 ```
 
@@ -59,7 +59,7 @@ Basically, it compensates for the shortcomings of Android's JavascriptInterface 
 | String | String, Character | 
 | Array [] | JSONArray, Array\<Any>, Iterable\<Any> |
 | Object {} | JSONObject, Map\<String,Any> |
-| undefined (Single Argument Only), null | Null, Unit (Single Property Only) |
+| undefined (Single Argument Only), null | Null |
 
 ## WebToNative Interface
 The WebToNative interface has the following features.
@@ -115,7 +115,7 @@ const res = await $flex.Action("Who Are You?"); // Pending until promiseReturn i
 ```
 The parameter of `promiseReturn` is only available for [Transferable Data Type](#Transferable-Data-Type).  
 If the `promiseReturn` method is not called, the function in the web will be in a pending state, so be careful to call` promiseReturn` when using the Action Interface.  
-In addition, FlexAction object that had already called `promiseReturn` is an exception when calling` promiseReturn`, so you should not call it more than once.  
+In addition, FlexAction objects that have already called `promiseReturn` do not happen even if duplicate`promiseReturn` is called.
 
 ### ***Annotation Interface***
 Similar to Android's `@JavascriptInterface`, Interface or Action can be registered through Annotation.
@@ -149,7 +149,7 @@ const res = await $flex.funInterface();
 3. When sending the return value to the web, you should use the `promiseReturn` of the passed FlexAction parameter.
 4. The parameters of `promiseReturn` are only available for [Transferable Data Type](#Transferable-Data-Type).
 5. If the `promiseReturn` method cannot be called, the function on the web will be in a pending state, so be careful to call `promiseReturn` when using the Action Interface.
-6. When calling `promiseReturn`, an exception occurs, so you should not call it more than once.
+6. `promiseReturn` works only once, and nothing happens when a duplicate call is made.
 7. The class containing @FlexActionInterface must be passed as an argument to FlexWebView.addFlexInterface to add the interface.
 ```kt
 class MyInterface {

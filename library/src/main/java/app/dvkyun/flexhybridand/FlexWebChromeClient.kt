@@ -42,7 +42,6 @@ open class FlexWebChromeClient(activity: Activity) : WebChromeClient() {
         super.onShowCustomView(view, callback)
     }
 
-
     override fun onShowCustomView(
         view: View?,
         requestedOrientation: Int,

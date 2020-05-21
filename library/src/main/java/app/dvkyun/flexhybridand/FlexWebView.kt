@@ -22,6 +22,10 @@ import kotlin.reflect.full.valueParameters
 
 open class FlexWebView: WebView {
 
+    companion object {
+        private const val UNIQUE = "flexdefine"
+    }
+
     private val mActivity: Activity? = FlexUtil.getActivity(context)
     private val interfaces: HashMap<String, (arguments: JSONArray?) -> Any?> = HashMap()
     private val actions: HashMap<String, (action: FlexAction?, arguments: JSONArray?) -> Unit> = HashMap()
@@ -55,7 +59,7 @@ open class FlexWebView: WebView {
         }
         webChromeClient = FlexWebChromeClient(mActivity)
         webViewClient = FlexWebViewClient()
-        super.addJavascriptInterface(InternalInterface(), "flexdefine")
+        super.addJavascriptInterface(InternalInterface(), UNIQUE)
         initialize()
     }
 
@@ -214,6 +218,13 @@ open class FlexWebView: WebView {
         super.addJavascriptInterface(`object`, name)
     }
 
+    override fun removeJavascriptInterface(name: String) {
+        if(name == UNIQUE) {
+            throw FlexException(FlexException.ERROR14)
+        }
+        super.removeJavascriptInterface(name)
+    }
+
     internal fun flexInitInPage() {
         if(!isAfterFirstLoad) {
             val keys = StringBuilder()
@@ -257,7 +268,7 @@ open class FlexWebView: WebView {
                         lambda.invoke(action, args)
                     }  else {
                         when(internalInterface.indexOf(intName)) {
-                            0 -> {
+                            0 -> { // flexreturn
                                 val iData = args!!.getJSONObject(0)
                                 val tID = iData.getInt("TID")
                                 val value = iData.get("Value")
