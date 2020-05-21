@@ -11,7 +11,7 @@ FlexibleHybridApp은 Web, Native 상호간의 Interface을 Promise로 구현하�
 모듈의 build.gradle에 다음을 추가.
 ```gradle
 dependencies {
-    implementation 'app.dvkyun.flexhybridand:flexhybridand:0.2.2'
+    implementation 'app.dvkyun.flexhybridand:flexhybridand:0.2.2.1'
 }
 ```
 2. jitpack 사용  
@@ -54,7 +54,7 @@ dependencies {
 | String | String, Character | 
 | Array [] | JSONArray, Array\<Any>, Iterable\<Any> |
 | Object {} | JSONObject, Map\<String,Any> |
-| undefined (Single Argument Only), null | Null, Unit |
+| undefined (Single Argument Only), null | Null |
 
 ## WebToNative 인터페이스
 WebToNative 인터페이스는 다음의 특징을 지닙니다.
@@ -110,7 +110,7 @@ const res = await $flex.Action("Who Are You?"); // Pending until promiseReturn i
 ```
 `promiseReturn`의 파라미터는 [전달 가능한 데이터 타입](#전달-가능한-데이터-타입)만 사용 가능합니다.  
 `promiseReturn`메소드가 호출되지 못하면, web에서 해당 함수는 계속 pending된 상태가 되기 때문에 Action Interface를 사용시 `promiseReturn`를 반드시 호출할 수 있도록 주의가 필요합니다.  
-또한 이미 `promiseReturn`가 호출되었던 FlexAction 객체는 `promiseReturn` 재 호출시 Exception이 발생하므로 2번 이상 호출하지 않도록 해야합니다.
+또한 이미 `promiseReturn`가 호출되었던 FlexAction 객체는 `promiseReturn`을 중복 호출하여도 아무런 일도 일어나지 않습니다.
 
 ### ***Annotation 인터페이스***
 Android의 `@JavascriptInterface` 와 유사하게, Annotation을 통해 Interface 혹은 Action을 등록할 수 있습니다.
@@ -143,7 +143,7 @@ const res = await $flex.funInterface();
 3. Web에 리턴값 전송시, 전달된 FlexAction 파라미터의 `promiseReturn`을 사용해야 합니다.
 4. `promiseReturn`의 파라미터는 [전달 가능한 데이터 타입](#전달-가능한-데이터-타입)만 사용 가능합니다.
 5. `promiseReturn`메소드가 호출되지 못하면, web에서 해당 함수는 계속 pending된 상태가 되기 때문에 Action Interface를 사용시 `promiseReturn`를 반드시 호출할 수 있도록 주의가 필요합니다.  
-6. `promiseReturn` 재 호출시 Exception이 발생하므로 2번 이상 호출하지 않도록 해야합니다.
+6. `promiseReturn`은 1번만 동작하며, 중복 호출 시 아무 일도 일어나지 않습니다.
 7. @FlexActionInterface가 포함된 Class를 FlexWebView.addFlexInterface에 인자로 전달해야 인터페이스가 추가됩니다.
 ```kt
 class MyInterface {

@@ -22,5 +22,6 @@ internal class FlexException : Exception {
         const val ERROR11 = "FlexActionInterface can only have 2 parameters in order of FlexAction and JSONArray."
         const val ERROR12 = "FlexFuncInterface and FlexActionInterface must be public."
         const val ERROR13 = "The BaseUrl can only use file://, http://, https:// protocols."
+        const val ERROR14 = "The Unique interface cannot be removed."
     }
 }

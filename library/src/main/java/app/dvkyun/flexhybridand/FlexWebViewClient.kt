@@ -10,7 +10,7 @@ open class FlexWebViewClient: WebViewClient() {
         super.onPageStarted(view, url, favicon)
         if(view is FlexWebView && url != null) {
             val baseUrl = view.baseUrl
-            if(baseUrl == null || (url.substring(0, baseUrl.length) == baseUrl)) {
+            if(baseUrl == null || url.startsWith(baseUrl)) {
                 view.flexInitInPage()
             }
         }
