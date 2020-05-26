@@ -29,6 +29,7 @@ open class FlexWebView: WebView {
     private val mActivity: Activity? = FlexUtil.getActivity(context)
     private val interfaces: HashMap<String, (arguments: JSONArray?) -> Any?> = HashMap()
     private val actions: HashMap<String, (action: FlexAction?, arguments: JSONArray?) -> Unit> = HashMap()
+    private val options: JSONObject = JSONObject()
     private val returnFromWeb: HashMap<Int,(Any?) -> Unit> = HashMap()
     private val internalInterface = arrayOf("flexreturn")
     private val scope = CoroutineScope(Dispatchers.Default)
@@ -46,7 +47,7 @@ open class FlexWebView: WebView {
     init {
         if(mActivity == null) throw FlexException(FlexException.ERROR1)
         flexJsString = try {
-            val reader = BufferedReader(context.assets.open("FlexHybridAnd.min.js").reader())
+            val reader = BufferedReader(context.assets.open("FlexHybridAnd.js").reader())
             val sb = StringBuilder()
             var line: String?
             while (reader.readLine().also { line = it } != null) {
@@ -164,8 +165,25 @@ open class FlexWebView: WebView {
         }
     }
 
+    fun setOption(name: String, option: Any) {
+        if(isAfterFirstLoad) {
+            throw FlexException(FlexException.ERROR6)
+        }
+        if(option !is Int && option !is Long && option !is Double && option !is Boolean && option !is String) {
+
+        }
+        options.put(name, option)
+    }
+
+    fun setOptions(WebOptions: FlexWebOption) {
+        if(isAfterFirstLoad) {
+            throw FlexException(FlexException.ERROR6)
+        }
+        options.put("timeout", WebOptions.timeout)
+    }
+
     fun evalFlexFunc(funcName: String) {
-        FlexUtil.evaluateJavaScript(this,"\$flex.flex.\$flex.web.$funcName()")
+        FlexUtil.evaluateJavaScript(this,"\$flex.web.$funcName(); void 0;")
     }
 
     fun evalFlexFunc(funcName: String, response: (Any?) -> Unit) {
@@ -176,9 +194,9 @@ open class FlexWebView: WebView {
 
     fun evalFlexFunc(funcName: String, sendData: Any?) {
         if(sendData == null || sendData == Unit) {
-            FlexUtil.evaluateJavaScript(this,"\$flex.flex.\$flex.web.$funcName()")
+            FlexUtil.evaluateJavaScript(this,"\$flex.web.$funcName(); void 0;")
         } else {
-            FlexUtil.evaluateJavaScript(this,"\$flex.flex.\$flex.web.$funcName(${FlexUtil.convertValue(sendData)})")
+            FlexUtil.evaluateJavaScript(this,"\$flex.web.$funcName(${FlexUtil.convertValue(sendData)}); void 0;")
         }
     }
 
@@ -186,7 +204,7 @@ open class FlexWebView: WebView {
         val tID = Random.nextInt(10000)
         returnFromWeb[tID] = response
         if(sendData == null || sendData == Unit) {
-            FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.${funcName}(); \$flex.flexreturn({ TID: ${tID}, Value: V }); })(); void 0;")
+            FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.$funcName(); \$flex.flexreturn({ TID: $tID, Value: V }); })(); void 0;")
         } else {
             FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.$funcName(${FlexUtil.convertValue(sendData)}); \$flex.flexreturn({ TID: $tID, Value: V }); })(); void 0;")
         }
@@ -240,6 +258,7 @@ open class FlexWebView: WebView {
             }
             keys.append("\"]")
             flexJsString = flexJsString.replaceFirst("keysfromAnd",keys.toString())
+            flexJsString = flexJsString.replaceFirst("optionsfromAnd", FlexUtil.convertValue(options))
         }
         isAfterFirstLoad = true
         FlexUtil.evaluateJavaScript(this, flexJsString)
@@ -273,6 +292,7 @@ open class FlexWebView: WebView {
                                 val tID = iData.getInt("TID")
                                 val value = iData.get("Value")
                                 returnFromWeb[tID]?.invoke(value)
+                                FlexUtil.evaluateJavaScript(this@FlexWebView, "\$flex.flex.${fName}()")
                             }
                         }
                     }
