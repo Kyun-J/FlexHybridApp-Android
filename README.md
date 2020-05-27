@@ -16,7 +16,7 @@ FlexibleHybridApp is a library that provides various convenience functions to de
 Add the following to the build.gradle of the module.
 ```Gradle
 dependencies {
-    implementation 'app.dvkyun.flexhybrid:flexhybrid:0.3'
+    implementation 'app.dvkyun.flexhybridand:flexhybridand:0.3'
 }
 ```
 2. Enable jitpack
