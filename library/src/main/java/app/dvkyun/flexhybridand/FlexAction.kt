@@ -10,7 +10,10 @@ class FlexAction(name: String, webView: FlexWebView) {
 
     fun promiseReturn(response: Any?) {
         afterReturn?.invoke()
-        if(isCall) throw FlexException(FlexException.ERROR9)
+        if(isCall) {
+            FlexUtil.INFO(FlexException.ERROR9)
+            return
+        }
         isCall = true
         if(response == null || response == Unit) {
             FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}()")

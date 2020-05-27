@@ -16,7 +16,7 @@ FlexibleHybridApp is a library that provides various convenience functions to de
 Add the following to the build.gradle of the module.
 ```Gradle
 dependencies {
-    implementation 'app.dvkyun.flexhybridand:flexhybridand:0.3'
+    implementation 'app.dvkyun.flexhybridand:flexhybridand:0.3.0.1'
 }
 ```
 2. Enable jitpack
@@ -33,7 +33,7 @@ allprojects {
 Then add the following to the build.gradle of the module:
 ```Gradle
 dependencies {
-    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.3'
+    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.3.0.1'
 }
 ```
 
