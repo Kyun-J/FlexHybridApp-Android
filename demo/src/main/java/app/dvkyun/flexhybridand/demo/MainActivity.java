@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         flexWebView.setWebContentsDebuggingEnabled(true);
         flexWebView.setBaseUrl("file:///android_asset");
         flexWebView.setOption("timeout", 3000);
-        flexWebView.getSettings().setTextZoom(250);
+//        flexWebView.getSettings().setTextZoom(250);
 
         flexWebView.setAction("test4", new Function2<FlexAction, JSONArray, Unit>() {
             @Override
@@ -68,8 +68,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         flexWebView.addFlexInterface(new FlexInterfaceExample());
-        flexWebView.loadUrl("file:///android_asset/html/test.html");
+//        flexWebView.loadUrl("file:///android_asset/html/test.html");
+        flexWebView.loadUrl("file:///android_asset/demo/index.html");
     }
+
 
     @Override
     protected void onResume() {

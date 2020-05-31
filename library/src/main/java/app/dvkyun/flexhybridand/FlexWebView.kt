@@ -170,7 +170,7 @@ open class FlexWebView: WebView {
             throw FlexException(FlexException.ERROR6)
         }
         if(option !is Int && option !is Long && option !is Double && option !is Boolean && option !is String) {
-
+            throw FlexException(FlexException.ERROR15)
         }
         options.put(name, option)
     }
@@ -259,6 +259,10 @@ open class FlexWebView: WebView {
             keys.append("\"]")
             flexJsString = flexJsString.replaceFirst("keysfromAnd",keys.toString())
             flexJsString = flexJsString.replaceFirst("optionsfromAnd", FlexUtil.convertValue(options))
+            val device = JSONObject()
+            device.put("os","Android")
+            device.put("version", Build.VERSION.SDK_INT.toString())
+            flexJsString = flexJsString.replaceFirst("deviceinfoFromAnd", FlexUtil.convertValue(device))
         }
         isAfterFirstLoad = true
         FlexUtil.evaluateJavaScript(this, flexJsString)
