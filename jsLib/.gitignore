@@ -3,9 +3,6 @@
 # Edit at https://www.gitignore.io/?templates=node,react
 
 ### Node ###
-
-package-lock.json
-
 # Logs
 logs
 *.log
