@@ -10,17 +10,16 @@ import org.json.JSONObject
 
 object FlexUtil {
 
-    fun convertJSONArray(value: JSONArray?): Array<Any?>? {
-        if(value == null) return null
+    fun convertJSONArray(value: JSONArray): Array<Any?> {
         return Array(value.length())
         { i ->
             val element = value[i]
             if (element is Int || element is Double || element is Boolean || element is String) {
                 element
             } else if (element is JSONArray) {
-                convertJSONArray(element)!!
+                convertJSONArray(element)
             } else if (element is JSONObject) {
-                convertJSONObject(element)!!
+                convertJSONObject(element)
             } else if (element == null) {
                 null
             } else {
@@ -29,8 +28,7 @@ object FlexUtil {
         }
     }
 
-    fun convertJSONObject(value: JSONObject?): Map<*,*>? {
-        if(value == null) return null
+    fun convertJSONObject(value: JSONObject): Map<*,*> {
         val result = HashMap<String, Any?>()
         value.keys().forEach {
             if (value.isNull(it)) {
@@ -40,9 +38,9 @@ object FlexUtil {
                 if (element is Int || element is Double || element is Boolean || element is String) {
                     result[it] = element
                 } else if (element is JSONArray) {
-                    result[it] = convertJSONArray(element)!!
+                    result[it] = convertJSONArray(element)
                 } else if (element is JSONObject) {
-                    result[it] = convertJSONObject(element)!!
+                    result[it] = convertJSONObject(element)
                 } else {
                     throw FlexException(FlexException.ERROR3)
                 }

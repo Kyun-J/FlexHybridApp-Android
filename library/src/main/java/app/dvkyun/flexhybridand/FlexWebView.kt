@@ -262,6 +262,7 @@ open class FlexWebView: WebView {
             val device = JSONObject()
             device.put("os","Android")
             device.put("version", Build.VERSION.SDK_INT.toString())
+            device.put("model", Build.MODEL)
             flexJsString = flexJsString.replaceFirst("deviceinfoFromAnd", FlexUtil.convertValue(device))
         }
         isAfterFirstLoad = true
