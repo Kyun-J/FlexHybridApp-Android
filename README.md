@@ -11,15 +11,7 @@ FlexibleHybridApp is a library that provides various convenience functions to de
 
 **minSdkVersion 19**
 
-1. Enable JCenter
-
-Add the following to the build.gradle of the module.
-```Gradle
-dependencies {
-    implementation 'app.dvkyun.flexhybridand:flexhybridand:0.3.0.1'
-}
-```
-2. Enable jitpack
+1. Enable jitpack
 
 Add the following to the project build.gradle
 ```Gradle
@@ -33,7 +25,7 @@ allprojects {
 Then add the following to the build.gradle of the module:
 ```Gradle
 dependencies {
-    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.3.0.1'
+    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.3.5'
 }
 ```
 
@@ -355,5 +347,6 @@ window.onFlexLoad // $flex is called upon completion of loading.
 $flex // Object that contains functions that can call Native area as WebToNative
 $flex.version // get Library version
 $flex.web // Object used to add and use functions to be used for NativeToWeb
+$flex.device // Current Device Info
 ```
 For detailed usage, refer to [Flex Interface Implementation](#Flex-Interface-Implementation).
