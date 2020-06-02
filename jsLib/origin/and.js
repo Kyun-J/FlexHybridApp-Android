@@ -34,8 +34,9 @@
     window.$flex = {};
     Object.defineProperties($flex,
         {
-            version: { value: '0.3', writable: false, enumerable: true },
-            addEventListener: { value: function(event, callback) { listeners.push({ e: event, c: callback }) }, writable: true },
+            version: { value: '0.3.5', writable: false, enumerable: true },
+            device: { value: device, writable: false, enumerable: true },
+            addEventListener: { value: function(event, callback) { listeners.push({ e: event, c: callback }) }, writable: false, enumerable: false  },
             web: { value: {}, writable: false, enumerable: true },
             options: { value: option, writable: false, enumerable: true },
             flex: { value: {}, writable: false, enumerable: false }

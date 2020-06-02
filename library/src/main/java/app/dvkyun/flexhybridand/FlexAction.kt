@@ -6,10 +6,8 @@ class FlexAction(name: String, webView: FlexWebView) {
     private var flexWebView: FlexWebView = webView
     private var isCall = false
 
-    internal var afterReturn: (() -> Unit)? = null
 
     fun promiseReturn(response: Any?) {
-        afterReturn?.invoke()
         if(isCall) {
             FlexUtil.INFO(FlexException.ERROR9)
             return

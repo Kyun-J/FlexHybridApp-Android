@@ -1,2 +1,1 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="app.dvkyun.flexhybridand" />
+<manifest package="app.dvkyun.flexhybridand" />

@@ -27,8 +27,8 @@ open class FlexWebView: WebView {
     }
 
     private val mActivity: Activity? = FlexUtil.getActivity(context)
-    private val interfaces: HashMap<String, (arguments: JSONArray?) -> Any?> = HashMap()
-    private val actions: HashMap<String, (action: FlexAction?, arguments: JSONArray?) -> Unit> = HashMap()
+    private val interfaces: HashMap<String, (arguments: JSONArray) -> Any?> = HashMap()
+    private val actions: HashMap<String, (action: FlexAction, arguments: JSONArray) -> Unit> = HashMap()
     private val options: JSONObject = JSONObject()
     private val returnFromWeb: HashMap<Int,(Any?) -> Unit> = HashMap()
     private val internalInterface = arrayOf("flexreturn")
@@ -103,7 +103,7 @@ open class FlexWebView: WebView {
 
     fun getBaseUrl(): String? = baseUrl
 
-    fun setInterface(name: String, lambda: (JSONArray?) -> Any?): FlexWebView {
+    fun setInterface(name: String, lambda: (JSONArray) -> Any?): FlexWebView {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR6)
         }
@@ -117,7 +117,7 @@ open class FlexWebView: WebView {
         return this
     }
 
-    fun setAction(name: String, action: (action: FlexAction?, arguments: JSONArray?) -> Unit): FlexWebView {
+    fun setAction(name: String, action: (action: FlexAction, arguments: JSONArray) -> Unit): FlexWebView {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR6)
         }
@@ -259,6 +259,11 @@ open class FlexWebView: WebView {
             keys.append("\"]")
             flexJsString = flexJsString.replaceFirst("keysfromAnd",keys.toString())
             flexJsString = flexJsString.replaceFirst("optionsfromAnd", FlexUtil.convertValue(options))
+            val device = JSONObject()
+            device.put("os","Android")
+            device.put("version", Build.VERSION.SDK_INT.toString())
+            device.put("model", Build.MODEL)
+            flexJsString = flexJsString.replaceFirst("deviceinfoFromAnd", FlexUtil.convertValue(device))
         }
         isAfterFirstLoad = true
         FlexUtil.evaluateJavaScript(this, flexJsString)
@@ -272,7 +277,7 @@ open class FlexWebView: WebView {
                     val data = JSONObject(input)
                     val intName : String = data.getString("intName")
                     val fName : String = data.getString("funName")
-                    val args : JSONArray? = data.getJSONArray("arguments")
+                    val args : JSONArray = data.getJSONArray("arguments")
                     if(interfaces[intName] != null) {
                         val value = interfaces[intName]?.invoke(args)
                         if(value == null || value == Unit) {
@@ -282,13 +287,11 @@ open class FlexWebView: WebView {
                         }
                     } else if(actions[intName] != null) {
                         val lambda = actions[intName]!!
-                        var action: FlexAction? = FlexAction(fName, this@FlexWebView)
-                        action?.afterReturn = { action = null }
-                        lambda.invoke(action, args)
+                        lambda.invoke(FlexAction(fName, this@FlexWebView), args)
                     }  else {
                         when(internalInterface.indexOf(intName)) {
                             0 -> { // flexreturn
-                                val iData = args!!.getJSONObject(0)
+                                val iData = args.getJSONObject(0)
                                 val tID = iData.getInt("TID")
                                 val value = iData.get("Value")
                                 returnFromWeb[tID]?.invoke(value)

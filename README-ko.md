@@ -6,15 +6,8 @@ FlexibleHybridApp은 Web, Native 상호간의 Interface을 Promise로 구현하�
 
 **minSdkVersion 19**
 
-1. JCenter 사용  
-
-모듈의 build.gradle에 다음을 추가.
-```gradle
-dependencies {
-    implementation 'app.dvkyun.flexhybridand:flexhybridand:0.3.0.1'
-}
 ```
-2. jitpack 사용  
+1. jitpack 사용  
 
 프로젝트 build.gradle에 다음을 추가
 ```gradle
@@ -28,7 +21,7 @@ allprojects {
 그후 모듈의 build.gradle에 다음을 추가
 ```gradle
 dependencies {
-        implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.3.0.1'
+        implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.3.5'
 }
 ```
 
@@ -348,5 +341,6 @@ window.onFlexLoad // $flex is called upon completion of loading.
 $flex // Object that contains functions that can call Native area as WebToNative
 $flex.version // get Library version
 $flex.web // Object used to add and use functions to be used for NativeToWeb
+$flex.device // Current Device Info
 ```
 상세한 사용법은 [Flex 인터페이스 구현](#Flex-인터페이스-구현) 항목을 참고하세요.
