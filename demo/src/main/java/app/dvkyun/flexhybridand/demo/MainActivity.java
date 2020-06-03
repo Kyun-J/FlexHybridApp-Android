@@ -68,8 +68,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         flexWebView.addFlexInterface(new FlexInterfaceExample());
-//        flexWebView.loadUrl("file:///android_asset/html/test.html");
-        flexWebView.loadUrl("file:///android_asset/demo/index.html");
+        flexWebView.loadUrl("file:///android_asset/html/test.html");
+//        flexWebView.loadUrl("file:///android_asset/demo/index.html");
     }
 
 

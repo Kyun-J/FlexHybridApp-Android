@@ -16,6 +16,7 @@ import app.dvkyun.flexhybridand.FlexAction;
 import app.dvkyun.flexhybridand.FlexActionInterface;
 import app.dvkyun.flexhybridand.FlexFuncInterface;
 import app.dvkyun.flexhybridand.FlexInterfaces;
+import app.dvkyun.flexhybridand.FlexReject;
 import app.dvkyun.flexhybridand.FlexUtil;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -75,6 +76,16 @@ public class FlexInterfaceExample extends FlexInterfaces {
     public void test7(FlexAction action, JSONArray arguments) {
         Log.i("console", "Annotation Action Interface test");
         action.promiseReturn("test success");
+    }
+
+    @FlexFuncInterface
+    public FlexReject test8(JSONArray arguments) {
+        return new FlexReject("reject test");
+    }
+
+    @FlexActionInterface
+    public void test9(FlexAction action, JSONArray arguments) {
+        action.reject("action reject test");
     }
 
 }

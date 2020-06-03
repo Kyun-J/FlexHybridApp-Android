@@ -189,25 +189,18 @@ open class FlexWebView: WebView {
     fun evalFlexFunc(funcName: String, response: (Any?) -> Unit) {
         val tID = Random.nextInt(10000)
         returnFromWeb[tID] = response
-        FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.$funcName(); \$flex.flexreturn({ TID: $tID, Value: V }); })(); void 0;")
+        FlexUtil.evaluateJavaScript(this,"!async function(){try{const e=await \$flex.web.$funcName();\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();")
+
     }
 
-    fun evalFlexFunc(funcName: String, sendData: Any?) {
-        if(sendData == null || sendData == Unit) {
-            FlexUtil.evaluateJavaScript(this,"\$flex.web.$funcName(); void 0;")
-        } else {
-            FlexUtil.evaluateJavaScript(this,"\$flex.web.$funcName(${FlexUtil.convertValue(sendData)}); void 0;")
-        }
+    fun evalFlexFunc(funcName: String, sendData: Any) {
+        FlexUtil.evaluateJavaScript(this,"\$flex.web.$funcName(${FlexUtil.convertValue(sendData)}); void 0;")
     }
 
-    fun evalFlexFunc(funcName: String, sendData: Any?, response: (Any?) -> Unit) {
+    fun evalFlexFunc(funcName: String, sendData: Any, response: (Any?) -> Unit) {
         val tID = Random.nextInt(10000)
         returnFromWeb[tID] = response
-        if(sendData == null || sendData == Unit) {
-            FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.$funcName(); \$flex.flexreturn({ TID: $tID, Value: V }); })(); void 0;")
-        } else {
-            FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.$funcName(${FlexUtil.convertValue(sendData)}); \$flex.flexreturn({ TID: $tID, Value: V }); })(); void 0;")
-        }
+        FlexUtil.evaluateJavaScript(this,"!async function(){try{const e=await \$flex.web.$funcName(${FlexUtil.convertValue(sendData)});\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();")
     }
 
     override fun getWebChromeClient(): FlexWebChromeClient {
@@ -280,10 +273,13 @@ open class FlexWebView: WebView {
                     val args : JSONArray = data.getJSONArray("arguments")
                     if(interfaces[intName] != null) {
                         val value = interfaces[intName]?.invoke(args)
-                        if(value == null || value == Unit) {
-                            FlexUtil.evaluateJavaScript(this@FlexWebView, "\$flex.flex.${fName}()")
+                        if(value is FlexReject) {
+                            val reason = if(value.reason == null) null else "\"${value.reason}\""
+                            FlexUtil.evaluateJavaScript(this@FlexWebView, "\$flex.flex.${fName}(false, ${reason})")
+                        } else if(value == null || value == Unit) {
+                            FlexUtil.evaluateJavaScript(this@FlexWebView, "\$flex.flex.${fName}(true)")
                         } else {
-                            FlexUtil.evaluateJavaScript(this@FlexWebView, "\$flex.flex.$fName(${FlexUtil.convertValue(value)})")
+                            FlexUtil.evaluateJavaScript(this@FlexWebView, "\$flex.flex.$fName(true, null, ${FlexUtil.convertValue(value)})")
                         }
                     } else if(actions[intName] != null) {
                         val lambda = actions[intName]!!
@@ -294,8 +290,13 @@ open class FlexWebView: WebView {
                                 val iData = args.getJSONObject(0)
                                 val tID = iData.getInt("TID")
                                 val value = iData.get("Value")
-                                returnFromWeb[tID]?.invoke(value)
-                                FlexUtil.evaluateJavaScript(this@FlexWebView, "\$flex.flex.${fName}()")
+                                val error = iData.getBoolean("Error")
+                                if (error) {
+                                    returnFromWeb[tID]?.invoke(FlexReject(value.toString()))
+                                } else {
+                                    returnFromWeb[tID]?.invoke(value)
+                                }
+                                FlexUtil.evaluateJavaScript(this@FlexWebView, "\$flex.flex.${fName}(true)")
                             }
                         }
                     }

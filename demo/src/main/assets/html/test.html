@@ -45,6 +45,20 @@
         const z = await $flex.test7();
         console.log("Data from Annotation Action --- " + z);
     }
+    const t8 = async () => {
+        try {
+            const z = await $flex.test8();
+        } catch (e) {
+            console.log(e);
+        }
+    }
+    const t9 = async () => {
+        try {
+            const z = await $flex.test9();
+        } catch (e) {
+            console.log(e);
+        }
+    }
     window.onFlexLoad = function() {
         console.log('$flex is load complete!')
         $flex.web.webtest = function(data) {
@@ -61,5 +75,7 @@
 <button onclick='t5()' style="width: 100%; height: 150px;">test $flex.web func call</button>
 <button onclick='t6()' style="width: 100%; height: 150px;">test popup dialog with Annotation interface</button>
 <button onclick='t7()' style="width: 100%; height: 150px;">test Annotation Action interface</button>
+<button onclick='t8()' style="width: 100%; height: 150px;">test reject1</button>
+<button onclick='t9()' style="width: 100%; height: 150px;">test reject2</button>
 </body>
 </html>

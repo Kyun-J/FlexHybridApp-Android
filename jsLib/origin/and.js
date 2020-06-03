@@ -35,7 +35,7 @@
     window.$flex = {};
     Object.defineProperties($flex,
         {
-            version: { value: '0.3.5', writable: false, enumerable: true },
+            version: { value: '0.4', writable: false, enumerable: true },
             device: { value: device, writable: false, enumerable: true },
             addEventListener: { value: function(event, callback) { listeners.push({ e: event, c: callback }) }, writable: false, enumerable: false  },
             web: { value: {}, writable: false, enumerable: true },
@@ -49,7 +49,7 @@
         if ($flex[key] === undefined) {
             Object.defineProperty($flex, key, {
                 value: function (...args) {
-                    return new Promise(resolve => {
+                    return new Promise((resolve, reject) => {
                         genFName().then(name => {
                             const counter = setTimeout(() => {
                                 $flex.flex[name]();
@@ -58,8 +58,13 @@
                                     name: key
                                 });
                             }, option.timeout);
-                            $flex.flex[name] = (r) => {
-                                resolve(r);
+                            $flex.flex[name] = (j, e, r) => {
+                                if(j) {
+                                    resolve(r);
+                                } else {
+                                    if(typeof e === 'string') reject(new Error(e));
+                                    else reject(new Error('$flex Error occurred in function -- $flex.' + key));
+                                }
                                 clearTimeout(counter);
                                 delete $flex.flex[name];
                             };
