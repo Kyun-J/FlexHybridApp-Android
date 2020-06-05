@@ -189,7 +189,7 @@ open class FlexWebView: WebView {
     fun evalFlexFunc(funcName: String, response: (Any?) -> Unit) {
         val tID = Random.nextInt(10000)
         returnFromWeb[tID] = response
-        FlexUtil.evaluateJavaScript(this,"!async function(){try{const e=await \$flex.web.$funcName();\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();")
+        FlexUtil.evaluateJavaScript(this,"!async function(){try{const e=await \$flex.web.$funcName();\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();void 0;")
 
     }
 
@@ -200,7 +200,7 @@ open class FlexWebView: WebView {
     fun evalFlexFunc(funcName: String, sendData: Any, response: (Any?) -> Unit) {
         val tID = Random.nextInt(10000)
         returnFromWeb[tID] = response
-        FlexUtil.evaluateJavaScript(this,"!async function(){try{const e=await \$flex.web.$funcName(${FlexUtil.convertValue(sendData)});\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();")
+        FlexUtil.evaluateJavaScript(this,"!async function(){try{const e=await \$flex.web.$funcName(${FlexUtil.convertValue(sendData)});\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();void 0;")
     }
 
     override fun getWebChromeClient(): FlexWebChromeClient {
