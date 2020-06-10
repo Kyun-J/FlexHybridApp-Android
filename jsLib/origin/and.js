@@ -35,7 +35,7 @@
     window.$flex = {};
     Object.defineProperties($flex,
         {
-            version: { value: '0.4', writable: false, enumerable: true },
+            version: { value: '0.3.8', writable: false, enumerable: true },
             device: { value: device, writable: false, enumerable: true },
             addEventListener: { value: function(event, callback) { listeners.push({ e: event, c: callback }) }, writable: false, enumerable: false  },
             web: { value: {}, writable: false, enumerable: true },
@@ -52,8 +52,7 @@
                     return new Promise((resolve, reject) => {
                         genFName().then(name => {
                             const counter = setTimeout(() => {
-                                $flex.flex[name]();
-                                console.log('$flex timeout in function -- $flex.' + key);
+                                $flex.flex[name](false, "timeout error");
                                 triggerEventListener('timeout', {
                                     name: key
                                 });
@@ -62,13 +61,17 @@
                                 if(j) {
                                     resolve(r);
                                 } else {
-                                    if(typeof e === 'string') reject(new Error(e));
-                                    else reject(new Error('$flex Error occurred in function -- $flex.' + key));
+                                    if(typeof e === 'string') reject(Error(e));
+                                    else reject(Error('$flex Error occurred in function -- $flex.' + key));
                                 }
                                 clearTimeout(counter);
                                 delete $flex.flex[name];
                             };
-                            define.flexInterface(JSON.stringify({intName:key,funName:name,arguments:args}));
+                            try {
+                                define.flexInterface(JSON.stringify({intName:key,funName:name,arguments:args}));
+                            } catch (e) {
+                                $flex.flex[name](false, e.toString());
+                            }
                         });
                     });
                 },

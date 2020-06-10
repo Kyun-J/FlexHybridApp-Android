@@ -1,13 +1,15 @@
 package app.dvkyun.flexhybridand
 
+import org.json.JSONArray
+import org.json.JSONObject
+
 class FlexAction(name: String, webView: FlexWebView) {
 
     private var funName: String = name
     private var flexWebView: FlexWebView = webView
     private var isCall = false
 
-
-    fun promiseReturn(response: Any?) {
+    private fun pReturn(response: Any?) {
         if(isCall) {
             FlexUtil.INFO(FlexException.ERROR9)
             return
@@ -21,6 +23,62 @@ class FlexAction(name: String, webView: FlexWebView) {
         } else {
             FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(true, null, ${FlexUtil.convertValue(response)})")
         }
+    }
+
+    fun promiseReturn(response: String) {
+        pReturn(response)
+    }
+
+    fun promiseReturn(response: Int) {
+        pReturn(response)
+    }
+
+    fun promiseReturn(response: Long) {
+        pReturn(response)
+    }
+
+    fun promiseReturn(response: Float) {
+        pReturn(response)
+    }
+
+    fun promiseReturn(response: Double) {
+        pReturn(response)
+    }
+
+    fun promiseReturn(response: Char) {
+        pReturn(response)
+    }
+
+    fun promiseReturn(response: JSONArray) {
+        pReturn(response)
+    }
+
+    fun promiseReturn(response: Array<Any?>) {
+        pReturn(response)
+    }
+
+    fun promiseReturn(response: Iterable<Any?>) {
+        pReturn(response)
+    }
+
+    fun promiseReturn(response: JSONObject) {
+        pReturn(response)
+    }
+
+    fun promiseReturn(response: Map<String, Any?>) {
+        pReturn(response)
+    }
+
+    fun promiseReturn(response: Unit) {
+        pReturn(response)
+    }
+
+    fun promiseReturn(response: Void) {
+        pReturn(response)
+    }
+
+    fun promiseReturn(response: FlexReject) {
+        pReturn(response)
     }
 
     fun resolveVoid() {

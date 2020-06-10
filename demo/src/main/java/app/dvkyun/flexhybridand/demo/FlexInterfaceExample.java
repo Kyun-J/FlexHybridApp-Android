@@ -27,7 +27,7 @@ public class FlexInterfaceExample extends FlexInterfaces {
     FlexInterfaceExample() {
         this.setInterface("test1", new Function1<JSONArray, Object>() {
             @Override
-            public Object invoke(JSONArray arguments) {
+            public Integer invoke(JSONArray arguments) {
                 try {
                     return arguments.getInt(0) + 1;
                 } catch (JSONException e) {
@@ -40,15 +40,15 @@ public class FlexInterfaceExample extends FlexInterfaces {
             public Unit invoke(final FlexAction flexAction, JSONArray arguments) {
                 try {
                     Thread.sleep(1000);
-                    flexAction.promiseReturn(null);
+                    flexAction.resolveVoid();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return null;
             }
-        }).setInterface("test3", new Function1<JSONArray, Object>() {
+        }).setInterface("test3", new Function1<JSONArray, Void>() {
             @Override
-            public Object invoke(JSONArray arguments) {
+            public Void invoke(JSONArray arguments) {
                 Object[] args = FlexUtil.INSTANCE.convertJSONArray(arguments);
                 HashMap<String,Object> obj = (HashMap) args[0];
                 obj.put("arrayData", Arrays.toString((Object[]) obj.get("arrayData")));

@@ -6,15 +6,8 @@ FlexibleHybridApp은 Web, Native 상호간의 Interface을 Promise로 구현하�
 
 **minSdkVersion 19**
 
-1. JCenter 사용  
-
-모듈의 build.gradle에 다음을 추가.
-```gradle
-dependencies {
-    implementation 'app.dvkyun.flexhybridand:flexhybridand:0.3.0.1'
-}
 ```
-2. jitpack 사용  
+1. jitpack 사용  
 
 프로젝트 build.gradle에 다음을 추가
 ```gradle
@@ -28,7 +21,7 @@ allprojects {
 그후 모듈의 build.gradle에 다음을 추가
 ```gradle
 dependencies {
-        implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.3.0.1'
+        implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.3.8'
 }
 ```
 
@@ -38,7 +31,7 @@ dependencies {
 2. Native에서 Web함수 호출시, **Web에서 Native로 Async**하게 반환값을 전달 할 수 있습니다.
 3. Annotation외에 **Kotlin의 lambda(Java의 Interface)를 인자로 받는 함수**를 호출하여 인터페이스를 추가할 수 있습니다.
 4. 기본 자료형 외에 **JS의 Array를 JAVA의(JSONArray, Array, List)으로, JS의 Object를 JAVA의(JSONObject, Map)으로** 전달할 수 있습니다.
-5. Web에서 Native 호출시, **Native 코드 블럭은 CoroutineScope(Dispatchers.Default)** 안에서 동작하며 JavascriptInterface의 **JavaBridgeThread보다 약 1.5 ~ 2배**정도 나은 성능을 가집니다.
+5. Web에서 Native 호출시, **Native 코드 블럭은 Custom Coroutine** 안에서 동작하며 JavascriptInterface의 JavaBridge Thread와 다르게 Multi Thread 로 동작하므로, 동시에 여러 인터페이스가 호출됬을 때 병렬로 처리됩니다.
 6. FlexWebView에 BaseUrl을 지정하여, **타 사이트 및 페이지에서 Native와 Interface하는 것을 방지**할 수 있습니다.
 7. FlexWebView에 페이지가 최초로 로드되어 화면에 나타난 후에는 WebToNative 인터페이스를 추가 할 수 없습니다.
 
@@ -51,10 +44,12 @@ dependencies {
 | JS | Kotlin(Java) |
 |:--:|:--:|
 | Number | Int, Long, Float, Double |
-| String | String, Character | 
+| String | String, Char | 
+| Boolean | Boolean | 
 | Array [] | JSONArray, Array\<Any>, Iterable\<Any> |
 | Object {} | JSONObject, Map\<String,Any> |
 | undefined (Single Argument Only), null | Null |
+| Error | FlexReject |
 
 ## WebToNative 인터페이스
 WebToNative 인터페이스는 다음의 특징을 지닙니다.
@@ -218,6 +213,42 @@ other.setAction("test7")
 mFlexWebView.addFlexInterface(other)
 ```
 
+### ***Error Interface***
+`FlexReject`객체를 리턴한다면, Web에 오류 발생 사항을 전달할 수 있습니다.  
+```kt
+// in kotlin
+mFlexWebView.setInterface("errorTest")
+{ arguments -> 
+    return FlexReject("errorTest")    
+}
+```
+```js
+// in js
+...
+try {
+    const result = await $flex.errorTest();
+} catch(e) {
+    // e is Error("errorTest")
+}
+```
+`FlexAction`에서는, `promiseReturn`대신 `reject`함수를 호출하여 손쉽게 에러사항을 전달할 수 있습니다.  
+```kt
+// in kotlin
+flexComponent.setAction("errorAction")
+{ action, arguments ->
+    action.reject("errorAction") // = action.promiseReturn(FlexReject("errorAction"))
+}
+```
+```js
+// in js
+...
+try {
+    const result = await $flex.errorAction();
+} catch(e) {
+    // e is Error("errorAction")
+}
+```
+
 ## NativeToWeb 인터페이스
 NativeToWeb 인터페이스는 다음의 특징을 지닙니다.
 1. Web의 $flex.web Object 안에 함수를 추가하면, Native(FlexWebView)에서 `evalFlexFunc` 메소드를 통해 해당 함수를 호출할 수 있습니다.
@@ -325,11 +356,17 @@ fun evalFlexFunc(funcName: String, sendData: Any?, response: (Any?) -> Unit)
 
 ## FlexAction
 setAction, @FlexActionInterface로 추가된 WebToNative 인터페이스가 호출될 시 생성됩니다.  
-사용 가능한 메소드는 promiseReturn 하나이며, Web으로 return값을 전달하는 역할을 합니다.
+사용 가능한 메소드는 아래와 같으며, promiseReturn 함수만 Web으로 return값을 전달하는 역할을 합니다.  
+resolveVoid는 nil 값을 전달하며(promiseReturn(nil)과 동일)  
+reject함수는 FlexReject 객체를 자동으로 생성하여 전달합니다.(promiseReturn(FlexReject)와 동일)
 ```kt
-fun promiseReturn(response: Any?)
+fun promiseReturn(...) // Transferable-Data-Type
+fun resolveVoid()
+fun reject(reason: String)
+fun reject(reason: FlexReject)
+fun reject()
 ```
-promiseReturn은 한번 호출 후에는 다시 사용할 수 없습니다.  
+위 함수중 하나라도 호출했다면, 다음에 어떤 함수를 호출하더라도 Web에 값이 전달되지 않습니다.
 FlexAction Class를 직접 생성 및 사용하면 아무런 효과도 얻을 수 없으며, 오직 인터페이스상에서 생성되어 전달되는 FlexAction만이 효력을 가집니다.
 
 ## FlexInterfaces
@@ -348,5 +385,6 @@ window.onFlexLoad // $flex is called upon completion of loading.
 $flex // Object that contains functions that can call Native area as WebToNative
 $flex.version // get Library version
 $flex.web // Object used to add and use functions to be used for NativeToWeb
+$flex.device // Current Device Info
 ```
 상세한 사용법은 [Flex 인터페이스 구현](#Flex-인터페이스-구현) 항목을 참고하세요.
