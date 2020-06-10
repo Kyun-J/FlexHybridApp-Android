@@ -7,13 +7,12 @@ import android.os.Build
 import android.util.AttributeSet
 import android.webkit.*
 import androidx.annotation.RequiresApi
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.BufferedReader
+import java.util.concurrent.Executors
 import kotlin.random.Random
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.createType
@@ -32,7 +31,7 @@ open class FlexWebView: WebView {
     private val options: JSONObject = JSONObject()
     private val returnFromWeb: HashMap<Int,(Any?) -> Unit> = HashMap()
     private val internalInterface = arrayOf("flexreturn")
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val scope = CoroutineScope(Executors.newFixedThreadPool(FlexUtil.getCpuCores()).asCoroutineDispatcher())
 
     private var isAfterFirstLoad = false
     private var flexJsString: String
@@ -189,25 +188,18 @@ open class FlexWebView: WebView {
     fun evalFlexFunc(funcName: String, response: (Any?) -> Unit) {
         val tID = Random.nextInt(10000)
         returnFromWeb[tID] = response
-        FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.$funcName(); \$flex.flexreturn({ TID: $tID, Value: V }); })(); void 0;")
+        FlexUtil.evaluateJavaScript(this,"!async function(){try{const e=await \$flex.web.$funcName();\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();void 0;")
+
     }
 
-    fun evalFlexFunc(funcName: String, sendData: Any?) {
-        if(sendData == null || sendData == Unit) {
-            FlexUtil.evaluateJavaScript(this,"\$flex.web.$funcName(); void 0;")
-        } else {
-            FlexUtil.evaluateJavaScript(this,"\$flex.web.$funcName(${FlexUtil.convertValue(sendData)}); void 0;")
-        }
+    fun evalFlexFunc(funcName: String, sendData: Any) {
+        FlexUtil.evaluateJavaScript(this,"\$flex.web.$funcName(${FlexUtil.convertValue(sendData)}); void 0;")
     }
 
-    fun evalFlexFunc(funcName: String, sendData: Any?, response: (Any?) -> Unit) {
+    fun evalFlexFunc(funcName: String, sendData: Any, response: (Any?) -> Unit) {
         val tID = Random.nextInt(10000)
         returnFromWeb[tID] = response
-        if(sendData == null || sendData == Unit) {
-            FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.$funcName(); \$flex.flexreturn({ TID: $tID, Value: V }); })(); void 0;")
-        } else {
-            FlexUtil.evaluateJavaScript(this,"(async function() { const V = await \$flex.web.$funcName(${FlexUtil.convertValue(sendData)}); \$flex.flexreturn({ TID: $tID, Value: V }); })(); void 0;")
-        }
+        FlexUtil.evaluateJavaScript(this,"!async function(){try{const e=await \$flex.web.$funcName(${FlexUtil.convertValue(sendData)});\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();void 0;")
     }
 
     override fun getWebChromeClient(): FlexWebChromeClient {
@@ -275,27 +267,48 @@ open class FlexWebView: WebView {
             scope.launch {
                 try {
                     val data = JSONObject(input)
-                    val intName : String = data.getString("intName")
-                    val fName : String = data.getString("funName")
-                    val args : JSONArray = data.getJSONArray("arguments")
-                    if(interfaces[intName] != null) {
+                    val intName: String = data.getString("intName")
+                    val fName: String = data.getString("funName")
+                    val args: JSONArray = data.getJSONArray("arguments")
+                    if (interfaces[intName] != null) {
                         val value = interfaces[intName]?.invoke(args)
-                        if(value == null || value == Unit) {
-                            FlexUtil.evaluateJavaScript(this@FlexWebView, "\$flex.flex.${fName}()")
+                        if (value is FlexReject) {
+                            val reason =
+                                if (value.reason == null) null else "\"${value.reason}\""
+                            FlexUtil.evaluateJavaScript(
+                                this@FlexWebView,
+                                "\$flex.flex.${fName}(false, ${reason})"
+                            )
+                        } else if (value == null || value == Unit) {
+                            FlexUtil.evaluateJavaScript(
+                                this@FlexWebView,
+                                "\$flex.flex.${fName}(true)"
+                            )
                         } else {
-                            FlexUtil.evaluateJavaScript(this@FlexWebView, "\$flex.flex.$fName(${FlexUtil.convertValue(value)})")
+                            FlexUtil.evaluateJavaScript(
+                                this@FlexWebView,
+                                "\$flex.flex.$fName(true, null, ${FlexUtil.convertValue(value)})"
+                            )
                         }
-                    } else if(actions[intName] != null) {
+                    } else if (actions[intName] != null) {
                         val lambda = actions[intName]!!
                         lambda.invoke(FlexAction(fName, this@FlexWebView), args)
-                    }  else {
-                        when(internalInterface.indexOf(intName)) {
+                    } else {
+                        when (internalInterface.indexOf(intName)) {
                             0 -> { // flexreturn
                                 val iData = args.getJSONObject(0)
                                 val tID = iData.getInt("TID")
                                 val value = iData.get("Value")
-                                returnFromWeb[tID]?.invoke(value)
-                                FlexUtil.evaluateJavaScript(this@FlexWebView, "\$flex.flex.${fName}()")
+                                val error = iData.getBoolean("Error")
+                                if (error) {
+                                    returnFromWeb[tID]?.invoke(FlexReject(value.toString()))
+                                } else {
+                                    returnFromWeb[tID]?.invoke(value)
+                                }
+                                FlexUtil.evaluateJavaScript(
+                                    this@FlexWebView,
+                                    "\$flex.flex.${fName}(true)"
+                                )
                             }
                         }
                     }

@@ -25,7 +25,7 @@ allprojects {
 Then add the following to the build.gradle of the module:
 ```Gradle
 dependencies {
-    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.3.5'
+    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.3.8'
 }
 ```
 
@@ -35,7 +35,7 @@ Basically, it compensates for the shortcomings of Android's JavascriptInterface 
 2. When calling the Web function from Native, the return value **can be passed Async** from Web to Native.
 3. In addition to annotations, **you can add an interface by invoking a function that receives the Lambda (interface of Java) of Kotlin as a factor**.
 4. In addition to the basic data type, **JS array can be delivered as (JSONARray, Array, List) of Kotlin(JAVA) and JS Object as (JSONObject, Map) of Kotlin(JAVA)**.
-5. When calling Native from the Web, **Native code blocks operate within CoroutineScope (Dispatchers.Default) and perform about 1.5 to 2 times better than JavaBridgeThread** in JavascriptInterface.
+5. When calling Native on the web, **Native code block operates in Custom Coroutine** and operates as Multi Thread unlike JavaBridge Thread of JavascriptInterface, so it is processed in parallel when multiple interfaces are called at the same time.
 6. By specifying BaseUrl in FlexWebView, you can **prevent native and interface on other sites and pages**.
 7. You cannot add an interface after the page is first loaded into FlexWebView and appears on the screen.
 
@@ -48,10 +48,12 @@ Basically, it compensates for the shortcomings of Android's JavascriptInterface 
 | JS | Kotlin(Java) |
 |:--:|:--:|
 | Number | Int, Long, Float, Double |
-| String | String, Character | 
+| String | String, Char | 
+| Boolean | Boolean | 
 | Array [] | JSONArray, Array\<Any>, Iterable\<Any> |
 | Object {} | JSONObject, Map\<String,Any> |
 | undefined (Single Argument Only), null | Null |
+| Error | FlexReject |
 
 ## WebToNative Interface
 The WebToNative interface has the following features.
@@ -216,6 +218,42 @@ other.setAction("test7")
 mFlexWebView.addFlexInterface(other)
 ```
 
+### ***Error Interface***
+If you return the `FlexReject` object, you can send an error to the web.
+```kt
+// in kotlin
+mFlexWebView.setInterface("errorTest")
+{ arguments -> 
+    return FlexReject("errorTest")    
+}
+```
+```js
+// in js
+...
+try {
+    const result = await $flex.errorTest();
+} catch(e) {
+    // e is Error("errorTest")
+}
+```
+In `FlexAction`, you can easily pass an error by calling the `reject` function instead of `promiseReturn`.
+```kt
+// in kotlin
+flexComponent.setAction("errorAction")
+{ action, arguments ->
+    action.reject("errorAction") // = action.promiseReturn(FlexReject("errorAction"))
+}
+```
+```js
+// in js
+...
+try {
+    const result = await $flex.errorAction();
+} catch(e) {
+    // e is Error("errorAction")
+}
+```
+
 ## NativeToWeb Interface
 The NativeToWeb interface has the following features.
 1. If you add a function in the web's $flex.web Object, you can call the function through the `evalFlexFunc` method in Native(FlexWebView).
@@ -324,11 +362,11 @@ fun evalFlexFunc(funcName: String, sendData: Any?, response: (Any?) -> Unit)
 
 ## FlexAction
 Created when WebToNative interface added with setAction, @FlexActionInterface is called.  
-One available method is promiseReturn, which serves to pass the return value to the web.
+The reject function automatically creates and passes a FlexReject object (same as promiseReturn(FlexReject)).
 ```kt
 fun promiseReturn(response: Any?)
 ```
-promiseReturn cannot be used again after one call.  
+If any of the above functions is called, the next time any function is called, the value is not passed to the Web.  
 If you directly create and use FlexAction Class, there is no effect. Only FlexAction created and delivered on the interface is effective.
 
 ## FlexInterfaces

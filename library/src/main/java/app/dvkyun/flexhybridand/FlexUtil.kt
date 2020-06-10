@@ -7,6 +7,8 @@ import android.os.Build
 import android.webkit.WebView
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
+import java.util.regex.Pattern
 
 object FlexUtil {
 
@@ -203,6 +205,13 @@ object FlexUtil {
 
     internal fun ERR(msg: Any?) {
         android.util.Log.e(TAG, msg.toString())
+    }
+
+    internal fun getCpuCores() : Int {
+        val dir = File("/sys/devices/system/cpu/")
+        return dir.listFiles { file ->
+            Pattern.matches("cpu[0-9]", file.name)
+        }!!.size
     }
 
 }
