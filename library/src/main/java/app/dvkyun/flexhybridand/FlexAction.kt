@@ -53,11 +53,11 @@ class FlexAction(name: String, webView: FlexWebView) {
         pReturn(response)
     }
 
-    fun promiseReturn(response: Array<Any?>) {
+    fun promiseReturn(response: Array<*>) {
         pReturn(response)
     }
 
-    fun promiseReturn(response: Iterable<Any?>) {
+    fun promiseReturn(response: Iterable<*>) {
         pReturn(response)
     }
 
@@ -65,7 +65,7 @@ class FlexAction(name: String, webView: FlexWebView) {
         pReturn(response)
     }
 
-    fun promiseReturn(response: Map<String, Any?>) {
+    fun promiseReturn(response: Map<String, *>) {
         pReturn(response)
     }
 

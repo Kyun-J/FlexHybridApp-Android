@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Build
+import android.util.Log
 import android.webkit.WebView
 import org.json.JSONArray
 import org.json.JSONObject
@@ -208,10 +209,7 @@ object FlexUtil {
     }
 
     internal fun getCpuCores() : Int {
-        val dir = File("/sys/devices/system/cpu/")
-        return dir.listFiles { file ->
-            Pattern.matches("cpu[0-9]", file.name)
-        }!!.size
+        return Runtime.getRuntime().availableProcessors()
     }
 
 }
