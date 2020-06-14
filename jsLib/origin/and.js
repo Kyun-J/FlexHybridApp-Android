@@ -2,6 +2,7 @@
     "use strict"
     const keys = keysfromAnd;
     const options = optionsfromAnd;
+    const device = deviceinfoFromAnd;
     const listeners = [];
     const option = {
         timeout: 60000
@@ -34,7 +35,7 @@
     window.$flex = {};
     Object.defineProperties($flex,
         {
-            version: { value: '0.3.8.1', writable: false, enumerable: true },
+            version: { value: '0.3.8.2', writable: false, enumerable: true },
             device: { value: device, writable: false, enumerable: true },
             addEventListener: { value: function(event, callback) { listeners.push({ e: event, c: callback }) }, writable: false, enumerable: false  },
             web: { value: {}, writable: false, enumerable: true },
