@@ -4,7 +4,7 @@
       "useBuiltIns": "usage",
       "corejs": 3,
       "targets": {
-        "browsers": ["and_chr >= 30"]
+        "browsers": ["and_chr >= 55"]
       }
     }]
   ]

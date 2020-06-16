@@ -11,7 +11,8 @@ import kotlinx.coroutines.*
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.io.BufferedReader
+import java.io.InputStream
+import java.io.Reader
 import java.util.concurrent.Executors
 import kotlin.random.Random
 import kotlin.reflect.KVisibility
@@ -29,9 +30,13 @@ open class FlexWebView: WebView {
     private val interfaces: HashMap<String, (arguments: JSONArray) -> Any?> = HashMap()
     private val actions: HashMap<String, (action: FlexAction, arguments: JSONArray) -> Unit> = HashMap()
     private val options: JSONObject = JSONObject()
+    private val dependencies: ArrayList<String> = ArrayList()
     private val returnFromWeb: HashMap<Int,(Any?) -> Unit> = HashMap()
     private val internalInterface = arrayOf("flexreturn")
-    private val scope = CoroutineScope(Executors.newFixedThreadPool(FlexUtil.getCpuCores()).asCoroutineDispatcher())
+    private var tCount = FlexUtil.getCpuCores()
+    private val scope by lazy {
+        CoroutineScope(Executors.newFixedThreadPool(tCount).asCoroutineDispatcher())
+    }
 
     private var isAfterFirstLoad = false
     private var flexJsString: String
@@ -45,18 +50,7 @@ open class FlexWebView: WebView {
 
     init {
         if(mActivity == null) throw FlexException(FlexException.ERROR1)
-        flexJsString = try {
-            val reader = BufferedReader(context.assets.open("FlexHybridAnd.js").reader())
-            val sb = StringBuilder()
-            var line: String?
-            while (reader.readLine().also { line = it } != null) {
-                sb.append(line).append("\n")
-            }
-            reader.close()
-            sb.toString()
-        } catch (e: java.lang.Exception) {
-            throw FlexException(e)
-        }
+        flexJsString = FlexUtil.fileToString(context.assets.open("FlexHybridAnd.js"))
         webChromeClient = FlexWebChromeClient(mActivity)
         webViewClient = FlexWebViewClient()
         super.addJavascriptInterface(InternalInterface(), UNIQUE)
@@ -164,21 +158,30 @@ open class FlexWebView: WebView {
         }
     }
 
-    fun setOption(name: String, option: Any) {
+    fun setInterfaceTimeout(timeout: Int) {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR6)
         }
-        if(option !is Int && option !is Long && option !is Double && option !is Boolean && option !is String) {
-
-        }
-        options.put(name, option)
+        options.put("timeout", timeout)
     }
 
-    fun setOptions(WebOptions: FlexWebOption) {
+    fun setInterfaceThreadCount(count: Int) {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR6)
         }
-        options.put("timeout", WebOptions.timeout)
+        tCount = count
+    }
+
+    fun setDependency(inputStream: InputStream) {
+        dependencies.add(FlexUtil.fileToString(inputStream))
+    }
+
+    fun setDependency(reader: Reader) {
+        dependencies.add(FlexUtil.fileToString(reader))
+    }
+
+    fun setDependency(js: String) {
+        dependencies.add(js)
     }
 
     fun evalFlexFunc(funcName: String) {
@@ -189,7 +192,6 @@ open class FlexWebView: WebView {
         val tID = Random.nextInt(10000)
         returnFromWeb[tID] = response
         FlexUtil.evaluateJavaScript(this,"!async function(){try{const e=await \$flex.web.$funcName();\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();void 0;")
-
     }
 
     fun evalFlexFunc(funcName: String, sendData: Any) {
@@ -253,12 +255,15 @@ open class FlexWebView: WebView {
             flexJsString = flexJsString.replaceFirst("optionsfromAnd", FlexUtil.convertValue(options))
             val device = JSONObject()
             device.put("os","Android")
-            device.put("version", Build.VERSION.SDK_INT.toString())
+            device.put("version", Build.VERSION.SDK_INT)
             device.put("model", Build.MODEL)
             flexJsString = flexJsString.replaceFirst("deviceinfoFromAnd", FlexUtil.convertValue(device))
         }
         isAfterFirstLoad = true
         FlexUtil.evaluateJavaScript(this, flexJsString)
+        dependencies.forEach {
+            FlexUtil.evaluateJavaScript(this, it)
+        }
     }
 
     inner class InternalInterface {

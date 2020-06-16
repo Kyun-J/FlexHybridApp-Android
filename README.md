@@ -9,7 +9,8 @@ FlexibleHybridApp is a library that provides various convenience functions to de
 
 # How to add libraries
 
-**minSdkVersion 19**
+**minSdkVersion 19**  
+**Minimum ChromeVersion 55**
 
 1. Enable jitpack
 
@@ -25,7 +26,7 @@ allprojects {
 Then add the following to the build.gradle of the module:
 ```Gradle
 dependencies {
-    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.3.8'
+    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.3.9'
 }
 ```
 
@@ -323,6 +324,7 @@ if(Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
     setRendererPriorityPolicy(RENDERER_PRIORITY_IMPORTANT, true)
 }
 ```
+
 ### BaseUrl
 \$Flex Object can be used only in the page containing the configured BaseUrl.  
 Once set, the BaseUrl cannot be modified again.
@@ -330,6 +332,21 @@ Once set, the BaseUrl cannot be modified again.
 fun setBaseUrl(url: String)
 fun getBaseUrl(): String?
 ```
+
+### InterfaceTimeout
+Set the time to wait for return after FlexInterface is executed.  
+After that time, the Promise created by the interface is forcibly rejected.
+```kt
+fun setInterfaceTimeout(timeout: Int)
+```
+
+### InterfaceThreadCount
+Set the number of threads of the ThreadPoolExecutor where FlexInterface is executed.  
+The default is the number of cpu cores(=Runtime.getRuntime().availableProcessors()).
+```kt
+fun setInterfaceThreadCount(count: Int)
+```
+
 ### FlexWebViewClient, FlexWebChromeClient
 FlexWebView must use FlexWebViewClient and FlexWebChromeClient.  
 In the setter, WebChromeClient and WebViewClient are received as arguments, but an exception occurs if the object cannot be Cased with FlexWebViewClient or FlexWebChromeClient.  
@@ -386,5 +403,7 @@ $flex // Object that contains functions that can call Native area as WebToNative
 $flex.version // get Library version
 $flex.web // Object used to add and use functions to be used for NativeToWeb
 $flex.device // Current Device Info
+$flex.isAndroid // true
+$flex.isiOS // false
 ```
 For detailed usage, refer to [Flex Interface Implementation](#Flex-Interface-Implementation).

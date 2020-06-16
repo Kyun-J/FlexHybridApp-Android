@@ -81,6 +81,10 @@ class FlexAction(name: String, webView: FlexWebView) {
         pReturn(response)
     }
 
+    fun promiseReturn() {
+        pReturn(null)
+    }
+
     fun resolveVoid() {
         if(isCall) {
             FlexUtil.INFO(FlexException.ERROR9)

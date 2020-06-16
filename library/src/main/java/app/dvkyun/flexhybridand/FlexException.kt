@@ -23,6 +23,5 @@ internal class FlexException : Exception {
         const val ERROR12 = "FlexFuncInterface and FlexActionInterface must be public."
         const val ERROR13 = "The BaseUrl can only use file://, http://, https:// protocols."
         const val ERROR14 = "The Unique interface cannot be removed."
-        const val ERROR15 = "The option must be one of the following data types: Int, Long, Double, Boolean, and String."
     }
 }

@@ -27,8 +27,11 @@ public class MainActivity extends AppCompatActivity {
         flexWebView = findViewById(R.id.flex_web_view);
 
         flexWebView.setWebContentsDebuggingEnabled(true);
+
         flexWebView.setBaseUrl("file:///android_asset");
-        flexWebView.setOption("timeout", 3000);
+        flexWebView.setInterfaceTimeout(3000);
+        flexWebView.setInterfaceThreadCount(Runtime.getRuntime().availableProcessors());
+
         flexWebView.getSettings().setTextZoom(250);
 
         flexWebView.setAction("test4", new Function2<FlexAction, JSONArray, Unit>() {

@@ -4,7 +4,8 @@ FlexibleHybridApp은 Web, Native 상호간의 Interface을 Promise로 구현하�
 
 # 라이브러리 추가 방법
 
-**minSdkVersion 19**
+**minSdkVersion 19**  
+**Minimum ChromeVersion 55**
 
 ```
 1. jitpack 사용  
@@ -21,7 +22,7 @@ allprojects {
 그후 모듈의 build.gradle에 다음을 추가
 ```gradle
 dependencies {
-        implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.3.8'
+        implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.3.9'
 }
 ```
 
@@ -317,13 +318,28 @@ if(Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
     setRendererPriorityPolicy(RENDERER_PRIORITY_IMPORTANT, true)
 }
 ```
-### BaseUrl 설정
+### BaseUrl
 설정한 BaseUrl이 포함된 Page에서만 $flex Object 사용이 가능합니다.  
 한번 설정한 BaseUrl은 다시 수정할 수 없습니다.
 ```kt
 fun setBaseUrl(url: String)
 fun getBaseUrl(): String?
 ```
+
+### InterfaceTimeout
+FlexInterface가 실행된 후, return이 발생할 때 까지 기다리는 시간을 설정합니다.  
+해당 시간이 지나면, 인터페이스로 생성된 Promise는 강제 reject 처리됩니다.
+```kt
+fun setInterfaceTimeout(timeout: Int)
+```
+
+### InterfaceThreadCount
+FlexInterface가 실행되는 ThreadPoolExecutor의 Thread 개수를 설정합니다.  
+기본값은 cpu 코어 갯수(=Runtime.getRuntime().availableProcessors()) 입니다.
+```kt
+fun setInterfaceThreadCount(count: Int)
+```
+
 ### FlexWebViewClient, FlexWebChromeClient
 FlexWebView는 반드시 FlexWebViewClient, FlexWebChromeClient를 사용하여야 합니다.
 setter에서는 WebChromeClient, WebViewClient를 인자로 받으나, 해당 객체가 FlexWebViewClient, FlexWebChromeClient로 Case 되지 못하면 Exception이 발생합니다.  
@@ -386,5 +402,7 @@ $flex // Object that contains functions that can call Native area as WebToNative
 $flex.version // get Library version
 $flex.web // Object used to add and use functions to be used for NativeToWeb
 $flex.device // Current Device Info
+$flex.isAndroid // true
+$flex.isiOS // false
 ```
 상세한 사용법은 [Flex 인터페이스 구현](#Flex-인터페이스-구현) 항목을 참고하세요.

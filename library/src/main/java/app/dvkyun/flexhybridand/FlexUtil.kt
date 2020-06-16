@@ -8,7 +8,10 @@ import android.util.Log
 import android.webkit.WebView
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.BufferedReader
 import java.io.File
+import java.io.InputStream
+import java.io.Reader
 import java.util.regex.Pattern
 
 object FlexUtil {
@@ -210,6 +213,36 @@ object FlexUtil {
 
     internal fun getCpuCores() : Int {
         return Runtime.getRuntime().availableProcessors()
+    }
+
+    internal fun fileToString(inputStream: InputStream): String {
+        try {
+            val bufferedReader = BufferedReader(inputStream.reader())
+            val sb = StringBuilder()
+            var line: String?
+            while (bufferedReader.readLine().also { line = it } != null) {
+                sb.append(line).append("\n")
+            }
+            bufferedReader.close()
+            return sb.toString()
+        } catch (e: java.lang.Exception) {
+            throw FlexException(e)
+        }
+    }
+
+    internal fun fileToString(reader: Reader): String {
+        try {
+            val bufferedReader = BufferedReader(reader)
+            val sb = StringBuilder()
+            var line: String?
+            while (bufferedReader.readLine().also { line = it } != null) {
+                sb.append(line).append("\n")
+            }
+            bufferedReader.close()
+            return sb.toString()
+        } catch (e: java.lang.Exception) {
+            throw FlexException(e)
+        }
     }
 
 }
