@@ -49,6 +49,10 @@ class FlexAction(name: String, webView: FlexWebView) {
         pReturn(response)
     }
 
+    fun promiseReturn(response: Boolean) {
+        pReturn(response)
+    }
+
     fun promiseReturn(response: JSONArray) {
         pReturn(response)
     }
