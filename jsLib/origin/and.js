@@ -35,7 +35,7 @@
     window.$flex = {};
     Object.defineProperties($flex,
         {
-            version: { value: '0.3.9', writable: false, enumerable: true },
+            version: { value: '0.3.9.6', writable: false, enumerable: true },
             isAndroid: { value: true, writable: false, enumerable: true },
             isiOS: { value: false, writable: false, enumerable: true },
             device: { value: device, writable: false, enumerable: true },
@@ -53,14 +53,17 @@
                 value: function (...args) {
                     return new Promise((resolve, reject) => {
                         genFName().then(name => {
-                            const counter = setTimeout(() => {
-                                $flex.flex[name](false, "timeout error");
-                                triggerEventListener('timeout', {
-                                    "function": key
-                                });
-                            }, option.timeout);
+                            let counter;
+                            if(option.timeout > 0) {
+                                counter = setTimeout(() => {
+                                    $flex.flex[name](false, "timeout error");
+                                    triggerEventListener('timeout', {
+                                        "function": key
+                                    });
+                                }, option.timeout);
+                            }
                             $flex.flex[name] = (j, e, r) => {
-                                clearTimeout(counter);
+                                if(option.timeout > 0) clearTimeout(counter);
                                 delete $flex.flex[name];
                                 if(j) {
                                     resolve(r);
@@ -84,13 +87,26 @@
                     });
                 },
                 writable: false,
-                enumerable: true
+                enumerable: false
             });
         }
     });
     setTimeout(() => {
-        if (typeof window.onFlexLoad === 'function') {
-            window.onFlexLoad();
+        let f = () => {};
+        if(typeof window.onFlexLoad === 'function') {
+            f = window.onFlexLoad;
         }
+        Object.defineProperty(window, "onFlexLoad", {
+            set: function(val){
+                window._onFlexLoad = val;
+                if(typeof val === 'function') {
+                    val();
+                }
+            },
+            get: function(){
+                return window._onFlexLoad;
+            }
+        });
+        window.onFlexLoad = f;
     }, 0);
 })();

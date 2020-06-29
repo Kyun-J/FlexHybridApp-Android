@@ -33,7 +33,7 @@ open class FlexWebView: WebView {
     private val dependencies: ArrayList<String> = ArrayList()
     private val returnFromWeb: HashMap<Int,(Any?) -> Unit> = HashMap()
     private val internalInterface = arrayOf("flexreturn")
-    private var tCount = FlexUtil.getCpuCores()
+    private var tCount = Runtime.getRuntime().availableProcessors()
     private val scope by lazy {
         CoroutineScope(Executors.newFixedThreadPool(tCount).asCoroutineDispatcher())
     }

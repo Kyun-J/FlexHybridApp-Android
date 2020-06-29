@@ -211,10 +211,6 @@ object FlexUtil {
         android.util.Log.e(TAG, msg.toString())
     }
 
-    internal fun getCpuCores() : Int {
-        return Runtime.getRuntime().availableProcessors()
-    }
-
     internal fun fileToString(inputStream: InputStream): String {
         try {
             val bufferedReader = BufferedReader(inputStream.reader())
