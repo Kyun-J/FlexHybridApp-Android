@@ -26,7 +26,7 @@ allprojects {
 Then add the following to the build.gradle of the module:
 ```Gradle
 dependencies {
-    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.3.9.6'
+    implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.3.9.7'
 }
 ```
 

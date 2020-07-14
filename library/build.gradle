@@ -4,14 +4,14 @@ apply plugin: 'kotlin-android-extensions'
 //apply from: 'publish.gradle'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion 30
+    buildToolsVersion "30.0.1"
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion 29
-        versionCode 18
-        versionName "0.3.9.6"
+        targetSdkVersion 30
+        versionCode 19
+        versionName "0.3.9.7"
     }
 
     lintOptions {

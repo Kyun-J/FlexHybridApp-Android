@@ -208,7 +208,7 @@ open class FlexWebView: WebView {
         return super.getWebChromeClient() as FlexWebChromeClient
     }
 
-    override fun setWebChromeClient(client: WebChromeClient) {
+    override fun setWebChromeClient(client: WebChromeClient?) {
         if(client !is FlexWebChromeClient) throw FlexException(FlexException.ERROR2)
         super.setWebChromeClient(client)
     }
