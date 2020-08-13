@@ -26,17 +26,21 @@ open class FlexWebView: WebView {
         private const val UNIQUE = "flexdefine"
     }
 
-    private val mActivity: Activity? = FlexUtil.getActivity(context)
+    val activity: Activity? = FlexUtil.getActivity(context)
     private val interfaces: HashMap<String, (arguments: JSONArray) -> Any?> = HashMap()
     private val actions: HashMap<String, (action: FlexAction, arguments: JSONArray) -> Unit> = HashMap()
     private val options: JSONObject = JSONObject()
     private val dependencies: ArrayList<String> = ArrayList()
     private val returnFromWeb: HashMap<Int,(Any?) -> Unit> = HashMap()
-    private val internalInterface = arrayOf("flexreturn")
+    private val internalInterface = arrayOf("flexreturn", "flexload")
     private var tCount = Runtime.getRuntime().availableProcessors()
-    private val scope by lazy {
+    val scope by lazy {
         CoroutineScope(Executors.newFixedThreadPool(tCount).asCoroutineDispatcher())
     }
+    var isFlexLoad: Boolean = false
+        private set
+    private val beforeFlexLoadEvalList =  ArrayList<BeforeFlexEval>()
+
 
     private var isAfterFirstLoad = false
     private var flexJsString: String
@@ -49,9 +53,9 @@ open class FlexWebView: WebView {
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes)
 
     init {
-        if(mActivity == null) throw FlexException(FlexException.ERROR1)
+        if(activity == null) throw FlexException(FlexException.ERROR1)
         flexJsString = FlexUtil.fileToString(context.assets.open("FlexHybridAnd.js"))
-        webChromeClient = FlexWebChromeClient(mActivity)
+        webChromeClient = FlexWebChromeClient(activity)
         webViewClient = FlexWebViewClient()
         super.addJavascriptInterface(InternalInterface(), UNIQUE)
         initialize()
@@ -185,23 +189,39 @@ open class FlexWebView: WebView {
     }
 
     fun evalFlexFunc(funcName: String) {
-        FlexUtil.evaluateJavaScript(this,"\$flex.web.$funcName(); void 0;")
+        if(!isFlexLoad) {
+            beforeFlexLoadEvalList.add(BeforeFlexEval(funcName))
+        } else {
+            FlexUtil.evaluateJavaScript(this,"\$flex.web.$funcName(); void 0;")
+        }
     }
 
     fun evalFlexFunc(funcName: String, response: (Any?) -> Unit) {
-        val tID = Random.nextInt(10000)
-        returnFromWeb[tID] = response
-        FlexUtil.evaluateJavaScript(this,"!async function(){try{const e=await \$flex.web.$funcName();\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();void 0;")
+        if(!isFlexLoad) {
+            beforeFlexLoadEvalList.add(BeforeFlexEval(funcName, response))
+        } else {
+            val tID = Random.nextInt(10000)
+            returnFromWeb[tID] = response
+            FlexUtil.evaluateJavaScript(this,"!async function(){try{const e=await \$flex.web.$funcName();\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();void 0;")
+        }
     }
 
     fun evalFlexFunc(funcName: String, sendData: Any) {
-        FlexUtil.evaluateJavaScript(this,"\$flex.web.$funcName(${FlexUtil.convertValue(sendData)}); void 0;")
+        if(!isFlexLoad) {
+            beforeFlexLoadEvalList.add(BeforeFlexEval(funcName, sendData))
+        } else {
+            FlexUtil.evaluateJavaScript(this, "\$flex.web.$funcName(${FlexUtil.convertValue(sendData)}); void 0;")
+        }
     }
 
     fun evalFlexFunc(funcName: String, sendData: Any, response: (Any?) -> Unit) {
-        val tID = Random.nextInt(10000)
-        returnFromWeb[tID] = response
-        FlexUtil.evaluateJavaScript(this,"!async function(){try{const e=await \$flex.web.$funcName(${FlexUtil.convertValue(sendData)});\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();void 0;")
+        if (!isFlexLoad) {
+            beforeFlexLoadEvalList.add(BeforeFlexEval(funcName, sendData, response))
+        } else {
+            val tID = Random.nextInt(10000)
+            returnFromWeb[tID] = response
+            FlexUtil.evaluateJavaScript(this, "!async function(){try{const e=await \$flex.web.$funcName(${FlexUtil.convertValue(sendData)});\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();void 0;")
+        }
     }
 
     override fun getWebChromeClient(): FlexWebChromeClient {
@@ -315,12 +335,54 @@ open class FlexWebView: WebView {
                                     "\$flex.flex.${fName}(true)"
                                 )
                             }
+                            1 -> { // flexload
+                                isFlexLoad = true
+                                beforeFlexLoadEvalList.forEach {
+                                    if(it.sendData != null && it.response != null) {
+                                        evalFlexFunc(it.name, it.sendData, it.response)
+                                    } else if(it.sendData != null && it.response == null) {
+                                        evalFlexFunc(it.name, it.sendData)
+                                    } else if(it.sendData == null && it.response != null) {
+                                        evalFlexFunc(it.name, it.response)
+                                    } else {
+                                        evalFlexFunc(it.name)
+                                    }
+                                }
+                                beforeFlexLoadEvalList.clear()
+                            }
                         }
                     }
                 } catch (e: JSONException) {
                     e.printStackTrace()
                 }
             }
+        }
+    }
+
+    inner class BeforeFlexEval {
+        val name:String
+        val sendData: Any?
+        val response: ((Any?) -> Unit)?
+
+        constructor(name: String) {
+            this.name = name
+            sendData = null
+            response = null
+        }
+        constructor(name: String, sendData:Any) {
+            this.name = name
+            this.sendData = sendData
+            response = null
+        }
+        constructor(name: String, response:(Any?) -> Unit) {
+            this.name = name
+            this.response = response
+            sendData = null
+        }
+        constructor(name: String, sendData:Any, response: (Any?) -> Unit) {
+            this.name = name
+            this.sendData = sendData
+            this.response = response
         }
     }
 
