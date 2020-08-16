@@ -26,6 +26,12 @@ open class FlexWebView: WebView {
         private const val UNIQUE = "flexdefine"
     }
 
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes)
+
     val activity: Activity? = FlexUtil.getActivity(context)
     private val interfaces: HashMap<String, (arguments: JSONArray) -> Any?> = HashMap()
     private val actions: HashMap<String, (action: FlexAction, arguments: JSONArray) -> Unit> = HashMap()
@@ -41,16 +47,9 @@ open class FlexWebView: WebView {
         private set
     private val beforeFlexLoadEvalList =  ArrayList<BeforeFlexEval>()
 
-
     private var isAfterFirstLoad = false
     private var flexJsString: String
     internal var baseUrl: String? = null
-
-    constructor(context: Context) : super(context)
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes)
 
     init {
         if(activity == null) throw FlexException(FlexException.ERROR1)
@@ -349,6 +348,10 @@ open class FlexWebView: WebView {
                                     }
                                 }
                                 beforeFlexLoadEvalList.clear()
+                                FlexUtil.evaluateJavaScript(
+                                    this@FlexWebView,
+                                    "\$flex.flex.${fName}(true)"
+                                )
                             }
                         }
                     }
