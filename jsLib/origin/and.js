@@ -100,8 +100,12 @@
             set: function(val){
                 window._onFlexLoad = val;
                 if(typeof val === 'function') {
-                    val();
-                    setTimeout(() => { $flex.flexload(); }, 0);
+                    (function() {
+                        val();
+                        return Promise.resolve();
+                    })().then(_ => {
+                        setTimeout(() => { $flex.flexload(); }, 10);
+                    });
                 }
             },
             get: function(){
