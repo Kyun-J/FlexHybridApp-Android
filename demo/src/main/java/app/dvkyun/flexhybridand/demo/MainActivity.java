@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         flexWebView.addFlexInterface(new FlexInterfaceExample());
+        flexWebView.evalFlexFunc("webtest","aaa");
         flexWebView.loadUrl("file:///android_asset/html/test.html");
     }
 

@@ -35,7 +35,7 @@
     window.$flex = {};
     Object.defineProperties($flex,
         {
-            version: { value: '0.4.1', writable: false, enumerable: true },
+            version: { value: '0.4.1.1', writable: false, enumerable: true },
             isAndroid: { value: true, writable: false, enumerable: true },
             isiOS: { value: false, writable: false, enumerable: true },
             device: { value: device, writable: false, enumerable: true },
@@ -108,6 +108,8 @@
             }
         });
         window.onFlexLoad = f;
-        $flex.flexload();
+        setTimeout(() => {
+            $flex.flexload();
+        }, 1)
     }, 0);
 })();
