@@ -101,6 +101,7 @@
                 window._onFlexLoad = val;
                 if(typeof val === 'function') {
                     val();
+                    $flex.flexload();
                 }
             },
             get: function(){
@@ -108,8 +109,5 @@
             }
         });
         window.onFlexLoad = f;
-        setTimeout(() => {
-            $flex.flexload();
-        }, 1)
     }, 0);
 })();
