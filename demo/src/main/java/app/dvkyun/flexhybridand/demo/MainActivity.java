@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         flexWebView = findViewById(R.id.flex_web_view);
+        flexWebView.evalFlexFunc("webtest","aaa");
 
         flexWebView.setWebContentsDebuggingEnabled(true);
 
@@ -71,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         flexWebView.addFlexInterface(new FlexInterfaceExample());
-        flexWebView.evalFlexFunc("webtest","aaa");
         flexWebView.loadUrl("file:///android_asset/html/test.html");
     }
 

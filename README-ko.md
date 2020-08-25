@@ -22,7 +22,7 @@ allprojects {
 그후 모듈의 build.gradle에 다음을 추가
 ```gradle
 dependencies {
-        implementation 'com.github.Kyun-J:FlexHybridApp-Android:0.3.9.7'
+        implementation 'com.github.Kyun-J:FlexHybridApp-Android:latest-version'
 }
 ```
 
