@@ -80,7 +80,7 @@ object FlexUtil {
         }
     }
 
-    internal fun convertValue(value: Any?): String {
+    internal fun <T> convertValue(value: T): String {
         return if (value is Int || value is Long || value is Double || value is Float || value is Boolean) {
             "$value"
         } else if (value is String || value is Char) {

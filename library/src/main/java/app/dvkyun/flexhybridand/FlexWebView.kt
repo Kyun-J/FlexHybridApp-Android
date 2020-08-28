@@ -33,7 +33,7 @@ open class FlexWebView: WebView {
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes)
 
     val activity: Activity? = FlexUtil.getActivity(context)
-    private val interfaces: HashMap<String, (arguments: JSONArray) -> Any?> = HashMap()
+    private val interfaces : HashMap<String, (arguments: JSONArray) -> Any?> = HashMap()
     private val actions: HashMap<String, (action: FlexAction, arguments: JSONArray) -> Unit> = HashMap()
     private val options: JSONObject = JSONObject()
     private val dependencies: ArrayList<String> = ArrayList()
@@ -166,6 +166,13 @@ open class FlexWebView: WebView {
             throw FlexException(FlexException.ERROR6)
         }
         options.put("timeout", timeout)
+    }
+
+    fun setFlexOnLoadWait(timeout: Int) {
+        if(isAfterFirstLoad) {
+            throw FlexException(FlexException.ERROR6)
+        }
+        options.put("flexLoadWait", timeout)
     }
 
     fun setInterfaceThreadCount(count: Int) {

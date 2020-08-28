@@ -5,7 +5,8 @@
     const device = deviceinfoFromAnd;
     const listeners = [];
     const option = {
-        timeout: 60000
+        timeout: 60000,
+        flexLoadWait: 100
     };
     const genFName = () => {
         const name = 'f' + Math.random().toString(10).substr(2,8);
@@ -29,13 +30,18 @@
                     value: options[k], writable: false, enumerable: true
                 });
             }
+            if(k === 'flexLoadWait' && typeof options[k] === 'number') {
+                Object.defineProperty(option, k, {
+                    value: options[k], writable: false, enumerable: true
+                });
+            }
         });
     }
     setOptions();
     window.$flex = {};
     Object.defineProperties($flex,
         {
-            version: { value: '0.4.1.2', writable: false, enumerable: true },
+            version: { value: '0.4.5', writable: false, enumerable: true },
             isAndroid: { value: true, writable: false, enumerable: true },
             isiOS: { value: false, writable: false, enumerable: true },
             device: { value: device, writable: false, enumerable: true },
@@ -103,7 +109,7 @@
                     (function() {
                         return Promise.resolve(val());
                     })().then( _ => {
-                        setTimeout(() => { $flex.flexload(); }, 100);
+                        setTimeout(() => { $flex.flexload(); }, option.flexLoadWait);
                     });
                 }
             },
