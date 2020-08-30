@@ -15,13 +15,13 @@ class FlexAction(name: String, webView: FlexWebView) {
             return
         }
         isCall = true
-        if(response is FlexReject) {
+        if(response is FlexBrowserErr) {
             val reason = if(response.reason == null) null else "\"${response.reason}\""
             FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(false, ${reason})")
-        } else if(response == null || response == Unit) {
+        } else if(response == null || response is Unit || response is Void) {
             FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(true)")
         } else {
-            FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(true, null, ${FlexUtil.convertValue(response)})")
+            FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(true, null, ${FlexUtil.convertInput(response)})")
         }
     }
 
@@ -81,7 +81,7 @@ class FlexAction(name: String, webView: FlexWebView) {
         pReturn(response)
     }
 
-    fun promiseReturn(response: FlexReject) {
+    fun promiseReturn(response: FlexBrowserErr) {
         pReturn(response)
     }
 
@@ -98,7 +98,7 @@ class FlexAction(name: String, webView: FlexWebView) {
         FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(true)")
     }
 
-    fun reject(reason: FlexReject) {
+    fun reject(reason: FlexBrowserErr) {
         if(isCall) {
             FlexUtil.INFO(FlexException.ERROR9)
             return

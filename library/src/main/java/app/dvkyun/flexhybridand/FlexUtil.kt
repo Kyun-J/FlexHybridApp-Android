@@ -4,15 +4,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Build
-import android.util.Log
 import android.webkit.WebView
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
-import java.io.File
 import java.io.InputStream
 import java.io.Reader
-import java.util.regex.Pattern
 
 object FlexUtil {
 
@@ -80,7 +77,7 @@ object FlexUtil {
         }
     }
 
-    internal fun <T> convertValue(value: T): String {
+    internal fun convertInput(value: Any?): String {
         return if (value is Int || value is Long || value is Double || value is Float || value is Boolean) {
             "$value"
         } else if (value is String || value is Char) {
@@ -96,7 +93,7 @@ object FlexUtil {
                 } else if (it is String || it is Char) {
                     vString.append("'${it}',")
                 } else if (it is Array<*> || it is Iterable<*> || it is Map<*,*> || it is JSONArray || it is JSONObject) {
-                    vString.append("${convertValue(it)},")
+                    vString.append("${convertInput(it)},")
                 } else {
                     throw FlexException(FlexException.ERROR3)
                 }
@@ -114,7 +111,7 @@ object FlexUtil {
                 } else if (it is String || it is Char) {
                     vString.append("'${it}',")
                 } else if (it is Array<*> || it is Iterable<*> || it is Map<*,*> || it is JSONArray || it is JSONObject) {
-                    vString.append("${convertValue(it)},")
+                    vString.append("${convertInput(it)},")
                 } else {
                     throw FlexException(FlexException.ERROR3)
                 }
@@ -133,7 +130,7 @@ object FlexUtil {
                 } else if (element is String || element is Char) {
                     vString.append("'${element}',")
                 } else if (element is Array<*> || element is Iterable<*> || element is Map<*,*> || element is JSONArray || element is JSONObject) {
-                    vString.append("${convertValue(element)},")
+                    vString.append("${convertInput(element)},")
                 } else {
                     throw FlexException(FlexException.ERROR3)
                 }
@@ -154,7 +151,7 @@ object FlexUtil {
                 } else if (it.value is String || it.value is Char) {
                     vString.append("${it.key}:'${it.value}',")
                 } else if (it.value is Array<*> || it.value is Iterable<*> || it.value is Map<*,*> || it.value is JSONArray || it.value is JSONObject) {
-                    vString.append("${it.key}:${convertValue(it.value!!)},")
+                    vString.append("${it.key}:${convertInput(it.value!!)},")
                 } else {
                     throw FlexException(FlexException.ERROR3)
                 }
@@ -174,7 +171,7 @@ object FlexUtil {
                     } else if (element is String || element is Char) {
                         vString.append("${it}:'${element}',")
                     } else if (element is Array<*> || element is Iterable<*> || element is Map<*,*> || element is JSONArray || element is JSONObject) {
-                        vString.append("${it}:${convertValue(element)},")
+                        vString.append("${it}:${convertInput(element)},")
                     } else {
                         throw FlexException(FlexException.ERROR3)
                     }
@@ -187,6 +184,40 @@ object FlexUtil {
         } else {
             throw FlexException(FlexException.ERROR3)
         }
+    }
+
+    internal fun jsonArrayToFlexData(value: JSONArray?): Array<FlexData?> {
+        if(value == null) return arrayOfNulls(0)
+        val res = Array<FlexData?>(value.length()) { null }
+        for(i in 0 until value.length()) {
+            when(val ele = value[i]) {
+                is Int -> res[i] = FlexData(ele)
+                is String -> res[i] = FlexData(ele)
+                is Long -> res[i] = FlexData(ele)
+                is Double -> res[i] = FlexData(ele)
+                is Boolean -> res[i] = FlexData(ele)
+                is JSONArray -> res[i] = FlexData(jsonArrayToFlexData(ele))
+                is JSONObject -> res[i] = FlexData(jsonObjectToFlexData(ele))
+            }
+        }
+        return res
+    }
+
+    internal fun jsonObjectToFlexData(value: JSONObject?): Map<String, FlexData?> {
+        val res = HashMap<String, FlexData?>()
+        if(value == null) return res
+        value.keys().forEach {
+            when(val ele = value[it]) {
+                is Int -> res[it] = FlexData(ele)
+                is String -> res[it] = FlexData(ele)
+                is Long -> res[it] = FlexData(ele)
+                is Double -> res[it] = FlexData(ele)
+                is Boolean -> res[it] = FlexData(ele)
+                is JSONArray -> res[it] = FlexData(jsonArrayToFlexData(ele))
+                is JSONObject -> res[it] = FlexData(jsonObjectToFlexData(ele))
+            }
+        }
+        return res
     }
 
     private const val TAG = "FLEXHYBRID"

@@ -1,6 +1,6 @@
 package app.dvkyun.flexhybridand
 
-class FlexReject{
+class FlexBrowserErr{
 
     val reason: String?
 

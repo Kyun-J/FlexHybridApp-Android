@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import java.util.HashMap;
 
 import app.dvkyun.flexhybridand.FlexAction;
+import app.dvkyun.flexhybridand.FlexData;
 import app.dvkyun.flexhybridand.FlexWebView;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -35,9 +36,9 @@ public class MainActivity extends AppCompatActivity {
 
         flexWebView.getSettings().setTextZoom(250);
 
-        flexWebView.setAction("test4", new Function2<FlexAction, JSONArray, Unit>() {
+        flexWebView.setAction("test4", new Function2<FlexAction, FlexData[], Unit>() {
             @Override
-            public Unit invoke(FlexAction flexAction, JSONArray arguments) {
+            public Unit invoke(FlexAction flexAction, FlexData[] arguments) {
                 HashMap<String,Object> data = new HashMap<>();
                 data.put("intData",1);
                 data.put("StringData","test");
@@ -57,9 +58,9 @@ public class MainActivity extends AppCompatActivity {
                 flexAction.promiseReturn(data);
                 return null;
             }
-        }).setInterface("test5", new Function1<JSONArray, Object>() {
+        }).setInterface("test5", new Function1<FlexData[], Void>() {
             @Override
-            public Object invoke(JSONArray objects) {
+            public Void invoke(FlexData[] arguments) {
                 flexWebView.evalFlexFunc("webtest", "hi! $flex!", new Function1<Object, Unit>() {
                     @Override
                     public Unit invoke(Object response) {
