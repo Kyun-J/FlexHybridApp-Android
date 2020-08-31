@@ -5,10 +5,6 @@ import android.util.Log;
 
 import androidx.appcompat.app.AlertDialog;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -18,8 +14,7 @@ import app.dvkyun.flexhybridand.FlexData;
 import app.dvkyun.flexhybridand.FlexException;
 import app.dvkyun.flexhybridand.FlexFuncInterface;
 import app.dvkyun.flexhybridand.FlexInterfaces;
-import app.dvkyun.flexhybridand.FlexBrowserErr;
-import app.dvkyun.flexhybridand.FlexUtil;
+import app.dvkyun.flexhybridand.BrowserException;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 import kotlin.jvm.functions.Function2;
@@ -27,7 +22,7 @@ import kotlin.jvm.functions.Function2;
 public class FlexInterfaceExample extends FlexInterfaces {
 
     FlexInterfaceExample() {
-        this.setInterface("test1", new Function1<FlexData[], Integer>() {
+        this.intInterface("test1", new Function1<FlexData[], Integer>() {
             @Override
             public Integer invoke(FlexData[] arguments) {
                 return arguments[0].asInt() + 1;
@@ -43,9 +38,9 @@ public class FlexInterfaceExample extends FlexInterfaces {
                 }
                 return null;
             }
-        }).setInterface("test3", new Function1<FlexData[], Void>() {
+        }).voidInterface("test3", new Function1<FlexData[], Unit>() {
             @Override
-            public Void invoke(FlexData[] arguments) {
+            public Unit invoke(FlexData[] arguments) {
                 HashMap<String, FlexData> obj = (HashMap) arguments[0].asMap();
                 Log.i("console", "Receive from web");
                 Log.i("console", "stringData --- " + obj.get("stringData").asString());
@@ -80,8 +75,8 @@ public class FlexInterfaceExample extends FlexInterfaces {
     }
 
     @FlexFuncInterface
-    public FlexBrowserErr test8(FlexData[] arguments) {
-        return new FlexBrowserErr("reject test");
+    public void test8(FlexData[] arguments) throws Exception {
+        throw new FlexException("Exception test!");
     }
 
     @FlexActionInterface

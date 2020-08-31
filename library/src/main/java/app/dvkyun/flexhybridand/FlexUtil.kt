@@ -11,46 +11,7 @@ import java.io.BufferedReader
 import java.io.InputStream
 import java.io.Reader
 
-object FlexUtil {
-
-    fun convertJSONArray(value: JSONArray): Array<Any?> {
-        return Array(value.length())
-        { i ->
-            val element = value[i]
-            if (element is Int || element is Double || element is Boolean || element is String) {
-                element
-            } else if (element is JSONArray) {
-                convertJSONArray(element)
-            } else if (element is JSONObject) {
-                convertJSONObject(element)
-            } else if (element == null) {
-                null
-            } else {
-                throw FlexException(FlexException.ERROR3)
-            }
-        }
-    }
-
-    fun convertJSONObject(value: JSONObject): Map<*,*> {
-        val result = HashMap<String, Any?>()
-        value.keys().forEach {
-            if (value.isNull(it)) {
-                result[it] = null
-            } else {
-                val element = value[it]
-                if (element is Int || element is Double || element is Boolean || element is String) {
-                    result[it] = element
-                } else if (element is JSONArray) {
-                    result[it] = convertJSONArray(element)
-                } else if (element is JSONObject) {
-                    result[it] = convertJSONObject(element)
-                } else {
-                    throw FlexException(FlexException.ERROR3)
-                }
-            }
-        }
-        return result
-    }
+internal object FlexUtil {
 
     internal fun getActivity(context: Context): Activity? {
         if (context is ContextWrapper) {
@@ -75,6 +36,45 @@ object FlexUtil {
                 webView.loadUrl(js)
             }
         }
+    }
+
+    internal fun convertJSONArray(value: JSONArray): Array<Any?> {
+        return Array(value.length())
+        { i ->
+            val element = value[i]
+            if (element is Int || element is Double || element is Boolean || element is String) {
+                element
+            } else if (element is JSONArray) {
+                convertJSONArray(element)
+            } else if (element is JSONObject) {
+                convertJSONObject(element)
+            } else if (element == null) {
+                null
+            } else {
+                throw FlexException(FlexException.ERROR3)
+            }
+        }
+    }
+
+    internal fun convertJSONObject(value: JSONObject): Map<*,*> {
+        val result = HashMap<String, Any?>()
+        value.keys().forEach {
+            if (value.isNull(it)) {
+                result[it] = null
+            } else {
+                val element = value[it]
+                if (element is Int || element is Double || element is Boolean || element is String) {
+                    result[it] = element
+                } else if (element is JSONArray) {
+                    result[it] = convertJSONArray(element)
+                } else if (element is JSONObject) {
+                    result[it] = convertJSONObject(element)
+                } else {
+                    throw FlexException(FlexException.ERROR3)
+                }
+            }
+        }
+        return result
     }
 
     internal fun convertInput(value: Any?): String {
@@ -220,6 +220,21 @@ object FlexUtil {
         return res
     }
 
+    internal fun anyToFlexData(value: Any?): FlexData? {
+        return when(value) {
+            is Int -> FlexData(value)
+            is String -> FlexData(value)
+            is Long -> FlexData(value)
+            is Double -> FlexData(value)
+            is Boolean -> FlexData(value)
+            is JSONArray -> FlexData(jsonArrayToFlexData(value))
+            is JSONObject -> FlexData(jsonObjectToFlexData(value))
+            is BrowserException -> FlexData(value)
+            else -> null
+        }
+    }
+
+
     private const val TAG = "FLEXHYBRID"
 
     internal fun INFO(msg: Any?) {
@@ -241,6 +256,7 @@ object FlexUtil {
     internal fun ERR(msg: Any?) {
         android.util.Log.e(TAG, msg.toString())
     }
+
 
     internal fun fileToString(inputStream: InputStream): String {
         try {

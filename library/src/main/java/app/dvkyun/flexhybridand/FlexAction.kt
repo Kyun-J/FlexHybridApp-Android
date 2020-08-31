@@ -3,7 +3,7 @@ package app.dvkyun.flexhybridand
 import org.json.JSONArray
 import org.json.JSONObject
 
-class FlexAction(name: String, webView: FlexWebView) {
+class FlexAction internal constructor(name: String, webView: FlexWebView) {
 
     private var funName: String = name
     private var flexWebView: FlexWebView = webView
@@ -15,7 +15,7 @@ class FlexAction(name: String, webView: FlexWebView) {
             return
         }
         isCall = true
-        if(response is FlexBrowserErr) {
+        if(response is BrowserException) {
             val reason = if(response.reason == null) null else "\"${response.reason}\""
             FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(false, ${reason})")
         } else if(response == null || response is Unit || response is Void) {
@@ -81,7 +81,7 @@ class FlexAction(name: String, webView: FlexWebView) {
         pReturn(response)
     }
 
-    fun promiseReturn(response: FlexBrowserErr) {
+    fun promiseReturn(response: BrowserException) {
         pReturn(response)
     }
 
@@ -98,7 +98,7 @@ class FlexAction(name: String, webView: FlexWebView) {
         FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(true)")
     }
 
-    fun reject(reason: FlexBrowserErr) {
+    fun reject(reason: BrowserException) {
         if(isCall) {
             FlexUtil.INFO(FlexException.ERROR9)
             return

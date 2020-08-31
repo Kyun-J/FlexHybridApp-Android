@@ -6,8 +6,6 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.json.JSONArray;
-
 import java.util.HashMap;
 
 import app.dvkyun.flexhybridand.FlexAction;
@@ -58,13 +56,14 @@ public class MainActivity extends AppCompatActivity {
                 flexAction.promiseReturn(data);
                 return null;
             }
-        }).setInterface("test5", new Function1<FlexData[], Void>() {
+        }).voidInterface("test5", new Function1<FlexData[], Unit>() {
             @Override
-            public Void invoke(FlexData[] arguments) {
-                flexWebView.evalFlexFunc("webtest", "hi! $flex!", new Function1<Object, Unit>() {
+            public Unit invoke(FlexData[] arguments) {
+                flexWebView.evalFlexFunc("webtest", "hi! $flex!", new Function1<FlexData, Unit>() {
                     @Override
-                    public Unit invoke(Object response) {
-                        Log.i("console", "Receive from web --- " + response.toString());
+                    public Unit invoke(FlexData response) {
+                        FlexData[] arr = response.asArray();
+                        Log.i("console", "Receive from web --- " + arr[0].asString() + arr[1].asInt() + arr[2].asMap().toString() );
                         return null;
                     }
                 });

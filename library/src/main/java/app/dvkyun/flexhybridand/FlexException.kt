@@ -11,7 +11,7 @@ class FlexException : Exception {
     companion object {
         const val ERROR1 = "Context must be Activity Context."
         const val ERROR2 = "ViewClient or ChromeClient must be FlexViewClient or FlexChromeClient"
-        const val ERROR3 = "Only Web interfaces with Null, Int, DOUBLE, Float, Boolean, Char, String, JSONObject, JSONArray, Array <Any> (Object [], Iterable <Any> (like ArrayList), and Map>String,Any> (like HashMap) data are available."
+        const val ERROR3 = "Only Web interfaces with Null, Int, Double, Float, Boolean, Char, String, JSONObject, JSONArray, Array<Any>(Object[]), Iterable<Any>, and Map<String,Any> data are available."
         const val ERROR4 = "FlexWebView to run javascript is null."
         const val ERROR5 = "BaseUrl cannot be changed after initialization."
         const val ERROR6 = "Interface and Option can only be added before the first page of FlexWebView is loaded."
@@ -23,6 +23,6 @@ class FlexException : Exception {
         const val ERROR12 = "FlexFuncInterface and FlexActionInterface must be public."
         const val ERROR13 = "The BaseUrl can only use file://, http://, https:// protocols."
         const val ERROR14 = "The Unique interface cannot be removed."
-        const val ERROR15 = "" // FlexData 데이터 변환 에러
+        const val ERROR15 = "The saved data and the called type do not match."
     }
 }

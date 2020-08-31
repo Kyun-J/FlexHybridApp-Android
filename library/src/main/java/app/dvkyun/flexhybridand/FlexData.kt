@@ -2,7 +2,7 @@ package app.dvkyun.flexhybridand
 
 @Suppress("UNCHECKED_CAST")
 class FlexData {
-    private val data: Any
+    internal val data: Any
     var type = Type.NULL
         private set
 
@@ -14,7 +14,8 @@ class FlexData {
         BOOLEAN,
         ARRAY,
         MAP,
-        NULL
+        NULL,
+        ERR
     }
 
     constructor(data : String) {
@@ -50,6 +51,11 @@ class FlexData {
     constructor(data : Map<String, FlexData?>) {
         this.data = data
         type = Type.MAP
+    }
+
+    constructor(data: BrowserException) {
+        this.data = data
+        type = Type.ERR
     }
     
     fun asString(): String {
@@ -87,6 +93,11 @@ class FlexData {
         return data as Map<String, FlexData>
     }
 
+    fun asErr(): BrowserException {
+        if(type != Type.ERR) throw FlexException(FlexException.ERROR15)
+        return data as BrowserException
+    }
+
     inline fun <reified T> to() : T {
         if(T::class == String::class && type == Type.STRING){
             return asString() as T
@@ -102,6 +113,8 @@ class FlexData {
             return asArray() as T
         } else if(T::class == Map::class && type == Type.MAP){
             return asMap() as T
+        } else if(T::class == BrowserException::class && type == Type.ERR){
+            return asErr() as T
         } else {
             throw FlexException(FlexException.ERROR15)
         }

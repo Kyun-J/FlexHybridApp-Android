@@ -13,6 +13,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.InputStream
 import java.io.Reader
+import java.lang.Exception
 import java.util.concurrent.Executors
 import kotlin.random.Random
 import kotlin.reflect.KTypeProjection
@@ -36,7 +37,7 @@ open class FlexWebView: WebView {
     private val actions: HashMap<String, (action: FlexAction, arguments: Array<FlexData?>) -> Unit> = HashMap()
     private val options: JSONObject = JSONObject()
     private val dependencies: ArrayList<String> = ArrayList()
-    private val returnFromWeb: HashMap<Int,(Any?) -> Unit> = HashMap()
+    private val returnFromWeb: HashMap<Int,(FlexData?) -> Unit> = HashMap()
     private val internalInterface = arrayOf("flexreturn", "flexload")
     private var tCount = Runtime.getRuntime().availableProcessors()
     val scope by lazy {
@@ -48,7 +49,21 @@ open class FlexWebView: WebView {
 
     private var isAfterFirstLoad = false
     private var flexJsString: String
-    internal var baseUrl: String? = null
+
+    var baseUrl: String? = null
+        set(value) {
+            if(field != null) {
+                throw FlexException(FlexException.ERROR5)
+            }
+            if(value == null){
+                field = value
+                return
+            }
+            if(!value.startsWith("http://") && !value.startsWith("http://") && !value.startsWith("file://")) {
+                throw FlexException(FlexException.ERROR13)
+            }
+            field = value
+        }
 
     init {
         if(activity == null) throw FlexException(FlexException.ERROR1)
@@ -76,6 +91,7 @@ open class FlexWebView: WebView {
         settings.useWideViewPort = true
         settings.cacheMode = WebSettings.LOAD_DEFAULT
         settings.layoutAlgorithm = WebSettings.LayoutAlgorithm.SINGLE_COLUMN
+        settings.mediaPlaybackRequiresUserGesture = false
         settings.enableSmoothTransition()
         settings.javaScriptCanOpenWindowsAutomatically = true
         if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
@@ -84,22 +100,9 @@ open class FlexWebView: WebView {
         if(Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
             setRendererPriorityPolicy(RENDERER_PRIORITY_IMPORTANT, true)
         }
-
     }
 
-    fun setBaseUrl(url: String) {
-        if(baseUrl != null) {
-            throw FlexException(FlexException.ERROR5)
-        }
-        if(!url.startsWith("http://") && !url.startsWith("http://") && !url.startsWith("file://")) {
-            throw FlexException(FlexException.ERROR13)
-        }
-        baseUrl = url
-    }
-
-    fun getBaseUrl(): String? = baseUrl
-
-    fun setInterface(name: String, lambda: (Array<FlexData?>) -> Any?): FlexWebView {
+    private fun setInterface(name: String, lambda: (Array<FlexData?>) -> Any?): FlexWebView {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR6)
         }
@@ -112,6 +115,47 @@ open class FlexWebView: WebView {
         interfaces[name] = lambda
         return this
     }
+
+    fun voidInterface(name: String, lambda: (Array<FlexData?>) -> Unit): FlexWebView {
+        return setInterface(name, lambda)
+    }
+
+    fun stringInterface(name: String, lambda: (Array<FlexData?>) -> String): FlexWebView {
+        return setInterface(name, lambda)
+    }
+
+    fun intInterface(name: String, lambda: (Array<FlexData?>) -> Int): FlexWebView {
+        return setInterface(name, lambda)
+    }
+
+    fun charInterface(name: String, lambda: (Array<FlexData?>) -> Char): FlexWebView {
+        return setInterface(name, lambda)
+    }
+
+    fun longInterface(name: String, lambda: (Array<FlexData?>) -> Long): FlexWebView {
+        return setInterface(name, lambda)
+    }
+
+    fun doubleInterface(name: String, lambda: (Array<FlexData?>) -> Double): FlexWebView {
+        return setInterface(name, lambda)
+    }
+
+    fun floatInterface(name: String, lambda: (Array<FlexData?>) -> Float): FlexWebView {
+        return setInterface(name, lambda)
+    }
+
+    fun boolInterface(name: String, lambda: (Array<FlexData?>) -> Boolean): FlexWebView {
+        return setInterface(name, lambda)
+    }
+
+    fun arrayInterface(name: String, lambda: (Array<FlexData?>) -> Array<*>): FlexWebView {
+        return setInterface(name, lambda)
+    }
+
+    fun mapInterface(name: String, lambda: (Array<FlexData?>) -> Map<String, *>): FlexWebView {
+        return setInterface(name, lambda)
+    }
+
 
     fun setAction(name: String, action: (action: FlexAction, arguments: Array<FlexData?>) -> Unit): FlexWebView {
         if(isAfterFirstLoad) {
@@ -206,7 +250,7 @@ open class FlexWebView: WebView {
         }
     }
 
-    fun evalFlexFunc(funcName: String, response: (Any?) -> Unit) {
+    fun evalFlexFunc(funcName: String, response: (FlexData?) -> Unit) {
         if(!isFlexLoad) {
             beforeFlexLoadEvalList.add(BeforeFlexEval(funcName, response))
         } else {
@@ -224,7 +268,7 @@ open class FlexWebView: WebView {
         }
     }
 
-    fun evalFlexFunc(funcName: String, sendData: Any, response: (Any?) -> Unit) {
+    fun evalFlexFunc(funcName: String, sendData: Any, response: (FlexData?) -> Unit) {
         if (!isFlexLoad) {
             beforeFlexLoadEvalList.add(BeforeFlexEval(funcName, sendData, response))
         } else {
@@ -305,68 +349,77 @@ open class FlexWebView: WebView {
                     val intName: String = data.getString("intName")
                     val fName: String = data.getString("funName")
                     val args: JSONArray = data.getJSONArray("arguments")
-                    if (interfaces[intName] != null) {
-                        val value = interfaces[intName]?.invoke(FlexUtil.jsonArrayToFlexData(args))
-                        if (value is FlexBrowserErr) {
-                            val reason =
-                                if (value.reason == null) null else "\"${value.reason}\""
-                            FlexUtil.evaluateJavaScript(
-                                this@FlexWebView,
-                                "\$flex.flex.${fName}(false, ${reason})"
-                            )
-                        } else if (value == null || value == Unit) {
-                            FlexUtil.evaluateJavaScript(
-                                this@FlexWebView,
-                                "\$flex.flex.${fName}(true)"
-                            )
+                    try {
+                        if (interfaces[intName] != null) {
+                            val value = interfaces[intName]?.invoke(FlexUtil.jsonArrayToFlexData(args))
+                            if (value is BrowserException) {
+                                val reason =
+                                    if (value.reason == null) null else "\"${value.reason}\""
+                                FlexUtil.evaluateJavaScript(
+                                    this@FlexWebView,
+                                    "\$flex.flex.${fName}(false, ${reason})"
+                                )
+                            } else if (value == null || value == Unit || value is Void) {
+                                FlexUtil.evaluateJavaScript(
+                                    this@FlexWebView,
+                                    "\$flex.flex.${fName}(true)"
+                                )
+                            } else {
+                                FlexUtil.evaluateJavaScript(
+                                    this@FlexWebView,
+                                    "\$flex.flex.$fName(true, null, ${FlexUtil.convertInput(value)})"
+                                )
+                            }
+                        } else if (actions[intName] != null) {
+                            actions[intName]?.invoke(FlexAction(fName, this@FlexWebView), FlexUtil.jsonArrayToFlexData(args))
                         } else {
-                            FlexUtil.evaluateJavaScript(
-                                this@FlexWebView,
-                                "\$flex.flex.$fName(true, null, ${FlexUtil.convertInput(value)})"
-                            )
-                        }
-                    } else if (actions[intName] != null) {
-                        val lambda = actions[intName]!!
-                        lambda.invoke(FlexAction(fName, this@FlexWebView), FlexUtil.jsonArrayToFlexData(args))
-                    } else {
-                        when (internalInterface.indexOf(intName)) {
-                            0 -> { // flexreturn
-                                val iData = args.getJSONObject(0)
-                                val tID = iData.getInt("TID")
-                                val value = iData.get("Value")
-                                val error = iData.getBoolean("Error")
-                                if (error) {
-                                    returnFromWeb[tID]?.invoke(FlexBrowserErr(value.toString()))
-                                } else {
-                                    returnFromWeb[tID]?.invoke(value)
-                                }
-                                FlexUtil.evaluateJavaScript(
-                                    this@FlexWebView,
-                                    "\$flex.flex.${fName}(true)"
-                                )
-                            }
-                            1 -> { // flexload
-                                isFlexLoad = true
-                                beforeFlexLoadEvalList.forEach {
-                                    if(it.sendData != null && it.response != null) {
-                                        evalFlexFunc(it.name, it.sendData, it.response)
-                                    } else if(it.sendData != null && it.response == null) {
-                                        evalFlexFunc(it.name, it.sendData)
-                                    } else if(it.sendData == null && it.response != null) {
-                                        evalFlexFunc(it.name, it.response)
+                            when (internalInterface.indexOf(intName)) {
+                                0 -> { // flexreturn
+                                    val iData = args.getJSONObject(0)
+                                    val tID = iData.getInt("TID")
+                                    val value = iData.get("Value")
+                                    val error = iData.getBoolean("Error")
+                                    if (error) {
+                                        returnFromWeb[tID]?.invoke(FlexUtil.anyToFlexData(BrowserException(value.toString())))
                                     } else {
-                                        evalFlexFunc(it.name)
+                                        returnFromWeb[tID]?.invoke(FlexUtil.anyToFlexData(value))
                                     }
+                                    FlexUtil.evaluateJavaScript(
+                                        this@FlexWebView,
+                                        "\$flex.flex.${fName}(true)"
+                                    )
                                 }
-                                beforeFlexLoadEvalList.clear()
-                                FlexUtil.evaluateJavaScript(
-                                    this@FlexWebView,
-                                    "\$flex.flex.${fName}(true)"
-                                )
+                                1 -> { // flexload
+                                    isFlexLoad = true
+                                    beforeFlexLoadEvalList.forEach {
+                                        if(it.sendData != null && it.response != null) {
+                                            evalFlexFunc(it.name, it.sendData, it.response)
+                                        } else if(it.sendData != null && it.response == null) {
+                                            evalFlexFunc(it.name, it.sendData)
+                                        } else if(it.sendData == null && it.response != null) {
+                                            evalFlexFunc(it.name, it.response)
+                                        } else {
+                                            evalFlexFunc(it.name)
+                                        }
+                                    }
+                                    beforeFlexLoadEvalList.clear()
+                                    FlexUtil.evaluateJavaScript(
+                                        this@FlexWebView,
+                                        "\$flex.flex.${fName}(true)"
+                                    )
+                                }
                             }
                         }
+                    } catch (e: Exception) {
+                        FlexUtil.ERR(e)
+                        FlexUtil.evaluateJavaScript(
+                            this@FlexWebView,
+                            "\$flex.flex.${fName}(false, \"${e.cause?.message}\")"
+                        )
+                        e.printStackTrace()
                     }
                 } catch (e: JSONException) {
+                    FlexUtil.ERR(e)
                     e.printStackTrace()
                 }
             }
@@ -376,7 +429,7 @@ open class FlexWebView: WebView {
     inner class BeforeFlexEval {
         val name:String
         val sendData: Any?
-        val response: ((Any?) -> Unit)?
+        val response: ((FlexData?) -> Unit)?
 
         constructor(name: String) {
             this.name = name
@@ -388,12 +441,12 @@ open class FlexWebView: WebView {
             this.sendData = sendData
             response = null
         }
-        constructor(name: String, response:(Any?) -> Unit) {
+        constructor(name: String, response:(FlexData?) -> Unit) {
             this.name = name
             this.response = response
             sendData = null
         }
-        constructor(name: String, sendData:Any, response: (Any?) -> Unit) {
+        constructor(name: String, sendData:Any, response: (FlexData?) -> Unit) {
             this.name = name
             this.sendData = sendData
             this.response = response
