@@ -186,9 +186,9 @@ internal object FlexUtil {
         }
     }
 
-    internal fun jsonArrayToFlexData(value: JSONArray?): Array<FlexData?> {
-        if(value == null) return arrayOfNulls(0)
-        val res = Array<FlexData?>(value.length()) { null }
+    internal fun jsonArrayToFlexData(value: JSONArray?): Array<FlexData> {
+        if(value == null) return emptyArray()
+        val res = Array(value.length()) { FlexData() }
         for(i in 0 until value.length()) {
             when(val ele = value[i]) {
                 is Int -> res[i] = FlexData(ele)
@@ -203,8 +203,8 @@ internal object FlexUtil {
         return res
     }
 
-    internal fun jsonObjectToFlexData(value: JSONObject?): Map<String, FlexData?> {
-        val res = HashMap<String, FlexData?>()
+    internal fun jsonObjectToFlexData(value: JSONObject?): Map<String, FlexData> {
+        val res = HashMap<String, FlexData>()
         if(value == null) return res
         value.keys().forEach {
             when(val ele = value[it]) {
@@ -215,12 +215,13 @@ internal object FlexUtil {
                 is Boolean -> res[it] = FlexData(ele)
                 is JSONArray -> res[it] = FlexData(jsonArrayToFlexData(ele))
                 is JSONObject -> res[it] = FlexData(jsonObjectToFlexData(ele))
+                else -> res[it] = FlexData()
             }
         }
         return res
     }
 
-    internal fun anyToFlexData(value: Any?): FlexData? {
+    internal fun anyToFlexData(value: Any?): FlexData {
         return when(value) {
             is Int -> FlexData(value)
             is String -> FlexData(value)
@@ -230,10 +231,9 @@ internal object FlexUtil {
             is JSONArray -> FlexData(jsonArrayToFlexData(value))
             is JSONObject -> FlexData(jsonObjectToFlexData(value))
             is BrowserException -> FlexData(value)
-            else -> null
+            else -> FlexData()
         }
     }
-
 
     private const val TAG = "FLEXHYBRID"
 

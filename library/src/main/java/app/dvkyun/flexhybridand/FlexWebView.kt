@@ -33,11 +33,11 @@ open class FlexWebView: WebView {
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes)
 
     val activity: Activity? = FlexUtil.getActivity(context)
-    private val interfaces : HashMap<String, (arguments: Array<FlexData?>) -> Any?> = HashMap()
-    private val actions: HashMap<String, (action: FlexAction, arguments: Array<FlexData?>) -> Unit> = HashMap()
+    private val interfaces : HashMap<String, (arguments: Array<FlexData>) -> Any?> = HashMap()
+    private val actions: HashMap<String, (action: FlexAction, arguments: Array<FlexData>) -> Unit> = HashMap()
     private val options: JSONObject = JSONObject()
     private val dependencies: ArrayList<String> = ArrayList()
-    private val returnFromWeb: HashMap<Int,(FlexData?) -> Unit> = HashMap()
+    private val returnFromWeb: HashMap<Int,(FlexData) -> Unit> = HashMap()
     private val internalInterface = arrayOf("flexreturn", "flexload")
     private var tCount = Runtime.getRuntime().availableProcessors()
     val scope by lazy {
@@ -102,7 +102,7 @@ open class FlexWebView: WebView {
         }
     }
 
-    private fun setInterface(name: String, lambda: (Array<FlexData?>) -> Any?): FlexWebView {
+    private fun setInterface(name: String, lambda: (Array<FlexData>) -> Any?): FlexWebView {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR6)
         }
@@ -116,48 +116,48 @@ open class FlexWebView: WebView {
         return this
     }
 
-    fun voidInterface(name: String, lambda: (Array<FlexData?>) -> Unit): FlexWebView {
+    fun voidInterface(name: String, lambda: (Array<FlexData>) -> Unit): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun stringInterface(name: String, lambda: (Array<FlexData?>) -> String): FlexWebView {
+    fun stringInterface(name: String, lambda: (Array<FlexData>) -> String): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun intInterface(name: String, lambda: (Array<FlexData?>) -> Int): FlexWebView {
+    fun intInterface(name: String, lambda: (Array<FlexData>) -> Int): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun charInterface(name: String, lambda: (Array<FlexData?>) -> Char): FlexWebView {
+    fun charInterface(name: String, lambda: (Array<FlexData>) -> Char): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun longInterface(name: String, lambda: (Array<FlexData?>) -> Long): FlexWebView {
+    fun longInterface(name: String, lambda: (Array<FlexData>) -> Long): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun doubleInterface(name: String, lambda: (Array<FlexData?>) -> Double): FlexWebView {
+    fun doubleInterface(name: String, lambda: (Array<FlexData>) -> Double): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun floatInterface(name: String, lambda: (Array<FlexData?>) -> Float): FlexWebView {
+    fun floatInterface(name: String, lambda: (Array<FlexData>) -> Float): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun boolInterface(name: String, lambda: (Array<FlexData?>) -> Boolean): FlexWebView {
+    fun boolInterface(name: String, lambda: (Array<FlexData>) -> Boolean): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun arrayInterface(name: String, lambda: (Array<FlexData?>) -> Array<*>): FlexWebView {
+    fun arrayInterface(name: String, lambda: (Array<FlexData>) -> Array<*>): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun mapInterface(name: String, lambda: (Array<FlexData?>) -> Map<String, *>): FlexWebView {
+    fun mapInterface(name: String, lambda: (Array<FlexData>) -> Map<String, *>): FlexWebView {
         return setInterface(name, lambda)
     }
 
 
-    fun setAction(name: String, action: (action: FlexAction, arguments: Array<FlexData?>) -> Unit): FlexWebView {
+    fun setAction(name: String, action: (action: FlexAction, arguments: Array<FlexData>) -> Unit): FlexWebView {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR6)
         }
@@ -250,7 +250,7 @@ open class FlexWebView: WebView {
         }
     }
 
-    fun evalFlexFunc(funcName: String, response: (FlexData?) -> Unit) {
+    fun evalFlexFunc(funcName: String, response: (FlexData) -> Unit) {
         if(!isFlexLoad) {
             beforeFlexLoadEvalList.add(BeforeFlexEval(funcName, response))
         } else {
@@ -268,7 +268,7 @@ open class FlexWebView: WebView {
         }
     }
 
-    fun evalFlexFunc(funcName: String, sendData: Any, response: (FlexData?) -> Unit) {
+    fun evalFlexFunc(funcName: String, sendData: Any, response: (FlexData) -> Unit) {
         if (!isFlexLoad) {
             beforeFlexLoadEvalList.add(BeforeFlexEval(funcName, sendData, response))
         } else {
@@ -377,10 +377,11 @@ open class FlexWebView: WebView {
                                 0 -> { // flexreturn
                                     val iData = args.getJSONObject(0)
                                     val tID = iData.getInt("TID")
-                                    val value = iData.get("Value")
+                                    val value = iData.opt("Value")
                                     val error = iData.getBoolean("Error")
                                     if (error) {
-                                        returnFromWeb[tID]?.invoke(FlexUtil.anyToFlexData(BrowserException(value.toString())))
+                                        val errMsg: String = value?.let { value.toString() } ?: "null"
+                                        returnFromWeb[tID]?.invoke(FlexUtil.anyToFlexData(BrowserException(errMsg)))
                                     } else {
                                         returnFromWeb[tID]?.invoke(FlexUtil.anyToFlexData(value))
                                     }
@@ -429,7 +430,7 @@ open class FlexWebView: WebView {
     inner class BeforeFlexEval {
         val name:String
         val sendData: Any?
-        val response: ((FlexData?) -> Unit)?
+        val response: ((FlexData) -> Unit)?
 
         constructor(name: String) {
             this.name = name
@@ -441,12 +442,12 @@ open class FlexWebView: WebView {
             this.sendData = sendData
             response = null
         }
-        constructor(name: String, response:(FlexData?) -> Unit) {
+        constructor(name: String, response:(FlexData) -> Unit) {
             this.name = name
             this.response = response
             sendData = null
         }
-        constructor(name: String, sendData:Any, response: (FlexData?) -> Unit) {
+        constructor(name: String, sendData:Any, response: (FlexData) -> Unit) {
             this.name = name
             this.sendData = sendData
             this.response = response

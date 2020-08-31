@@ -18,6 +18,10 @@ class FlexData {
         ERR
     }
 
+    constructor() {
+        data = Any()
+    }
+
     constructor(data : String) {
         this.data = data
         type = Type.STRING
@@ -43,12 +47,12 @@ class FlexData {
         type = Type.BOOLEAN
     }
 
-    constructor(data : Array<FlexData?>) {
+    constructor(data : Array<FlexData>) {
         this.data = data
         type = Type.ARRAY
     }
 
-    constructor(data : Map<String, FlexData?>) {
+    constructor(data : Map<String, FlexData>) {
         this.data = data
         type = Type.MAP
     }
@@ -57,61 +61,98 @@ class FlexData {
         this.data = data
         type = Type.ERR
     }
+
+    fun isNull(): Boolean {
+        return type == Type.NULL
+    }
     
-    fun asString(): String {
+    fun asString(): String? {
+        if(isNull()) return null
         if(type != Type.STRING) throw FlexException(FlexException.ERROR15)
         return data.toString()
     }
 
-    fun asInt(): Int {
-        if(type != Type.INT) throw FlexException(FlexException.ERROR15)
-        return data as Int
+    fun asInt(): Int? {
+        if(isNull()) return null
+        return when(type) {
+            Type.INT -> data as Int
+            Type.LONG -> (data as Long).toInt()
+            Type.DOUBLE -> (data as Double).toInt()
+            else -> throw FlexException(FlexException.ERROR15)
+        }
     }
 
-    fun asLong(): Long {
-        if(type != Type.LONG) throw FlexException(FlexException.ERROR15)
-        return data as Long
+    fun asLong(): Long? {
+        if(isNull()) return null
+        return when(type) {
+            Type.INT -> (data as Int).toLong()
+            Type.LONG -> data as Long
+            Type.DOUBLE -> (data as Double).toLong()
+            else -> throw FlexException(FlexException.ERROR15)
+        }
     }
 
-    fun asDouble(): Double {
-        if(type != Type.DOUBLE) throw FlexException(FlexException.ERROR15)
-        return data as Double
+    fun asDouble(): Double? {
+        if(isNull()) return null
+        return when(type) {
+            Type.INT -> (data as Int).toDouble()
+            Type.LONG -> (data as Long).toDouble()
+            Type.DOUBLE -> data as Double
+            else -> throw FlexException(FlexException.ERROR15)
+        }
     }
 
-    fun asBoolean(): Boolean {
+    fun asFloat(): Float? {
+        if(isNull()) return null
+        return when(type) {
+            Type.INT -> (data as Int).toFloat()
+            Type.LONG -> (data as Long).toFloat()
+            Type.DOUBLE -> (data as Double).toFloat()
+            else -> throw FlexException(FlexException.ERROR15)
+        }
+    }
+
+    fun asBoolean(): Boolean? {
+        if(isNull()) return null
         if(type != Type.BOOLEAN) throw FlexException(FlexException.ERROR15)
         return data as Boolean
     }
 
-    fun asArray(): Array<FlexData> {
+    fun asArray(): Array<FlexData>? {
+        if(isNull()) return null
         if(type != Type.ARRAY) throw FlexException(FlexException.ERROR15)
         return data as Array<FlexData>
     }
 
-    fun asMap(): Map<String, FlexData> {
+    fun asMap(): Map<String, FlexData>? {
+        if(isNull()) return null
         if(type != Type.MAP) throw FlexException(FlexException.ERROR15)
         return data as Map<String, FlexData>
     }
 
-    fun asErr(): BrowserException {
+    fun asErr(): BrowserException? {
+        if(isNull()) return null
         if(type != Type.ERR) throw FlexException(FlexException.ERROR15)
         return data as BrowserException
     }
 
-    inline fun <reified T> to() : T {
-        if(T::class == String::class && type == Type.STRING){
+    inline fun <reified T> reified() : T? {
+        if(isNull()) return null
+        if(T::class == String::class){
             return asString() as T
-        } else if(T::class == Int::class && type == Type.INT){
+        } else if(T::class == Int::class){
             return asInt() as T
-        } else if(T::class == Long::class && type == Type.LONG){
+        } else if(T::class == Long::class){
             return asLong() as T
-        } else if(T::class == Double::class && type == Type.DOUBLE){
+        } else if(T::class == Double::class){
             return asDouble() as T
-        } else if(T::class == Boolean::class && type == Type.BOOLEAN){
+        } else if(T::class == Float::class){
+            return asFloat() as T
+        } else if(T::class == Boolean::class){
             return asBoolean() as T
-        } else if(T::class == Array::class && type == Type.ARRAY){
+        } else if(T::class == Array::class){
             return asArray() as T
-        } else if(T::class == Map::class && type == Type.MAP){
+        } else if(T::class == Map::class){
             return asMap() as T
         } else if(T::class == BrowserException::class && type == Type.ERR){
             return asErr() as T

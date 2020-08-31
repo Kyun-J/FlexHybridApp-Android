@@ -48,6 +48,7 @@ public class FlexInterfaceExample extends FlexInterfaces {
                 Log.i("console", "floatData --- " + obj.get("floatData").asDouble());
                 Log.i("console", "boolData --- " + obj.get("boolData").asBoolean());
                 Log.i("console", "arrayData --- " + obj.get("arrayData").asArray().toString());
+                Log.i("console", "nullData --- " + obj.get("nullData").asMap());
                 Log.i("console", "objectData --- " + obj.get("objectData").asMap().toString());
                 return null;
             }
