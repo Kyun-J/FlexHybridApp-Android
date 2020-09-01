@@ -2,7 +2,7 @@ package app.dvkyun.flexhybridand
 
 @Suppress("UNCHECKED_CAST")
 class FlexData {
-    internal val data: Any
+    private val data: Any
     var type = Type.NULL
         private set
 
@@ -18,46 +18,46 @@ class FlexData {
         ERR
     }
 
-    constructor() {
+    internal constructor() {
         data = Any()
     }
 
-    constructor(data : String) {
+    internal constructor(data : String) {
         this.data = data
         type = Type.STRING
     }
 
-    constructor(data : Int) {
+    internal constructor(data : Int) {
         this.data = data
         type = Type.INT
     }
 
-    constructor(data : Long) {
+    internal constructor(data : Long) {
         this.data = data
         type = Type.LONG
     }
 
-    constructor(data : Double) {
+    internal constructor(data : Double) {
         this.data = data
         type = Type.DOUBLE
     }
 
-    constructor(data : Boolean) {
+    internal constructor(data : Boolean) {
         this.data = data
         type = Type.BOOLEAN
     }
 
-    constructor(data : Array<FlexData>) {
+    internal constructor(data : Array<FlexData>) {
         this.data = data
         type = Type.ARRAY
     }
 
-    constructor(data : Map<String, FlexData>) {
+    internal constructor(data : Map<String, FlexData>) {
         this.data = data
         type = Type.MAP
     }
 
-    constructor(data: BrowserException) {
+    internal constructor(data: BrowserException) {
         this.data = data
         type = Type.ERR
     }

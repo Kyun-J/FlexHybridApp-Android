@@ -31,7 +31,7 @@ dependencies {
 1. Web에서 Native 함수 호출시, **Native함수의 Return이 Web에 Promise로** 전달됩니다.
 2. Native에서 Web함수 호출시, **Web에서 Native로 Async**하게 반환값을 전달 할 수 있습니다.
 3. Annotation외에 **Kotlin의 lambda(Java의 Interface)를 인자로 받는 함수**를 호출하여 인터페이스를 추가할 수 있습니다.
-4. 기본 자료형 외에 **JS의 Array를 JAVA의(JSONArray, Array, List)으로, JS의 Object를 JAVA의(JSONObject, Map)으로** 전달할 수 있습니다.
+4. 기본 자료형 외에 **JS의 Array를 JAVA의(Array, List)으로, JS의 Object를 JAVA의 Map으로** 전달할 수 있습니다.
 5. Web에서 Native 호출시, **Native 코드 블럭은 Custom Coroutine** 안에서 동작하며 JavascriptInterface의 JavaBridge Thread와 다르게 Multi Thread 로 동작하므로, 동시에 여러 인터페이스가 호출됬을 때 병렬로 처리됩니다.
 6. FlexWebView에 BaseUrl을 지정하여, **타 사이트 및 페이지에서 Native와 Interface하는 것을 방지**할 수 있습니다.
 7. FlexWebView에 페이지가 최초로 로드되어 화면에 나타난 후에는 WebToNative 인터페이스를 추가 할 수 없습니다.
@@ -39,18 +39,58 @@ dependencies {
 # Flex 인터페이스 구현
 ## 전달 가능한 데이터 타입
 1. Android JavascriptInterface와 같이 일반 자료형 및 문자열 전송 가능합니다. 
-2. **JS의 Array를 JAVA의(JSONArray, Array, List)으로, JS의 Object를 JAVA의(JSONObject, Map)으로** 전송 가능합니다.  
+2. **JS의 Array를 JAVA의(Array, List)으로, JS의 Object를 JAVA의 Map으로** 전송 가능합니다.  
 3. Array와 Object형식의 데이터를 전송할 때 안에 포함된 데이터는 **반드시 아래 자료형 중 하나여야 합니다**.  
 
 | JS | Kotlin(Java) |
 |:--:|:--:|
 | Number | Int, Long, Float, Double |
-| String | String, Char | 
+| String | String | 
 | Boolean | Boolean | 
-| Array [] | JSONArray, Array\<Any>, Iterable\<Any> |
-| Object {} | JSONObject, Map\<String,Any> |
-| undefined (Single Argument Only), null | Null |
-| Error | FlexReject |
+| Array [] | Array, Iterable |
+| Object {} | Map |
+| undefined (Single Argument Only), null | null |
+| Error | BrowserException |
+
+
+## FlexData
+Web에서 Native로 전달되는 모든 데이터는, `FlexData` 클래스로 변환되어 전달됩니다.  
+`FlexData` 클래스는 Web의 데이터를 Type-Safe하게 사용하도록 도와줍니다.
+```js
+// in web javascript
+...
+const res = await $flex.CallNative("Hi Android", 100.2,[false, true]]);
+// res is "HiFlexWeb"
+```
+```kt
+flexWebView.setInterface("CallNative") // "CallNative" becomes the function name in Web JavaScript. 
+{ arguments ->
+    // arguments is Arguemnts Data from web. Type is Array<FlexData>
+    val hello = arguments[0].asString() // hello = "Hi Android"
+    val number: Float = arguments[1].reified() // number = 100.2
+    val array: Array<FlexData> = arguments[2].reified() // array = [FlexData(false), FlexData(true)]
+    return "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
+}
+```
+`FlexData`는 기본적으로 아래의 타입 변환 함수를 제공합니다.
+```kt
+fun asString(): String?
+fun asInt(): Int?
+fun asLong(): Long?
+fun asDouble(): Double?
+fun asFloat(): Float?
+fun asBoolean(): Boolean?
+fun asArray(): Array<FlexData>?
+fun asMap(): Map<String, FlexData>?
+fun asErr(): BrowserException?
+```
+또한, `reified` 함수를 통해 명시된 Type으로 자동 형변환하여 데이터를 가져올 수 있습니다.
+```kt
+inline fun <reified T> reified() : T?
+```
+이때 사용 가능한 데이터 타입은 `String, Int, Long, Float, Double, Boolean, Array<FlexData>, Map<String,FlexData>, BrowserException` 입니다.  
+이 외의 데이터 타입을 변환하면 Exception이 발생합니다.  
+
 
 ## WebToNative 인터페이스
 WebToNative 인터페이스는 다음의 특징을 지닙니다.
@@ -62,23 +102,23 @@ WebToNative 인터페이스는 다음의 특징을 지닙니다.
 
 ### ***Nomal Interface***
 Normal Interface는 기본적으로 다음과 같이 사용합니다.
-```kt
-// in Kotlin
-flexWebView.setInterface("Normal") // "Normal" becomes the function name in Web JavaScript. 
-{ arguments ->
-    // arguments is Arguemnts Data from web. Type is JSONArray
-    // ["data", 2, false]
-    return "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
-}
-```
 ```js
 // in web javascript
 ...
 const res = await $flex.Normal("data1",2,false);
 // res is "HiFlexWeb"
 ```
+```kt
+// in Kotlin
+flexWebView.setInterface("Normal") // "Normal" becomes the function name in Web JavaScript. 
+{ arguments ->
+    // arguments is Arguemnts Data from web. Type is Array<FlexData>
+    // ["data", 2, false]
+    return "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
+}
+```
 `setInterface`의 첫 인자로 웹에서의 함수 이름을 지정하고 이어지는 lambda는 함수가 동작하는 코드 블럭이 됩니다.  
-lambda로 전달되는 arguments는 JSONArray 객체로서 web에서 함수 호출시 전달된 값들이 담겨 있습니다.  
+lambda로 전달되는 arguments는 Array<FlexData> 객체로서 web에서 함수 호출시 전달된 값들이 담겨 있습니다.  
 lambda에서 web으로 값을 전달할 때(return할 때)는 [전달 가능한 데이터 타입](#전달-가능한-데이터-타입)만 사용 가능합니다.
 
 ### ***Action Interface***
@@ -89,7 +129,7 @@ var mAction: FlexAction? = null
 ...
 flexWebView.setAction("Action")
 { action, arguments ->
-// arguments is JSONObject, ["Who Are You?"]
+// arguments is Array<FlexData>, ["Who Are You?"]
 // action is FlexAction Object
     mAction = action
 }
@@ -112,15 +152,15 @@ const res = await $flex.Action("Who Are You?"); // Pending until promiseReturn i
 Android의 `@JavascriptInterface` 와 유사하게, Annotation을 통해 Interface 혹은 Action을 등록할 수 있습니다.
 #### @FlexFunInterface
 `@FlexFunInterface`는 다음 사항을 준수해야 합니다.  
-1. 파라미터는 JSONArray 단 1가지만 사용 가능합니다.(다른 파라미터 추가시 Exception 발생)
+1. 파라미터는 Array<FlexData> 단 1가지만 사용 가능합니다.(다른 파라미터 추가시 Exception 발생)
 2. return은 [전달 가능한 데이터 타입](#전달-가능한-데이터-타입)만 사용 가능합니다. (다른 값 리턴시 Exception 발생)
 3. @FlexFunInterface가 포함된 Class를 FlexWebView.addFlexInterface에 인자로 전달해야 인터페이스가 추가됩니다.
 ```kt
 class MyInterface {
     @FlexFunInterface
-    fun funInterface(arguments: JSONArray): JSONObject {
+    fun funInterface(arguments: Array<FlexData>): Int {
         // .... work something
-        return JSONObject()
+        return 1
     }
 }
 ...
@@ -130,11 +170,11 @@ mFlexWebView.addFlexInterface(MyInterface())
 ```js
 ...
 const res = await $flex.funInterface();
-// res is {}
+// res is 1
 ```
 #### @FlexActionInterface
 `@FlexActionInterface`는 다음 사항을 준수해야 합니다.  
-1. 파라미터는 **FlexAction, JSONArray의 순서대로** 선언해야 하며, 다른 파라미터는 사용할 수 없습니다.(위반시 Exception 발생)
+1. 파라미터는 **FlexAction, Array<FlexData>의 순서대로** 선언해야 하며, 다른 파라미터는 사용할 수 없습니다.(위반시 Exception 발생)
 2. return은 선언 가능하나, **사용되지 않습니다**.
 3. Web에 리턴값 전송시, 전달된 FlexAction 파라미터의 `promiseReturn`을 사용해야 합니다.
 4. `promiseReturn`의 파라미터는 [전달 가능한 데이터 타입](#전달-가능한-데이터-타입)만 사용 가능합니다.
@@ -144,9 +184,9 @@ const res = await $flex.funInterface();
 ```kt
 class MyInterface {
     @FlexActionInterface
-    fun actionInterface(action: FlexAction, arguments: JSONArray) {
+    fun actionInterface(action: FlexAction, arguments: Array<FlexData>) {
         // .... work something
-        action.promiseReturn(JSONArray())
+        action.promiseReturn(1)
     }
 }
 ...
@@ -156,7 +196,7 @@ mFlexWebView.addFlexInterface(MyInterface())
 ```js
 ...
 const res = await $flex.actionInterface();
-// res is []
+// res is 1
 ```
 
 ### ***class FlexInterfaces***
@@ -165,20 +205,20 @@ FlexWebView에 직접 Interface를 추가하지 않고, FlexInterfaces에 추가
 ```java
 public class FlexInterfaceExample extends FlexInterfaces {
     FlexInterfaceExample() {
-        this.setInterface("test1", new Function1<JSONArray, Object>() {
+        this.setInterface("test1", new Function1<FlexData[], Object>() {
             @Override
-            public Object invoke(JSONArray arguments) {
+            public Object invoke(FlexData[] arguments) {
                return null;
             }
-        }).setAction("test2", new Function2<FlexAction, JSONArray, Unit>() {
+        }).setAction("test2", new Function2<FlexAction, FlexData[], Unit>() {
             @Override
-            public Unit invoke(final FlexAction flexAction, JSONArray arguments) {
+            public Unit invoke(final FlexAction flexAction, FlexData[] arguments) {
                 ...
                 return null;
             }
-        }).setInterface("test3", new Function1<JSONArray, Object>() {
+        }).setInterface("test3", new Function1<FlexData[], Object>() {
             @Override
-            public Object invoke(JSONArray arguments) {
+            public Object invoke(FlexData[] arguments) {
                 ...
                 return null;
             }
@@ -186,12 +226,12 @@ public class FlexInterfaceExample extends FlexInterfaces {
     }
 
     @FlexFuncInterface
-    public void test4(JSONArray arguments) {
+    public void test4(FlexData[] arguments) {
         ...
     }
 
     @FlexActionInterface
-    public void test5(FlexAction action, JSONArray arguments) {
+    public void test5(FlexAction action, FlexData[] arguments) {
         action.promiseReturn(null);
     }
 }
@@ -215,12 +255,29 @@ mFlexWebView.addFlexInterface(other)
 ```
 
 ### ***Error Interface***
-`FlexReject`객체를 리턴한다면, Web에 오류 발생 사항을 전달할 수 있습니다.  
+`BrowserException`객체를 리턴한다면, Web에 오류 발생 사항을 전달할 수 있습니다.  
 ```kt
 // in kotlin
 mFlexWebView.setInterface("errorTest")
 { arguments -> 
-    return FlexReject("errorTest")    
+    return BrowserException("errorTest")    
+}
+```
+```js
+// in js
+...
+try {
+    const result = await $flex.errorTest();
+} catch(e) {
+    // e is Error("errorTest")
+}
+```
+또는 코드 블럭내에서 Exception이 발생하여도, Web에 오류 발생 사항이 전달됩니다.
+```kt
+// in kotlin
+mFlexWebView.setInterface("errorTest")
+{ arguments -> 
+    throw Exception("errorTest")   
 }
 ```
 ```js
@@ -237,7 +294,7 @@ try {
 // in kotlin
 flexComponent.setAction("errorAction")
 { action, arguments ->
-    action.reject("errorAction") // = action.promiseReturn(FlexReject("errorAction"))
+    action.reject("errorAction") // = action.promiseReturn(BrowserException("errorAction"))
 }
 ```
 ```js
@@ -309,6 +366,7 @@ settings.loadsImagesAutomatically = true
 settings.useWideViewPort = true
 settings.cacheMode = WebSettings.LOAD_DEFAULT
 settings.layoutAlgorithm = WebSettings.LayoutAlgorithm.SINGLE_COLUMN
+settings.mediaPlaybackRequiresUserGesture = false
 settings.enableSmoothTransition()
 settings.javaScriptCanOpenWindowsAutomatically = true
 if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
@@ -355,8 +413,8 @@ fun setWebViewClient(client: WebViewClient)
 FlexWebView에 인터페이스를 추가합니다.  
 상세한 사항은 [WebToNavite 인터페이스](#WebToNative-인터페이스) 항목을 참고하세요.
 ```kt
-fun setInterface(name: String, lambda: (JSONArray?) -> Any?): FlexWebView 
-fun setAction(name: String, action: (action: FlexAction?, arguments: JSONArray?) -> Unit): FlexWebView
+fun setInterface(name: String, lambda: (Array<FlexData>) -> Any?): FlexWebView 
+fun setAction(name: String, action: (action: FlexAction?, arguments: Array<FlexData>) -> Unit): FlexWebView
 fun addFlexInterface(flexInterfaces: Any) 
 ```
 
@@ -374,12 +432,12 @@ fun evalFlexFunc(funcName: String, sendData: Any?, response: (Any?) -> Unit)
 setAction, @FlexActionInterface로 추가된 WebToNative 인터페이스가 호출될 시 생성됩니다.  
 사용 가능한 메소드는 아래와 같으며, promiseReturn 함수만 Web으로 return값을 전달하는 역할을 합니다.  
 resolveVoid는 nil 값을 전달하며(promiseReturn(nil)과 동일)  
-reject함수는 FlexReject 객체를 자동으로 생성하여 전달합니다.(promiseReturn(FlexReject)와 동일)
+reject함수는 BrowserException 객체를 자동으로 생성하여 전달합니다.(promiseReturn(BrowserException)와 동일)
 ```kt
 fun promiseReturn(...) // Transferable-Data-Type
 fun resolveVoid()
 fun reject(reason: String)
-fun reject(reason: FlexReject)
+fun reject(reason: BrowserException)
 fun reject()
 ```
 위 함수중 하나라도 호출했다면, 다음에 어떤 함수를 호출하더라도 Web에 값이 전달되지 않습니다.
@@ -389,8 +447,8 @@ FlexAction Class를 직접 생성 및 사용하면 아무런 효과도 얻을 �
 FlexInterfaces 클래스는 FlexWebView에서 setInterface, setAction 기능만 따로 분리한 클래스 입니다.
 사용 예제는 [인터페이스 예제](#class-FlexInterfaces) 항목을 참고하세요
 ```kt
-fun setInterface(name: String, lambda: (JSONArray?) -> Any?): FlexInterfaces
-fun setAction(name: String, action: (action: FlexAction?, arguments: JSONArray?) -> Unit): FlexInterfaces
+fun setInterface(name: String, lambda: (Array<FlexData>) -> Any?): FlexInterfaces
+fun setAction(name: String, action: (action: FlexAction?, arguments: Array<FlexData>) -> Unit): FlexInterfaces
 ```
 
 # $flex Object

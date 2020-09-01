@@ -340,7 +340,7 @@ open class FlexWebView: WebView {
         }
     }
 
-    inner class InternalInterface {
+    private inner class InternalInterface {
         @JavascriptInterface
         fun flexInterface(input: String) {
             scope.launch {
@@ -350,7 +350,7 @@ open class FlexWebView: WebView {
                     val fName: String = data.getString("funName")
                     val args: JSONArray = data.getJSONArray("arguments")
                     try {
-                        if (interfaces[intName] != null) {
+                        if (interfaces[intName] != null) { // call interface
                             val value = interfaces[intName]?.invoke(FlexUtil.jsonArrayToFlexData(args))
                             if (value is BrowserException) {
                                 val reason =
@@ -370,9 +370,9 @@ open class FlexWebView: WebView {
                                     "\$flex.flex.$fName(true, null, ${FlexUtil.convertInput(value)})"
                                 )
                             }
-                        } else if (actions[intName] != null) {
+                        } else if (actions[intName] != null) { // call Action
                             actions[intName]?.invoke(FlexAction(fName, this@FlexWebView), FlexUtil.jsonArrayToFlexData(args))
-                        } else {
+                        } else { // call library interface
                             when (internalInterface.indexOf(intName)) {
                                 0 -> { // flexreturn
                                     val iData = args.getJSONObject(0)
@@ -427,7 +427,7 @@ open class FlexWebView: WebView {
         }
     }
 
-    inner class BeforeFlexEval {
+    private inner class BeforeFlexEval {
         val name:String
         val sendData: Any?
         val response: ((FlexData) -> Unit)?

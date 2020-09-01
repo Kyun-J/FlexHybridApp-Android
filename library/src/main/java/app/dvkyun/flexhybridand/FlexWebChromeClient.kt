@@ -4,10 +4,8 @@ import android.R.color.black
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.os.Build
+import android.view.*
 import android.webkit.WebChromeClient
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
@@ -63,19 +61,26 @@ open class FlexWebChromeClient(activity: Activity) : WebChromeClient() {
         mActivity.requestedOrientation = mOriginalOrientation
     }
 
+    @Suppress("DEPRECATION")
     private fun setFullscreen(enabled: Boolean) {
-        val win = mActivity.window
-        val winParams = win.attributes
-        val bits = WindowManager.LayoutParams.FLAG_FULLSCREEN
-        if (enabled) {
-            winParams.flags = winParams.flags or bits
-        } else {
-            winParams.flags = winParams.flags and bits.inv()
-            if (mCustomView != null) {
-                mCustomView!!.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (enabled) {
+                mActivity.window.insetsController?.hide(WindowInsets.Type.statusBars())
+            } else {
+                mActivity.window.insetsController?.show(WindowInsets.Type.statusBars())
             }
+        } else {
+            val win = mActivity.window
+            val winParams = win.attributes
+            val bits = WindowManager.LayoutParams.FLAG_FULLSCREEN
+            if (enabled) {
+                winParams.flags = winParams.flags or bits
+            } else {
+                winParams.flags = winParams.flags and bits.inv()
+                mCustomView?.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+            }
+            win.attributes = winParams
         }
-        win.attributes = winParams
     }
 
     private class FullscreenHolder(ctx: Context?) : FrameLayout(ctx!!) {
