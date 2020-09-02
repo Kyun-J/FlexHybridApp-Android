@@ -66,7 +66,7 @@ const res = await $flex.CallNative("Hi Android", 100.2,[false, true]]);
 // res is "HiFlexWeb"
 ```
 ```kt
-flexWebView.setInterface("CallNative") // "CallNative" becomes the function name in Web JavaScript. 
+flexWebView.stringInterface("CallNative") // "CallNative" becomes the function name in Web JavaScript. 
 { arguments ->
     // arguments is Arguemnts Data from web. Type is Array<FlexData>
     val hello = arguments[0].asString() // hello = "Hi Android"
@@ -112,16 +112,28 @@ const res = await $flex.Normal("data1",2,false);
 ```
 ```kt
 // in Kotlin
-flexWebView.setInterface("Normal") // "Normal" becomes the function name in Web JavaScript. 
+flexWebView.stringInterface("Normal") // "Normal" becomes the function name in Web JavaScript. 
 { arguments ->
     // arguments is Arguemnts Data from web. Type is Array<FlexData>
     // ["data", 2, false]
     return "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
 }
 ```
-Specify the function name on the web as the first argument of `setInterface`, and the following lambda becomes a block of code where the function operates.  
+Specify the function name on the web as the first argument of `stringInterface`, and the following lambda becomes a block of code where the function operates.  
 The arguments passed to lambda are Array<FlexData> objects, which contain the values passed when calling the function on the web.  
-When passing a value from lambda to web (when returning), only [Transferable Data Type](#Transferable-Data-Type) is available.
+The types of Normal Interface are divided according to the type returned to the web, and the types are as follows.
+```kt
+fun voidInterface(name: String, lambda: (Array<FlexData>) -> Unit): FlexWebView
+fun stringInterface(name: String, lambda: (Array<FlexData>) -> String): FlexWebView
+fun intInterface(name: String, lambda: (Array<FlexData>) -> Int): FlexWebView 
+fun charInterface(name: String, lambda: (Array<FlexData>) -> Char): FlexWebView
+fun longInterface(name: String, lambda: (Array<FlexData>) -> Long): FlexWebView
+fun doubleInterface(name: String, lambda: (Array<FlexData>) -> Double): FlexWebView
+fun floatInterface(name: String, lambda: (Array<FlexData>) -> Float): FlexWebView
+fun boolInterface(name: String, lambda: (Array<FlexData>) -> Boolean): FlexWebView
+fun arrayInterface(name: String, lambda: (Array<FlexData>) -> Array<*>): FlexWebView
+fun mapInterface(name: String, lambda: (Array<FlexData>) -> Map<String, *>): FlexWebView
+```
 
 ### ***Action Interface***
 The Action Interface is almost the same as the Normal Interface, but it returns the value return to the Web at the time of calling the `promiseReturn` method of the action object.
@@ -208,7 +220,7 @@ Instead of adding an interface directly to FlexWebView, add it to FlexInterfaces
 ```java
 public class FlexInterfaceExample extends FlexInterfaces {
     FlexInterfaceExample() {
-        this.setInterface("test1", new Function1<Array<FlexData>, Object>() {
+        this.voidInterface("test1", new Function1<Array<FlexData>, Object>() {
             @Override
             public Object invoke(Array<FlexData> arguments) {
                return null;
@@ -219,7 +231,7 @@ public class FlexInterfaceExample extends FlexInterfaces {
                 ...
                 return null;
             }
-        }).setInterface("test3", new Function1<Array<FlexData>, Object>() {
+        }).voidInterface("test3", new Function1<Array<FlexData>, Object>() {
             @Override
             public Object invoke(Array<FlexData> arguments) {
                 ...
@@ -245,9 +257,9 @@ public class FlexInterfaceExample extends FlexInterfaces {
 // add interface test1, test2, test3, test4, test5
 mFlexWebView.addFlexInterface(FlexInterfaceExample())
 let other = FlexInterfaces()
-other.setInterface("test6")
+other.voidInterface("test6")
 { arguments ->
-    return null
+
 }
 other.setAction("test7")
 { action, arguments ->
@@ -258,27 +270,10 @@ mFlexWebView.addFlexInterface(other)
 ```
 
 ### ***Error Interface***
-If you return the `FlexReject` object, you can send an error to the web.
+If an exception occurs within the `Interface` code block, the error occurrence is delivered to the Web.
 ```kt
 // in kotlin
-mFlexWebView.setInterface("errorTest")
-{ arguments -> 
-    return FlexReject("errorTest")    
-}
-```
-```js
-// in js
-...
-try {
-    const result = await $flex.errorTest();
-} catch(e) {
-    // e is Error("errorTest")
-}
-```
-Or even if an exception occurs within the code block, the error occurrence is delivered to the web.
-```kt
-// in kotlin
-mFlexWebView.setInterface("errorTest")
+mFlexWebView.voidInterface("errorTest")
 { arguments -> 
     throw Exception("errorTest")   
 }
@@ -292,7 +287,7 @@ try {
     // e is Error("errorTest")
 }
 ```
-In `FlexAction`, you can easily pass an error by calling the `reject` function instead of `promiseReturn`.
+In `FlexAction`, you can send a `BrowserException` object to `promiseReturn` or call `reject` function to easily deliver the error details.
 ```kt
 // in kotlin
 flexComponent.setAction("errorAction")
@@ -390,14 +385,14 @@ fun getBaseUrl(): String?
 ```
 
 ### InterfaceTimeout
-Set the time to wait for return after FlexInterface is executed.  
+Set the time to wait for return after Interface is executed.  
 After that time, the Promise created by the interface is forcibly rejected.
 ```kt
 fun setInterfaceTimeout(timeout: Int)
 ```
 
 ### InterfaceThreadCount
-Set the number of threads of the ThreadPoolExecutor where FlexInterface is executed.  
+Set the number of threads when Interface is executed.  
 The default is the number of cpu cores(=Runtime.getRuntime().availableProcessors()).
 ```kt
 fun setInterfaceThreadCount(count: Int)
@@ -418,7 +413,16 @@ fun setWebViewClient(client: WebViewClient)
 Add an interface to the FlexWebView.
 For details, refer to [WebToNavite Interface](#WebToNative-Interface).
 ```kt
-fun setInterface(name: String, lambda: (Array<FlexData>) -> Any?): FlexWebView 
+fun voidInterface(name: String, lambda: (Array<FlexData>) -> Unit): FlexWebView
+fun stringInterface(name: String, lambda: (Array<FlexData>) -> String): FlexWebView
+fun intInterface(name: String, lambda: (Array<FlexData>) -> Int): FlexWebView 
+fun charInterface(name: String, lambda: (Array<FlexData>) -> Char): FlexWebView
+fun longInterface(name: String, lambda: (Array<FlexData>) -> Long): FlexWebView
+fun doubleInterface(name: String, lambda: (Array<FlexData>) -> Double): FlexWebView
+fun floatInterface(name: String, lambda: (Array<FlexData>) -> Float): FlexWebView
+fun boolInterface(name: String, lambda: (Array<FlexData>) -> Boolean): FlexWebView
+fun arrayInterface(name: String, lambda: (Array<FlexData>) -> Array<*>): FlexWebView
+fun mapInterface(name: String, lambda: (Array<FlexData>) -> Map<String, *>): FlexWebView
 fun setAction(name: String, action: (action: FlexAction, arguments: Array<FlexData>) -> Unit): FlexWebView
 fun addFlexInterface(flexInterfaces: Any) 
 ```
@@ -450,7 +454,16 @@ If you directly create and use FlexAction Class, there is no effect. Only FlexAc
 FlexInterfaces class is a class that separates only setInterface and setAction functions from FlexWebView.  
 Refer to [Interface example](#class-FlexInterfaces) for usage examples.
 ```kt
-fun setInterface(name: String, lambda: (Array<FlexData>) -> Any?): FlexInterfaces
+fun voidInterface(name: String, lambda: (Array<FlexData>) -> Unit): FlexWebView
+fun stringInterface(name: String, lambda: (Array<FlexData>) -> String): FlexWebView
+fun intInterface(name: String, lambda: (Array<FlexData>) -> Int): FlexWebView 
+fun charInterface(name: String, lambda: (Array<FlexData>) -> Char): FlexWebView
+fun longInterface(name: String, lambda: (Array<FlexData>) -> Long): FlexWebView
+fun doubleInterface(name: String, lambda: (Array<FlexData>) -> Double): FlexWebView
+fun floatInterface(name: String, lambda: (Array<FlexData>) -> Float): FlexWebView
+fun boolInterface(name: String, lambda: (Array<FlexData>) -> Boolean): FlexWebView
+fun arrayInterface(name: String, lambda: (Array<FlexData>) -> Array<*>): FlexWebView
+fun mapInterface(name: String, lambda: (Array<FlexData>) -> Map<String, *>): FlexWebView
 fun setAction(name: String, action: (action: FlexAction?, arguments: Array<FlexData>) -> Unit): FlexInterfaces
 ```
 
