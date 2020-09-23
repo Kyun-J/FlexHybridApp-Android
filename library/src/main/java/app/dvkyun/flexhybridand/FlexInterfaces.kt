@@ -2,10 +2,10 @@ package app.dvkyun.flexhybridand
 
 open class FlexInterfaces {
 
-    internal val interfaces: HashMap<String,(Array<FlexData>) -> Any?> = HashMap()
-    internal val actions: HashMap<String,(action: FlexAction?, arguments: Array<FlexData>) -> Unit> = HashMap()
+    internal val interfaces: HashMap<String, suspend (Array<FlexData>) -> Any?> = HashMap()
+    internal val actions: HashMap<String, suspend (action: FlexAction?, arguments: Array<FlexData>) -> Unit> = HashMap()
 
-    private fun setInterface(name: String, lambda: (Array<FlexData>) -> Any?): FlexInterfaces {
+    private fun setInterface(name: String, lambda: suspend (Array<FlexData>) -> Any?): FlexInterfaces {
         if(interfaces[name] != null || actions[name] != null) {
             throw FlexException(FlexException.ERROR7)
         }
@@ -16,47 +16,47 @@ open class FlexInterfaces {
         return this
     }
 
-    fun voidInterface(name: String, lambda: (Array<FlexData>) -> Unit): FlexInterfaces {
+    fun voidInterface(name: String, lambda: suspend (Array<FlexData>) -> Unit): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun stringInterface(name: String, lambda: (Array<FlexData>) -> String): FlexInterfaces {
+    fun stringInterface(name: String, lambda: suspend (Array<FlexData>) -> String): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun intInterface(name: String, lambda: (Array<FlexData>) -> Int): FlexInterfaces {
+    fun intInterface(name: String, lambda: suspend (Array<FlexData>) -> Int): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun charInterface(name: String, lambda: (Array<FlexData>) -> Char): FlexInterfaces {
+    fun charInterface(name: String, lambda: suspend (Array<FlexData>) -> Char): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun longInterface(name: String, lambda: (Array<FlexData>) -> Long): FlexInterfaces {
+    fun longInterface(name: String, lambda: suspend (Array<FlexData>) -> Long): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun doubleInterface(name: String, lambda: (Array<FlexData>) -> Double): FlexInterfaces {
+    fun doubleInterface(name: String, lambda: suspend (Array<FlexData>) -> Double): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun floatInterface(name: String, lambda: (Array<FlexData>) -> Float): FlexInterfaces {
+    fun floatInterface(name: String, lambda: suspend (Array<FlexData>) -> Float): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun boolInterface(name: String, lambda: (Array<FlexData>) -> Boolean): FlexInterfaces {
+    fun boolInterface(name: String, lambda: suspend (Array<FlexData>) -> Boolean): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun arrayInterface(name: String, lambda: (Array<FlexData>) -> Array<*>): FlexInterfaces {
+    fun arrayInterface(name: String, lambda: suspend (Array<FlexData>) -> Array<*>): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun mapInterface(name: String, lambda: (Array<FlexData>) -> Map<String, *>): FlexInterfaces {
+    fun mapInterface(name: String, lambda: suspend (Array<FlexData>) -> Map<String, *>): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun setAction(name: String, action: (action: FlexAction?, arguments: Array<FlexData>) -> Unit): FlexInterfaces {
+    fun setAction(name: String, action: suspend (action: FlexAction?, arguments: Array<FlexData>) -> Unit): FlexInterfaces {
         if(interfaces[name] != null || actions[name] != null) {
             throw FlexException(FlexException.ERROR7)
         }
