@@ -121,16 +121,16 @@ flexWebView.stringInterface("Normal") // "Normal" becomes the function name in W
 lambda로 전달되는 arguments는 Array<FlexData> 객체로서 web에서 함수 호출시 전달된 값들이 담겨 있습니다.  
 Normal Interface의 종류는 web에 리턴하는 타입에 따라 나뉘어져 있으며, 그 종류는 다음과 같습니다.  
 ```kt
-fun voidInterface(name: String, lambda: (Array<FlexData>) -> Unit): FlexWebView
-fun stringInterface(name: String, lambda: (Array<FlexData>) -> String): FlexWebView
-fun intInterface(name: String, lambda: (Array<FlexData>) -> Int): FlexWebView 
-fun charInterface(name: String, lambda: (Array<FlexData>) -> Char): FlexWebView
-fun longInterface(name: String, lambda: (Array<FlexData>) -> Long): FlexWebView
-fun doubleInterface(name: String, lambda: (Array<FlexData>) -> Double): FlexWebView
-fun floatInterface(name: String, lambda: (Array<FlexData>) -> Float): FlexWebView
-fun boolInterface(name: String, lambda: (Array<FlexData>) -> Boolean): FlexWebView
-fun arrayInterface(name: String, lambda: (Array<FlexData>) -> Array<*>): FlexWebView
-fun mapInterface(name: String, lambda: (Array<FlexData>) -> Map<String, *>): FlexWebView
+fun voidInterface(name: String, lambda: suspend (Array<FlexData>) -> Unit): FlexWebView
+fun stringInterface(name: String, lambda: suspend (Array<FlexData>) -> String): FlexWebView
+fun intInterface(name: String, lambda: suspend (Array<FlexData>) -> Int): FlexWebView 
+fun charInterface(name: String, lambda: suspend (Array<FlexData>) -> Char): FlexWebView
+fun longInterface(name: String, lambda: suspend (Array<FlexData>) -> Long): FlexWebView
+fun doubleInterface(name: String, lambda: suspend (Array<FlexData>) -> Double): FlexWebView
+fun floatInterface(name: String, lambda: suspend (Array<FlexData>) -> Float): FlexWebView
+fun boolInterface(name: String, lambda: suspend (Array<FlexData>) -> Boolean): FlexWebView
+fun arrayInterface(name: String, lambda: suspend (Array<FlexData>) -> Array<*>): FlexWebView
+fun mapInterface(name: String, lambda: suspend (Array<FlexData>) -> Map<String, *>): FlexWebView
 ```
 
 ### ***Action Interface***

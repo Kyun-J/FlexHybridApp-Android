@@ -66,6 +66,7 @@ const res = await $flex.CallNative("Hi Android", 100.2,[false, true]]);
 // res is "HiFlexWeb"
 ```
 ```kt
+// in kotlin
 flexWebView.stringInterface("CallNative") // "CallNative" becomes the function name in Web JavaScript. 
 { arguments ->
     // arguments is Arguemnts Data from web. Type is Array<FlexData>
@@ -123,16 +124,16 @@ Specify the function name on the web as the first argument of `stringInterface`,
 The arguments passed to lambda are Array<FlexData> objects, which contain the values passed when calling the function on the web.  
 The types of Normal Interface are divided according to the type returned to the web, and the types are as follows.
 ```kt
-fun voidInterface(name: String, lambda: (Array<FlexData>) -> Unit): FlexWebView
-fun stringInterface(name: String, lambda: (Array<FlexData>) -> String): FlexWebView
-fun intInterface(name: String, lambda: (Array<FlexData>) -> Int): FlexWebView 
-fun charInterface(name: String, lambda: (Array<FlexData>) -> Char): FlexWebView
-fun longInterface(name: String, lambda: (Array<FlexData>) -> Long): FlexWebView
-fun doubleInterface(name: String, lambda: (Array<FlexData>) -> Double): FlexWebView
-fun floatInterface(name: String, lambda: (Array<FlexData>) -> Float): FlexWebView
-fun boolInterface(name: String, lambda: (Array<FlexData>) -> Boolean): FlexWebView
-fun arrayInterface(name: String, lambda: (Array<FlexData>) -> Array<*>): FlexWebView
-fun mapInterface(name: String, lambda: (Array<FlexData>) -> Map<String, *>): FlexWebView
+fun voidInterface(name: String, lambda: suspend (Array<FlexData>) -> Unit): FlexWebView
+fun stringInterface(name: String, lambda: suspend (Array<FlexData>) -> String): FlexWebView
+fun intInterface(name: String, lambda: suspend (Array<FlexData>) -> Int): FlexWebView 
+fun charInterface(name: String, lambda: suspend (Array<FlexData>) -> Char): FlexWebView
+fun longInterface(name: String, lambda: suspend (Array<FlexData>) -> Long): FlexWebView
+fun doubleInterface(name: String, lambda: suspend (Array<FlexData>) -> Double): FlexWebView
+fun floatInterface(name: String, lambda: suspend (Array<FlexData>) -> Float): FlexWebView
+fun boolInterface(name: String, lambda: suspend (Array<FlexData>) -> Boolean): FlexWebView
+fun arrayInterface(name: String, lambda: suspend (Array<FlexData>) -> Array<*>): FlexWebView
+fun mapInterface(name: String, lambda: suspend (Array<FlexData>) -> Map<String, *>): FlexWebView
 ```
 
 ### ***Action Interface***
