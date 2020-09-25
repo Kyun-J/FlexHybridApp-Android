@@ -218,22 +218,23 @@ const res = await $flex.actionInterface();
 It is a separate class that separates only the interface addition function of FlexWebView.  
 Instead of adding an interface directly to FlexWebView, add it to FlexInterfaces and pass it to `FlexWebView.addFlexInterface` to add the interface to FlexWebView.
 ```java
+// in java code
 public class FlexInterfaceExample extends FlexInterfaces {
     FlexInterfaceExample() {
-        this.voidInterface("test1", new Function1<Array<FlexData>, Object>() {
+        this.voidInterface("test1", new Function2<FlexData[], Continuation<? super Unit>, Object>() {
             @Override
-            public Object invoke(Array<FlexData> arguments) {
+            public Object invoke(FlexData[] arguments, Continuation<? super Unit> continuation) {
                return null;
             }
-        }).setAction("test2", new Function2<FlexAction, Array<FlexData>, Unit>() {
+        }).setAction("test2", new Function3<FlexAction, FlexData[], Continuation<? super Unit>, Object>() {
             @Override
-            public Unit invoke(final FlexAction flexAction, Array<FlexData> arguments) {
+            public Object invoke(FlexAction flexAction, FlexData[] flexData, Continuation<? super Unit> continuation) {
                 ...
                 return null;
             }
-        }).voidInterface("test3", new Function1<Array<FlexData>, Object>() {
+        }).voidInterface("test3", new Function2<FlexData[], Continuation<? super Unit>, Object>() {
             @Override
-            public Object invoke(Array<FlexData> arguments) {
+            public Object invoke(FlexData[] arguments, Continuation<? super Unit> continuation {
                 ...
                 return null;
             }
@@ -241,12 +242,12 @@ public class FlexInterfaceExample extends FlexInterfaces {
     }
 
     @FlexFuncInterface
-    public void test4(Array<FlexData> arguments) {
+    public void test4(FlexData[] arguments) {
         ...
     }
 
     @FlexActionInterface
-    public void test5(FlexAction action, Array<FlexData> arguments) {
+    public void test5(FlexAction action, FlexData[] arguments) {
         action.promiseReturn(null);
     }
 }
@@ -413,17 +414,17 @@ fun setWebViewClient(client: WebViewClient)
 Add an interface to the FlexWebView.
 For details, refer to [WebToNavite Interface](#WebToNative-Interface).
 ```kt
-fun voidInterface(name: String, lambda: (Array<FlexData>) -> Unit): FlexWebView
-fun stringInterface(name: String, lambda: (Array<FlexData>) -> String): FlexWebView
-fun intInterface(name: String, lambda: (Array<FlexData>) -> Int): FlexWebView 
-fun charInterface(name: String, lambda: (Array<FlexData>) -> Char): FlexWebView
-fun longInterface(name: String, lambda: (Array<FlexData>) -> Long): FlexWebView
-fun doubleInterface(name: String, lambda: (Array<FlexData>) -> Double): FlexWebView
-fun floatInterface(name: String, lambda: (Array<FlexData>) -> Float): FlexWebView
-fun boolInterface(name: String, lambda: (Array<FlexData>) -> Boolean): FlexWebView
-fun arrayInterface(name: String, lambda: (Array<FlexData>) -> Array<*>): FlexWebView
-fun mapInterface(name: String, lambda: (Array<FlexData>) -> Map<String, *>): FlexWebView
-fun setAction(name: String, action: (action: FlexAction, arguments: Array<FlexData>) -> Unit): FlexWebView
+fun voidInterface(name: String, lambda: suspend (Array<FlexData>) -> Unit): FlexWebView
+fun stringInterface(name: String, lambda: suspend (Array<FlexData>) -> String): FlexWebView
+fun intInterface(name: String, lambda: suspend (Array<FlexData>) -> Int): FlexWebView 
+fun charInterface(name: String, lambda: suspend (Array<FlexData>) -> Char): FlexWebView
+fun longInterface(name: String, lambda: suspend (Array<FlexData>) -> Long): FlexWebView
+fun doubleInterface(name: String, lambda: suspend (Array<FlexData>) -> Double): FlexWebView
+fun floatInterface(name: String, lambda: suspend (Array<FlexData>) -> Float): FlexWebView
+fun boolInterface(name: String, lambda: suspend (Array<FlexData>) -> Boolean): FlexWebView
+fun arrayInterface(name: String, lambda: suspend (Array<FlexData>) -> Array<*>): FlexWebView
+fun mapInterface(name: String, lambda: suspend (Array<FlexData>) -> Map<String, *>): FlexWebView
+fun setAction(name: String, action: suspend (action: FlexAction?, arguments: Array<FlexData>) -> Unit): FlexWebView
 fun addFlexInterface(flexInterfaces: Any) 
 ```
 
@@ -454,17 +455,17 @@ If you directly create and use FlexAction Class, there is no effect. Only FlexAc
 FlexInterfaces class is a class that separates only setInterface and setAction functions from FlexWebView.  
 Refer to [Interface example](#class-FlexInterfaces) for usage examples.
 ```kt
-fun voidInterface(name: String, lambda: (Array<FlexData>) -> Unit): FlexWebView
-fun stringInterface(name: String, lambda: (Array<FlexData>) -> String): FlexWebView
-fun intInterface(name: String, lambda: (Array<FlexData>) -> Int): FlexWebView 
-fun charInterface(name: String, lambda: (Array<FlexData>) -> Char): FlexWebView
-fun longInterface(name: String, lambda: (Array<FlexData>) -> Long): FlexWebView
-fun doubleInterface(name: String, lambda: (Array<FlexData>) -> Double): FlexWebView
-fun floatInterface(name: String, lambda: (Array<FlexData>) -> Float): FlexWebView
-fun boolInterface(name: String, lambda: (Array<FlexData>) -> Boolean): FlexWebView
-fun arrayInterface(name: String, lambda: (Array<FlexData>) -> Array<*>): FlexWebView
-fun mapInterface(name: String, lambda: (Array<FlexData>) -> Map<String, *>): FlexWebView
-fun setAction(name: String, action: (action: FlexAction?, arguments: Array<FlexData>) -> Unit): FlexInterfaces
+fun voidInterface(name: String, lambda: suspend (Array<FlexData>) -> Unit): FlexInterfaces
+fun stringInterface(name: String, lambda: suspend (Array<FlexData>) -> String): FlexInterfaces
+fun intInterface(name: String, lambda: suspend (Array<FlexData>) -> Int): FlexInterfaces 
+fun charInterface(name: String, lambda: suspend (Array<FlexData>) -> Char): FlexInterfaces
+fun longInterface(name: String, lambda: suspend (Array<FlexData>) -> Long): FlexInterfaces
+fun doubleInterface(name: String, lambda: suspend (Array<FlexData>) -> Double): FlexInterfaces
+fun floatInterface(name: String, lambda: suspend (Array<FlexData>) -> Float): FlexInterfaces
+fun boolInterface(name: String, lambda: suspend (Array<FlexData>) -> Boolean): FlexInterfaces
+fun arrayInterface(name: String, lambda: suspend (Array<FlexData>) -> Array<*>): FlexInterfaces
+fun mapInterface(name: String, lambda: suspend (Array<FlexData>) -> Map<String, *>): FlexInterfaces
+fun setAction(name: String, action: suspend (action: FlexAction?, arguments: Array<FlexData>) -> Unit): FlexInterfaces
 ```
 
 # $flex Object

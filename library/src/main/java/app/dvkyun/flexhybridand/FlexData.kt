@@ -136,6 +136,10 @@ class FlexData {
         return data as BrowserException
     }
 
+    override fun toString(): String {
+        return data.toString()
+    }
+
     inline fun <reified T> reified() : T? {
         if(isNull()) return null
         if(T::class == String::class){
