@@ -237,22 +237,20 @@ Instead of adding an interface directly to FlexWebView, add it to FlexInterfaces
 // in java code
 public class FlexInterfaceExample extends FlexInterfaces {
     FlexInterfaceExample() {
-        this.voidInterface("test1", new Function2<FlexData[], Continuation<? super Unit>, Object>() {
+        this.voidInterfaceForJava("test1", new InvokeFlexVoid() {
             @Override
-            public Object invoke(FlexData[] arguments, Continuation<? super Unit> continuation) {
-               return null;
-            }
-        }).setAction("test2", new Function3<FlexAction, FlexData[], Continuation<? super Unit>, Object>() {
-            @Override
-            public Object invoke(FlexAction flexAction, FlexData[] flexData, Continuation<? super Unit> continuation) {
+            public void invoke(FlexData[] arguments) {
                 ...
-                return null;
             }
-        }).voidInterface("test3", new Function2<FlexData[], Continuation<? super Unit>, Object>() {
+        }).setActionForJava("test2", new InvokeAction() {
             @Override
-            public Object invoke(FlexData[] arguments, Continuation<? super Unit> continuation {
+            public void invoke(FlexAction flexAction, FlexData[] flexData) {
                 ...
-                return null;
+            }
+        }).voidInterfaceForJava("test3", new InvokeFlexVoid() {
+            @Override
+            public void invoke(FlexData[] arguments) {
+                ...
             }
         });
     }
@@ -264,7 +262,7 @@ public class FlexInterfaceExample extends FlexInterfaces {
 
     @FlexActionInterface
     public void test5(FlexAction action, FlexData[] arguments) {
-        action.promiseReturn(null);
+        action.promiseReturn();
     }
 }
 ```
@@ -280,7 +278,7 @@ other.voidInterface("test6")
 }
 other.setAction("test7")
 { action, arguments ->
-    action.promiseReturn(null)
+    action.promiseReturn()
 }
 // add interface test6, test7
 mFlexWebView.addFlexInterface(other)
