@@ -82,7 +82,7 @@ flexWebView.stringInterface("CallNative") // "CallNative" becomes the function n
     val hello = arguments[0].asString() // hello = "Hi Android"
     val number: Float = arguments[1].reified() // number = 100.2
     val array: Array<FlexData> = arguments[2].reified() // array = [FlexData(false), FlexData(true)]
-    return "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
+    "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
 }
 ```
 `FlexData`는 기본적으로 아래의 타입 변환 함수를 제공합니다.
@@ -128,7 +128,7 @@ flexWebView.stringInterface("Normal") // "Normal" becomes the function name in W
 { arguments ->
     // arguments is Arguemnts Data from web. Type is Array<FlexData>
     // ["data", 2, false]
-    return "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
+    "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
 }
 ```
 `stringInterface`의 첫 인자로 웹에서의 함수 이름을 지정하고 이어지는 lambda는 함수가 동작하는 코드 블럭이 됩니다.  

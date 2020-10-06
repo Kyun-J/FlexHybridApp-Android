@@ -87,7 +87,7 @@ flexWebView.stringInterface("CallNative") // "CallNative" becomes the function n
     val hello = arguments[0].asString() // hello = "Hi Android"
     val number: Float = arguments[1].reified() // number = 100.2
     val array: Array<FlexData> = arguments[2].reified() // array = [FlexData(false), FlexData(true)]
-    return "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
+    "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
 }
 ```
 `FlexData` basically provides the following type conversion functions.  
@@ -132,7 +132,7 @@ flexWebView.stringInterface("Normal") // "Normal" becomes the function name in W
 { arguments ->
     // arguments is Arguemnts Data from web. Type is Array<FlexData>
     // ["data", 2, false]
-    return "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
+    "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
 }
 ```
 Specify the function name on the web as the first argument of `stringInterface`, and the following lambda becomes a block of code where the function operates.  
