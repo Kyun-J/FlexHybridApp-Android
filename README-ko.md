@@ -310,6 +310,7 @@ NativeToWeb 인터페이스는 다음의 특징을 지닙니다.
 3. $flex.web 함수는, 일반 return 및 Promise return을 통해 Native에 값을 전달 할 수 있습니다.
 
 ```js
+// in js
 window.onFlexLoad = () => {
     $flex.web.webFunc = (data) => {
         // data is ["data1","data2"]
@@ -322,6 +323,7 @@ window.onFlexLoad = () => {
 ```
 ```kt
 ...
+// in kotlin
 // call function, send data, get response
 mFlexWebView.evalFlexFunc("webFunc",arrayOf("data1","data2")) // same as $flex.web.webFunc(["data1","data2"])
 { res ->
@@ -351,6 +353,7 @@ FlexWebView는 다음의 특징을 지닙니다.
 FlexWebView는 아래 설정이 기본으로 설정되어 있습니다.  
 이 설정은 FlexWebView가 선언될때 적용되며, 언제든 변경 가능합니다.
 ```kt
+if(BuildConfig.DEBUG) setWebContentsDebuggingEnabled(true)
 settings.javaScriptEnabled = true
 settings.displayZoomControls = false
 settings.builtInZoomControls = false

@@ -9,7 +9,7 @@ import app.dvkyun.flexhybridand.demo.KtObject.nowAppContext
 class FlexInterfaceExample2 {
 
     @FlexFuncInterface
-    fun test6(arguments: Array<FlexData>) {
+    suspend fun test6(arguments: Array<FlexData>) {
         (nowAppContext as Activity).runOnUiThread {
             AlertDialog.Builder(nowAppContext as Activity)
                 .setTitle("DialogTest")
@@ -20,7 +20,7 @@ class FlexInterfaceExample2 {
     }
 
     @FlexActionInterface
-    fun test7(action: FlexAction, arguments: Array<FlexData>) {
+    suspend fun test7(action: FlexAction, arguments: Array<FlexData>) {
         Log.i("console", "Annotation Action Interface test")
         action.promiseReturn("test success")
     }

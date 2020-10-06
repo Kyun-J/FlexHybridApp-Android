@@ -59,7 +59,7 @@ open class FlexWebView: WebView {
                 field = value
                 return
             }
-            if(!value.startsWith("http://") && !value.startsWith("http://") && !value.startsWith("file://")) {
+            if(!value.startsWith("http://") && !value.startsWith("https://") && !value.startsWith("file://")) {
                 throw FlexException(FlexException.ERROR13)
             }
             field = value
@@ -80,6 +80,7 @@ open class FlexWebView: WebView {
     @Suppress("DEPRECATION")
     @SuppressLint("SetJavaScriptEnabled")
     fun initialize() {
+        if(BuildConfig.DEBUG) setWebContentsDebuggingEnabled(true)
         settings.javaScriptEnabled = true
         settings.displayZoomControls = false
         settings.builtInZoomControls = false
@@ -183,7 +184,8 @@ open class FlexWebView: WebView {
                     throw FlexException(FlexException.ERROR10)
                 }
                 setInterface(it.name) { arguments ->
-                    it.call(flexInterfaces, arguments)
+                    if(it.isSuspend) it.callSuspend(flexInterfaces, arguments)
+                    else it.call(flexInterfaces, arguments)
                 }
             } else if(it.findAnnotation<FlexActionInterface>() != null) {
                 if(it.visibility != KVisibility.PUBLIC) {
@@ -195,7 +197,8 @@ open class FlexWebView: WebView {
                     throw FlexException(FlexException.ERROR11)
                 }
                 setAction(it.name) { action, arguments ->
-                    it.call(flexInterfaces, action, arguments)
+                    if(it.isSuspend) it.callSuspend(flexInterfaces, action, arguments)
+                    else it.call(flexInterfaces, action, arguments)
                 }
             }
         }

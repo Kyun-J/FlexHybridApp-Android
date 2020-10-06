@@ -314,6 +314,7 @@ The NativeToWeb interface has the following features.
 3. The $flex.web function can pass values ​​to Native through regular return and promise return.
 
 ```js
+// in js
 window.onFlexLoad = () => {
     $flex.web.webFunc = (data) => {
         // data is ["data1","data2"]
@@ -325,6 +326,7 @@ window.onFlexLoad = () => {
 }
 ```
 ```kt
+// in kotlin
 ...
 // call function, send data, get response
 mFlexWebView.evalFlexFunc("webFunc",arrayOf("data1","data2")) // same as $flex.web.webFunc(["data1","data2"])
@@ -356,6 +358,7 @@ FlexWebView has the following features.
 FlexWebView defaults to the settings below.  
 This setting is applied when FlexWebView is declared and can be changed at any time.
 ```kt
+if(BuildConfig.DEBUG) setWebContentsDebuggingEnabled(true)
 settings.javaScriptEnabled = true
 settings.displayZoomControls = false
 settings.builtInZoomControls = false

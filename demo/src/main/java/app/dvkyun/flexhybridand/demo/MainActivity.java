@@ -13,7 +13,6 @@ import app.dvkyun.flexhybridand.FlexData;
 import app.dvkyun.flexhybridand.FlexWebView;
 import kotlin.Unit;
 import kotlin.coroutines.Continuation;
-import kotlin.jvm.functions.Function1;
 import kotlin.jvm.functions.Function2;
 import kotlin.jvm.functions.Function3;
 
@@ -26,9 +25,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         flexWebView = findViewById(R.id.flex_web_view);
-        flexWebView.evalFlexFunc("webtest","aaa");
-
-        flexWebView.setWebContentsDebuggingEnabled(true);
+        flexWebView.evalFlexFunc("webtest","webtest");
 
         flexWebView.setBaseUrl("file:///android_asset");
         flexWebView.setInterfaceTimeout(3000);
