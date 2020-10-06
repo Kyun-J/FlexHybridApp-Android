@@ -51,6 +51,19 @@ dependencies {
 | undefined (Single Argument Only), null | null |
 | Error | BrowserException |
 
+## Coroutine과 함께 사용
+FlexHybrid는 전용 Coroutine에서 동작하며, 모든 인터페이스는 `suspend CoroutineScope.`로 선언되어 있습니다.  
+따라서 인터페이스시 Coroutine의 기능들을 사용할 수 있습니다.
+```kt
+// in kotlin
+flexWebView.intInterface("async")
+{ arguments ->
+    async {
+        .... do something
+        100
+    }.await()
+}
+```
 
 ## FlexData
 Web에서 Native로 전달되는 모든 데이터는, `FlexData` 클래스로 변환되어 전달됩니다.  
@@ -413,6 +426,7 @@ fun setWebViewClient(client: WebViewClient)
 FlexWebView에 인터페이스를 추가합니다.  
 상세한 사항은 [WebToNavite 인터페이스](#WebToNative-인터페이스) 항목을 참고하세요.
 ```kt
+fun addFlexInterface(flexInterfaces: Any)
 fun voidInterface(name: String, lambda: suspend (Array<FlexData>) -> Unit): FlexWebView
 fun stringInterface(name: String, lambda: suspend (Array<FlexData>) -> String): FlexWebView
 fun intInterface(name: String, lambda: suspend (Array<FlexData>) -> Int): FlexWebView 
@@ -424,7 +438,20 @@ fun boolInterface(name: String, lambda: suspend (Array<FlexData>) -> Boolean): F
 fun arrayInterface(name: String, lambda: suspend (Array<FlexData>) -> Array<*>): FlexWebView
 fun mapInterface(name: String, lambda: suspend (Array<FlexData>) -> Map<String, *>): FlexWebView
 fun setAction(name: String, action: suspend (action: FlexAction?, arguments: Array<FlexData>) -> Unit): FlexWebView
-fun addFlexInterface(flexInterfaces: Any) 
+/**
+ * for Java
+ */
+fun voidInterfaceForJava(name: String, invoke: InvokeFlexVoid): FlexWebView
+fun stringInterfaceForJava(name: String, invoke: InvokeFlex<String>): FlexWebView
+fun intInterfaceForJava(name: String, invoke: InvokeFlex<Int>): FlexWebView
+fun charInterfaceForJava(name: String, invoke: InvokeFlex<Char>): FlexWebView
+fun longInterfaceForJava(name: String, invoke: InvokeFlex<Long>): FlexWebView
+fun doubleInterfaceForJava(name: String, invoke: InvokeFlex<Double>): FlexWebView
+fun floatInterfaceForJava(name: String, invoke: InvokeFlex<Float>): FlexWebView
+fun boolInterfaceForJava(name: String, invoke: InvokeFlex<Boolean>): FlexWebView
+fun arrayInterfaceForJava(name: String, invoke: InvokeFlex<Array<*>>): FlexWebView
+fun mapInterfaceForJava(name: String, invoke: InvokeFlex<Map<String, *>>): FlexWebView
+fun setActionForJava(name: String, invoke: InvokeAction): FlexWebView
 ```
 
 ### NativeToWeb Interface Setting
@@ -467,6 +494,20 @@ fun boolInterface(name: String, lambda: suspend (Array<FlexData>) -> Boolean): F
 fun arrayInterface(name: String, lambda: suspend (Array<FlexData>) -> Array<*>): FlexInterfaces
 fun mapInterface(name: String, lambda: suspend (Array<FlexData>) -> Map<String, *>): FlexInterfaces
 fun setAction(name: String, action: suspend (action: FlexAction?, arguments: Array<FlexData>) -> Unit): FlexInterfaces
+/**
+ * for Java
+ */
+fun voidInterfaceForJava(name: String, invoke: InvokeFlexVoid): FlexInterfaces
+fun stringInterfaceForJava(name: String, invoke: InvokeFlex<String>): FlexInterfaces
+fun intInterfaceForJava(name: String, invoke: InvokeFlex<Int>): FlexInterfaces
+fun charInterfaceForJava(name: String, invoke: InvokeFlex<Char>): FlexInterfaces
+fun longInterfaceForJava(name: String, invoke: InvokeFlex<Long>): FlexInterfaces
+fun doubleInterfaceForJava(name: String, invoke: InvokeFlex<Double>): FlexInterfaces
+fun floatInterfaceForJava(name: String, invoke: InvokeFlex<Float>): FlexInterfaces
+fun boolInterfaceForJava(name: String, invoke: InvokeFlex<Boolean>): FlexInterfaces
+fun arrayInterfaceForJava(name: String, invoke: InvokeFlex<Array<*>>): FlexInterfaces
+fun mapInterfaceForJava(name: String, invoke: InvokeFlex<Map<String, *>>): FlexInterfaces
+fun setActionForJava(name: String, invoke: InvokeAction): FlexInterfaces
 ```
 
 # $flex Object

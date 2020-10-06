@@ -6,15 +6,16 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.HashMap;
 
 import app.dvkyun.flexhybridand.FlexAction;
 import app.dvkyun.flexhybridand.FlexData;
 import app.dvkyun.flexhybridand.FlexWebView;
-import kotlin.Unit;
-import kotlin.coroutines.Continuation;
-import kotlin.jvm.functions.Function2;
-import kotlin.jvm.functions.Function3;
+import app.dvkyun.flexhybridand.forjava.FlexDataListener;
+import app.dvkyun.flexhybridand.forjava.InvokeAction;
+import app.dvkyun.flexhybridand.forjava.InvokeFlexVoid;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,9 +34,9 @@ public class MainActivity extends AppCompatActivity {
 
         flexWebView.getSettings().setTextZoom(250);
 
-        flexWebView.setAction("test4", new Function3<FlexAction, FlexData[], Continuation<? super Unit>, Object>() {
+        flexWebView.setActionForJava("test4", new InvokeAction() {
             @Override
-            public Object invoke(FlexAction flexAction, FlexData[] flexData, Continuation<? super Unit> continuation) {
+            public void invoke(@NotNull FlexAction action, @NotNull FlexData[] arguments) {
                 HashMap<String,Object> data = new HashMap<>();
                 data.put("intData",1);
                 data.put("StringData","test");
@@ -52,21 +53,18 @@ public class MainActivity extends AppCompatActivity {
                 objectData.put("o3","dataO3");
                 data.put("objectData", objectData);
                 Log.i("console","Send to web --- " + data.toString());
-                flexAction.promiseReturn(data);
-                return null;
+                action.promiseReturn(data);
             }
-        }).voidInterface("test5", new Function2<FlexData[], Continuation<? super Unit>, Object>() {
+        }).voidInterfaceForJava("test5", new InvokeFlexVoid() {
             @Override
-            public Object invoke(FlexData[] flexData, Continuation<? super Unit> continuation) {
-                flexWebView.evalFlexFunc("webtest", "hi! $flex!", new Function2<FlexData, Continuation<? super Unit>, Object>() {
+            public void invoke(@NotNull FlexData[] arguments) {
+                flexWebView.evalFlexFuncWithRespForJava("webtest", "hi! $flex!", new FlexDataListener() {
                     @Override
-                    public Object invoke(FlexData response, Continuation<? super Unit> continuation) {
+                    public void onResponse(@NotNull FlexData response) {
                         FlexData[] arr = response.asArray();
-                        Log.i("console", "Receive from web --- " + arr[0].asString() + arr[1].asInt() + arr[2].asMap().toString() );
-                        return null;
+                        Log.i("console", "Receive from web --- " + arr[0].asString() + arr[1].asInt() + arr[2].asMap().toString());
                     }
                 });
-                return null;
             }
         });
 

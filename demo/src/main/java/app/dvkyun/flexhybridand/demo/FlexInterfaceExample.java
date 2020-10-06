@@ -1,38 +1,39 @@
 package app.dvkyun.flexhybridand.demo;
 
 import android.util.Log;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.HashMap;
 
 import app.dvkyun.flexhybridand.FlexAction;
 import app.dvkyun.flexhybridand.FlexData;
 import app.dvkyun.flexhybridand.FlexInterfaces;
-import kotlin.Unit;
-import kotlin.coroutines.Continuation;
-import kotlin.jvm.functions.Function2;
-import kotlin.jvm.functions.Function3;
+import app.dvkyun.flexhybridand.forjava.InvokeAction;
+import app.dvkyun.flexhybridand.forjava.InvokeFlex;
+import app.dvkyun.flexhybridand.forjava.InvokeFlexVoid;
 
 public class FlexInterfaceExample extends FlexInterfaces {
 
     FlexInterfaceExample() {
-        this.intInterface("test1", new Function2<FlexData[], Continuation<? super Integer>, Object>() {
+        this.intInterfaceForJava("test1", new InvokeFlex<Integer>() {
             @Override
-            public Object invoke(FlexData[] arguments, Continuation<? super Integer> continuation) {
+            public Integer invoke(@NotNull FlexData[] arguments) {
                 return arguments[0].asInt() + 1;
             }
-        }).setAction("test2", new Function3<FlexAction, FlexData[], Continuation<? super Unit>, Object>() {
+        }).setActionForJava("test2", new InvokeAction() {
             @Override
-            public Object invoke(FlexAction flexAction, FlexData[] flexData, Continuation<? super Unit> continuation) {
+            public void invoke(@NotNull FlexAction action, @NotNull FlexData[] arguments) {
                 try {
                     Thread.sleep(1000);
-                    flexAction.resolveVoid();
+                    action.resolveVoid();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                return null;
             }
-        }).voidInterface("test3", new Function2<FlexData[], Continuation<? super Unit>, Object>() {
+        }).voidInterfaceForJava("test3", new InvokeFlexVoid() {
             @Override
-            public Object invoke(FlexData[] arguments, Continuation<? super Unit> continuation) {
+            public void invoke(@NotNull FlexData[] arguments) {
                 HashMap<String, FlexData> obj = (HashMap) arguments[0].asMap();
                 Log.i("console", "Receive from web");
                 Log.i("console", "stringData --- " + obj.get("stringData").asString());
@@ -42,7 +43,6 @@ public class FlexInterfaceExample extends FlexInterfaces {
                 Log.i("console", "arrayData --- " + obj.get("arrayData").asArray().toString());
                 Log.i("console", "nullData --- " + obj.get("nullData").asMap());
                 Log.i("console", "objectData --- " + obj.get("objectData").asMap().toString());
-                return null;
             }
         });
     }
