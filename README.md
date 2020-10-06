@@ -54,7 +54,7 @@ Basically, it compensates for the shortcomings of Android's JavascriptInterface 
 | Array [] | Array, Iterable |
 | Object {} |  Map |
 | undefined (Single Argument Only), null | Null |
-| Error | FlexReject |
+| Error | BrowserException |
 
 ## FlexData
 All data delivered from Web to Native is converted into `FlexData` class and delivered.  
@@ -99,9 +99,10 @@ When converting other data types, an exception occurs.
 The WebToNative interface has the following features.
 1. Two types of normal interface, which passes values by function return, and action interface, which passes values by method call
 2. Add interface in the form of lambda and annotation function
-3. Native code blocks operate in a separate Background Scope
-4. The added interface can be called in the form of $flex.function on the web.
-5. $flex Object can be used after window.onFlexLoad is called
+3. All interfaces operate in Coroutine, **so you can use Coroutine features such as suspend function and use of Differd objects.**
+4. Native code blocks operate in a separate Background Scope
+5. The added interface can be called in the form of $flex.function on the web.
+6. $flex Object can be used after window.onFlexLoad is called
 
 ### ***Normal Interface***
 Normal Interface is basically used as follows.
@@ -173,7 +174,7 @@ Similar to Android's `@JavascriptInterface`, Interface or Action can be register
 ```kt
 class MyInterface {
     @FlexFunInterface
-    fun funInterface(arguments: Array<FlexData>): Int {
+    suspend fun funInterface(arguments: Array<FlexData>): Int {
         // .... work something
         return 1
     }

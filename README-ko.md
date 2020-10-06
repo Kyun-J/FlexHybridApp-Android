@@ -96,9 +96,10 @@ inline fun <reified T> reified() : T?
 WebToNative 인터페이스는 다음의 특징을 지닙니다.
 1. 함수 return으로 값을 전달하는 Normal Interface, Method 호출로 값을 전달하는 Action Interface 2가지 종류
 2. lambda및 Annotation function형태로 인터페이스 추가
-3. Native 코드 블럭은 별도의 Background Scope에서 동작
-4. 추가된 인터페이스는 Web에서 $flex.함수명 형태로 호출 가능
-5. $flex Object는 window.onFlexLoad가 호출된 이후 사용 가능
+3. 모든 인터페이스는 Coroutine에서 동작하므로 **suspend함수, Differd객체 사용등 Coroutine기능을 활용 가능**
+4. Native 코드 블럭은 별도의 Background Scope에서 동작
+5. 추가된 인터페이스는 Web에서 $flex.함수명 형태로 호출 가능
+6. $flex Object는 window.onFlexLoad가 호출된 이후 사용 가능
 
 ### ***Nomal Interface***
 Normal Interface는 기본적으로 다음과 같이 사용합니다.
@@ -170,7 +171,7 @@ Android의 `@JavascriptInterface` 와 유사하게, Annotation을 통해 Interfa
 ```kt
 class MyInterface {
     @FlexFunInterface
-    fun funInterface(arguments: Array<FlexData>): Int {
+    suspend fun funInterface(arguments: Array<FlexData>): Int {
         // .... work something
         return 1
     }
