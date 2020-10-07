@@ -55,6 +55,10 @@ open class FlexInterfaces {
         return setInterface(name, lambda)
     }
 
+    fun listInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Iterable<*>): FlexInterfaces {
+        return setInterface(name, lambda)
+    }
+
     fun mapInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Map<String, *>): FlexInterfaces {
         return setInterface(name, lambda)
     }
@@ -104,6 +108,10 @@ open class FlexInterfaces {
     }
 
     fun arrayInterfaceForJava(name: String, invoke: InvokeFlex<Array<*>>): FlexInterfaces {
+        return setInterface(name) { args -> invoke.invoke(args) }
+    }
+
+    fun listInterfaceForJava(name: String, invoke: InvokeFlex<Iterable<*>>): FlexInterfaces {
         return setInterface(name) { args -> invoke.invoke(args) }
     }
 

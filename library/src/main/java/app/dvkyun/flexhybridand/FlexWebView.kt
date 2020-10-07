@@ -157,6 +157,10 @@ open class FlexWebView: WebView {
         return setInterface(name, lambda)
     }
 
+    fun listInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Iterable<*>): FlexWebView {
+        return setInterface(name, lambda)
+    }
+
     fun mapInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Map<String, *>): FlexWebView {
         return setInterface(name, lambda)
     }
@@ -208,6 +212,10 @@ open class FlexWebView: WebView {
     }
 
     fun arrayInterfaceForJava(name: String, invoke: InvokeFlex<Array<*>>): FlexWebView {
+        return setInterface(name) { args -> invoke.invoke(args) }
+    }
+
+    fun listInterfaceForJava(name: String, invoke: InvokeFlex<Iterable<*>>): FlexWebView {
         return setInterface(name) { args -> invoke.invoke(args) }
     }
 
