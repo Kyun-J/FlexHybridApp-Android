@@ -113,7 +113,7 @@ When converting other data types, an exception occurs.
 The WebToNative interface has the following features.
 1. Two types of normal interface, which passes values by function return, and action interface, which passes values by method call
 2. Add interface in the form of lambda and annotation function
-3. All interfaces operate in Coroutine, **so you can use Coroutine features such as suspend function and use of Differd objects.**
+3. All interfaces operate in Coroutine, **so you can use Coroutine features such as suspend function and use of Deferred objects.**
 4. Native code blocks operate in a separate Background Scope
 5. The added interface can be called in the form of $flex.function on the web.
 6. $flex Object can be used after window.onFlexLoad is called

@@ -109,7 +109,7 @@ inline fun <reified T> reified() : T?
 WebToNative 인터페이스는 다음의 특징을 지닙니다.
 1. 함수 return으로 값을 전달하는 Normal Interface, Method 호출로 값을 전달하는 Action Interface 2가지 종류
 2. lambda및 Annotation function형태로 인터페이스 추가
-3. 모든 인터페이스는 Coroutine에서 동작하므로 **suspend함수, Differd객체 사용등 Coroutine기능을 활용 가능**
+3. 모든 인터페이스는 Coroutine에서 동작하므로 **suspend함수, Deferred객체 사용등 Coroutine기능을 활용 가능**
 4. Native 코드 블럭은 별도의 Background Scope에서 동작
 5. 추가된 인터페이스는 Web에서 $flex.함수명 형태로 호출 가능
 6. $flex Object는 window.onFlexLoad가 호출된 이후 사용 가능
