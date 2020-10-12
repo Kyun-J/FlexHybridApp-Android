@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Build
+import android.webkit.ValueCallback
 import android.webkit.WebView
 import org.json.JSONArray
 import org.json.JSONObject
@@ -29,9 +30,9 @@ internal object FlexUtil {
             throw FlexException(FlexException.ERROR4)
         }
         webView.post {
-            val js = "javascript:$javascript"
+            val js = "javascript:$javascript; void 0;"
             if (Build.VERSION.SDK_INT >= 19) {
-                webView.evaluateJavascript(js, null)
+                webView.evaluateJavascript(js,null)
             } else {
                 webView.loadUrl(js)
             }

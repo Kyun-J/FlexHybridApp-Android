@@ -7,14 +7,18 @@ class FlexAction internal constructor(name: String, webView: FlexWebView) {
 
     private var funName: String = name
     private var flexWebView: FlexWebView = webView
-    private var isCall = false
+
+    var isFinished = false
+        private set
+
+    var onFinishedInterface: ActionFinished? = null
+    var onFinished: (() -> Unit)? = null
 
     private fun pReturn(response: Any?) {
-        if(isCall) {
+        if(isFinished) {
             FlexUtil.INFO(FlexException.ERROR9)
             return
         }
-        isCall = true
         if(response is BrowserException) {
             val reason = if(response.reason == null) null else "\"${response.reason}\""
             FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(false, ${reason})")
@@ -23,6 +27,7 @@ class FlexAction internal constructor(name: String, webView: FlexWebView) {
         } else {
             FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(true, null, ${FlexUtil.convertInput(response)})")
         }
+        finish()
     }
 
     fun promiseReturn(response: String) {
@@ -86,44 +91,50 @@ class FlexAction internal constructor(name: String, webView: FlexWebView) {
     }
 
     fun promiseReturn() {
-        pReturn(null)
+        resolveVoid()
     }
 
     fun resolveVoid() {
-        if(isCall) {
+        if(isFinished) {
             FlexUtil.INFO(FlexException.ERROR9)
             return
         }
-        isCall = true
         FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(true)")
+        finish()
     }
 
     fun reject(reason: BrowserException) {
-        if(isCall) {
+        if(isFinished) {
             FlexUtil.INFO(FlexException.ERROR9)
             return
         }
-        isCall = true
         val rejectReason = if(reason.reason == null) null else "\"${reason.reason}\""
         FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(false, ${rejectReason})")
+        finish()
     }
 
     fun reject(reason: String) {
-        if(isCall) {
+        if(isFinished) {
             FlexUtil.INFO(FlexException.ERROR9)
             return
         }
-        isCall = true
         FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(false, \"${reason}\")")
+        finish()
     }
 
     fun reject() {
-        if(isCall) {
+        if(isFinished) {
             FlexUtil.INFO(FlexException.ERROR9)
             return
         }
-        isCall = true
         FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(false)")
+        finish()
+    }
+
+    private fun finish() {
+        isFinished = true
+        onFinishedInterface?.onFinished()
+        onFinished?.invoke()
     }
 
 }

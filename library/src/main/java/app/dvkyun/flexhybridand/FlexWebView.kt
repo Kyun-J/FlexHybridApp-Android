@@ -121,47 +121,47 @@ open class FlexWebView: WebView {
         return this
     }
 
-    fun voidInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Unit): FlexWebView {
+    fun voidInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Unit): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun stringInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> String): FlexWebView {
+    fun stringInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> String): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun intInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Int): FlexWebView {
+    fun intInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Int): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun charInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Char): FlexWebView {
+    fun charInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Char): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun longInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Long): FlexWebView {
+    fun longInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Long): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun doubleInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Double): FlexWebView {
+    fun doubleInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Double): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun floatInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Float): FlexWebView {
+    fun floatInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Float): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun boolInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Boolean): FlexWebView {
+    fun boolInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Boolean): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun arrayInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Array<*>): FlexWebView {
+    fun arrayInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Array<*>): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun listInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Iterable<*>): FlexWebView {
+    fun listInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Iterable<*>): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun mapInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Map<String, *>): FlexWebView {
+    fun mapInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Map<String, *>): FlexWebView {
         return setInterface(name, lambda)
     }
 
@@ -304,7 +304,7 @@ open class FlexWebView: WebView {
         if(!isFlexLoad) {
             beforeFlexLoadEvalList.add(BeforeFlexEval(funcName))
         } else {
-            FlexUtil.evaluateJavaScript(this,"\$flex.web.$funcName(); void 0;")
+            FlexUtil.evaluateJavaScript(this,"\$flex.web.$funcName();")
         }
     }
 
@@ -314,7 +314,7 @@ open class FlexWebView: WebView {
         } else {
             val tID = Random.nextInt(10000)
             returnFromWeb[tID] = response
-            FlexUtil.evaluateJavaScript(this,"!async function(){try{const e=await \$flex.web.$funcName();\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();void 0;")
+            FlexUtil.evaluateJavaScript(this,"!async function(){try{const e=await \$flex.web.$funcName();\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();")
         }
     }
 
@@ -322,7 +322,7 @@ open class FlexWebView: WebView {
         if(!isFlexLoad) {
             beforeFlexLoadEvalList.add(BeforeFlexEval(funcName, sendData))
         } else {
-            FlexUtil.evaluateJavaScript(this, "\$flex.web.$funcName(${FlexUtil.convertInput(sendData)}); void 0;")
+            FlexUtil.evaluateJavaScript(this, "\$flex.web.$funcName(${FlexUtil.convertInput(sendData)});")
         }
     }
 
@@ -332,7 +332,7 @@ open class FlexWebView: WebView {
         } else {
             val tID = Random.nextInt(10000)
             returnFromWeb[tID] = response
-            FlexUtil.evaluateJavaScript(this, "!async function(){try{const e=await \$flex.web.$funcName(${FlexUtil.convertInput(sendData)});\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();void 0;")
+            FlexUtil.evaluateJavaScript(this, "!async function(){try{const e=await \$flex.web.$funcName(${FlexUtil.convertInput(sendData)});\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();")
         }
     }
 

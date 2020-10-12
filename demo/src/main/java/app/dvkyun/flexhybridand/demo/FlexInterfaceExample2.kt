@@ -1,6 +1,7 @@
 package app.dvkyun.flexhybridand.demo
 
 import android.app.Activity
+import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import app.dvkyun.flexhybridand.*
 import app.dvkyun.flexhybridand.demo.KtObject.nowAppContext
@@ -25,6 +26,9 @@ class FlexInterfaceExample2: FlexInterfaces() {
                 delay(10)
                 "test success"
             }.await()
+            action.onFinished = {
+                Log.i("console", "test7 finished!")
+            }
             action.promiseReturn(res)
         }
     }
