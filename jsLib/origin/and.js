@@ -38,10 +38,10 @@
         });
     }
     setOptions();
-    window.$flex = {};
+    Object.defineProperty(window, "$flex", { value: {}, writable: false, enumerable: true });
     Object.defineProperties($flex,
         {
-            version: { value: '0.6', writable: false, enumerable: true },
+            version: { value: '0.6.2', writable: false, enumerable: true },
             isAndroid: { value: true, writable: false, enumerable: true },
             isiOS: { value: false, writable: false, enumerable: true },
             device: { value: device, writable: false, enumerable: true },
@@ -118,5 +118,30 @@
             }
         });
         window.onFlexLoad = f;
+        const evalFrames = (w) => {
+            for(let i = 0 ; i < w.frames.length; i++) {
+                delete w.frames[i].flexdefine;
+                if(typeof w.frames[i].$flex === 'undefined') {
+                    Object.defineProperty(w.frames[i], "$flex", { value: window.$flex, writable: false, enumerable: true });
+                    let f = undefined;
+                    if(typeof w.frames[i].onFlexLoad === 'function') {
+                        f = w.frames[i].onFlexLoad;
+                    }
+                    Object.defineProperty(w.frames[i], "onFlexLoad", { 
+                        set: function(val) {
+                            window.onFlexLoad = val;
+                        },
+                        get: function() {
+                            return window._onFlexLoad;
+                        }
+                    });
+                    if(typeof f === 'function') {
+                        w.frames[i].onFlexLoad = f;
+                    }
+                }
+                evalFrames(w.frames[i]);
+            }
+        }
+        evalFrames(window);
     }, 0);
 })();

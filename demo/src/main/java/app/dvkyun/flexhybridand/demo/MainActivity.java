@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
         flexWebView.setBaseUrl("file:///android_asset");
         flexWebView.setInterfaceTimeout(3000);
         flexWebView.setInterfaceThreadCount(Runtime.getRuntime().availableProcessors());
+        flexWebView.setAllowFileAccessAndUrlAccessInFile(true);
 
         flexWebView.getSettings().setTextZoom(250);
 

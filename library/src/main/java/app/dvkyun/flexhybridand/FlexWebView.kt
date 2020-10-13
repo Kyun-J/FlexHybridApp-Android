@@ -81,7 +81,6 @@ open class FlexWebView: WebView {
     /*
     * Initial setting
     * */
-    @Suppress("DEPRECATION")
     @SuppressLint("SetJavaScriptEnabled")
     fun initialize() {
         if(BuildConfig.DEBUG) setWebContentsDebuggingEnabled(true)
@@ -267,6 +266,17 @@ open class FlexWebView: WebView {
         }
     }
 
+    fun setAllowFileAccessAndUrlAccessInFile(allow: Boolean) {
+        settings.allowFileAccess = allow
+        settings.allowFileAccessFromFileURLs = allow
+        settings.allowUniversalAccessFromFileURLs = allow
+    }
+
+    fun setAssetsLoaderUse(use: Boolean, path: String = "/assets/") {
+        webViewClient.isAssetLoaderUse = use
+        webViewClient.assetLoaderPrefixPath = path
+    }
+
     fun setInterfaceTimeout(timeout: Int) {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR6)
@@ -289,14 +299,23 @@ open class FlexWebView: WebView {
     }
 
     fun setDependency(inputStream: InputStream) {
+        if(isAfterFirstLoad) {
+            throw FlexException(FlexException.ERROR6)
+        }
         dependencies.add(FlexUtil.fileToString(inputStream))
     }
 
     fun setDependency(reader: Reader) {
+        if(isAfterFirstLoad) {
+            throw FlexException(FlexException.ERROR6)
+        }
         dependencies.add(FlexUtil.fileToString(reader))
     }
 
     fun setDependency(js: String) {
+        if(isAfterFirstLoad) {
+            throw FlexException(FlexException.ERROR6)
+        }
         dependencies.add(js)
     }
 
@@ -400,6 +419,7 @@ open class FlexWebView: WebView {
             flexJsString = flexJsString.replaceFirst("deviceinfoFromAnd", FlexUtil.convertInput(device))
         }
         isAfterFirstLoad = true
+        isFlexLoad = false
         FlexUtil.evaluateJavaScript(this, flexJsString)
         dependencies.forEach {
             FlexUtil.evaluateJavaScript(this, it)
@@ -457,6 +477,13 @@ open class FlexWebView: WebView {
                                     )
                                 }
                                 1 -> { // flexload
+                                    if(isFlexLoad) {
+                                        FlexUtil.evaluateJavaScript(
+                                            this@FlexWebView,
+                                            "\$flex.flex.${fName}(true)"
+                                        )
+                                        return@launch
+                                    }
                                     isFlexLoad = true
                                     beforeFlexLoadEvalList.forEach {
                                         if(it.sendData != null && it.response != null) {
