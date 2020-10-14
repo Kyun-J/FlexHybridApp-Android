@@ -402,6 +402,21 @@ fun setBaseUrl(url: String)
 fun getBaseUrl(): String?
 ```
 
+### Url Access in File
+This is a function to allow UrlAccess when using url such as file://.  
+Set allowFileAccess, allowFileAccessFromFileURLs, and allowUniversalAccessFromFileURLs in WebViewSettings at once.  
+Please note that allowFileAccessFromFileURLs and allowUniversalAccessFromFileURLs have been deprecated in SDK30.
+```kt
+fun setAllowFileAccessAndUrlAccessInFile(allow: Boolean)
+```
+
+### Use AssetsLoader
+Enable AssetsLoader from androidx.webkit  
+AssetsLoader is automatically enabled in FlexWebViewClinet through the function below.
+```kt
+fun setAssetsLoaderUse(use: Boolean, path: String = "/assets/")
+```
+
 ### InterfaceTimeout
 Set the time to wait for return after Interface is executed.  
 After that time, the Promise created by the interface is forcibly rejected.
@@ -515,6 +530,7 @@ fun setActionForJava(name: String, invoke: InvokeAction): FlexInterfaces
 
 # $flex Object
 \$flex Object is an object composed of interfaces between FlexWebView and Promise.  
+$flex can also be used in any accessible frames. (Ex) iframe that does not violate Cross-Origin)  
 The components of $ flex Object are as follows.
 ```js
 window.onFlexLoad // $flex is called upon completion of loading.
