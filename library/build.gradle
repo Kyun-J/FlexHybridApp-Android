@@ -10,8 +10,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 30
-        versionName "0.6.2"
+        versionCode 31
+        versionName "0.6.3"
     }
 
     lintOptions {

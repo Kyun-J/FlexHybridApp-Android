@@ -28,6 +28,19 @@ open class FlexWebView: WebView {
 
     companion object {
         private const val UNIQUE = "flexdefine"
+        private const val FLEX = "flex"
+
+        /*
+        * options
+        * */
+        private const val TIMEOUT = "timeout"
+        private const val LOADWAIT = "flexLoadWait"
+
+        /*
+        * internal interface
+        * */
+        private const val RETURN = "flexreturn"
+        private const val LOAD = "flexload"
     }
 
     constructor(context: Context) : super(context)
@@ -42,7 +55,7 @@ open class FlexWebView: WebView {
     private val options: JSONObject = JSONObject()
     private val dependencies: ArrayList<String> = ArrayList()
     private val returnFromWeb: HashMap<Int, suspend CoroutineScope.(FlexData) -> Unit> = HashMap()
-    private val internalInterface = arrayOf("flexreturn", "flexload")
+    private val internalInterface = arrayOf(RETURN, LOAD)
     private var tCount = Runtime.getRuntime().availableProcessors()
     val scope by lazy {
         CoroutineScope(Executors.newFixedThreadPool(tCount).asCoroutineDispatcher())
@@ -113,7 +126,7 @@ open class FlexWebView: WebView {
         if(interfaces[name] != null || actions[name] != null) {
             throw FlexException(FlexException.ERROR7)
         }
-        if(name.contains("flex")) {
+        if(name.contains(FLEX)) {
             throw FlexException(FlexException.ERROR8)
         }
         interfaces[name] = lambda
@@ -171,7 +184,7 @@ open class FlexWebView: WebView {
         if(interfaces[name] != null || actions[name] != null) {
             throw FlexException(FlexException.ERROR7)
         }
-        if(name.contains("flex")) {
+        if(name.contains(FLEX)) {
             throw FlexException(FlexException.ERROR8)
         }
         actions[name] = action
@@ -281,14 +294,14 @@ open class FlexWebView: WebView {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR6)
         }
-        options.put("timeout", timeout)
+        options.put(TIMEOUT, timeout)
     }
 
     fun setFlexOnLoadWait(timeout: Int) {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR6)
         }
-        options.put("flexLoadWait", timeout)
+        options.put(LOADWAIT, timeout)
     }
 
     fun setInterfaceThreadCount(count: Int) {
