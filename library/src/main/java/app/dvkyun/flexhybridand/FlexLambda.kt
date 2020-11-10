@@ -4,7 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 
 class FlexLambda {
     companion object {
-        fun void(lambda: suspend CoroutineScope.(Array<FlexData>) -> Unit?): suspend CoroutineScope.(Array<FlexData>) -> Unit? = lambda
+        fun void(lambda: suspend CoroutineScope.(Array<FlexData>) -> Unit): suspend CoroutineScope.(Array<FlexData>) -> Unit = lambda
         fun int(lambda: suspend CoroutineScope.(Array<FlexData>) -> Int?): suspend CoroutineScope.(Array<FlexData>) -> Int? = lambda
         fun long(lambda: suspend CoroutineScope.(Array<FlexData>) -> Long?): suspend CoroutineScope.(Array<FlexData>) -> Long? = lambda
         fun float(lambda: suspend CoroutineScope.(Array<FlexData>) -> Float?): suspend CoroutineScope.(Array<FlexData>) -> Float? = lambda

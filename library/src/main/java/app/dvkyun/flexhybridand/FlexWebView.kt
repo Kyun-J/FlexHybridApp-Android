@@ -137,43 +137,43 @@ open class FlexWebView: WebView {
         return setInterface(name, lambda)
     }
 
-    fun stringInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> String): FlexWebView {
+    fun stringInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> String?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun intInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Int): FlexWebView {
+    fun intInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Int?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun charInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Char): FlexWebView {
+    fun charInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Char?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun longInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Long): FlexWebView {
+    fun longInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Long?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun doubleInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Double): FlexWebView {
+    fun doubleInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Double?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun floatInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Float): FlexWebView {
+    fun floatInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Float?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun boolInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Boolean): FlexWebView {
+    fun boolInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Boolean?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun arrayInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Array<*>): FlexWebView {
+    fun arrayInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Array<*>?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun listInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Iterable<*>): FlexWebView {
+    fun listInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Iterable<*>?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun mapInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Map<String, *>): FlexWebView {
+    fun mapInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Map<String, *>?): FlexWebView {
         return setInterface(name, lambda)
     }
 

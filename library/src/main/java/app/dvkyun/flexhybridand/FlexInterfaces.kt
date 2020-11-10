@@ -23,43 +23,43 @@ open class FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun stringInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> String): FlexInterfaces {
+    fun stringInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> String?): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun intInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Int): FlexInterfaces {
+    fun intInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Int?): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun charInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Char): FlexInterfaces {
+    fun charInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Char?): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun longInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Long): FlexInterfaces {
+    fun longInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Long?): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun doubleInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Double): FlexInterfaces {
+    fun doubleInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Double?): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun floatInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Float): FlexInterfaces {
+    fun floatInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Float?): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun boolInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Boolean): FlexInterfaces {
+    fun boolInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Boolean?): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun arrayInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Array<*>): FlexInterfaces {
+    fun arrayInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Array<*>?): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun listInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Iterable<*>): FlexInterfaces {
+    fun listInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Iterable<*>?): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
-    fun mapInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Map<String, *>): FlexInterfaces {
+    fun mapInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Map<String, *>?): FlexInterfaces {
         return setInterface(name, lambda)
     }
 
