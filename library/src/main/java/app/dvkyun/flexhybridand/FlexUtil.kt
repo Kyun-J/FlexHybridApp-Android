@@ -82,7 +82,7 @@ internal object FlexUtil {
         return if (value is Int || value is Long || value is Double || value is Float || value is Boolean) {
             "$value"
         } else if (value is String || value is Char) {
-            "'${value}'"
+            "`${value}`"
         } else if (value is Array<*>) {
             val vString = StringBuilder()
             vString.append("[")
