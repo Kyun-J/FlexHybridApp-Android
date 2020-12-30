@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
             public void invoke(@NotNull FlexAction action, @NotNull FlexData[] arguments) {
                 HashMap<String,Object> data = new HashMap<>();
                 data.put("intData",1);
-                data.put("StringData","test");
+                data.put("StringData","test\ntest\n");
                 data.put("doubleData",1.0000000001);
                 data.put("boolData", false);
                 Object[] arrayData = new Object[3];

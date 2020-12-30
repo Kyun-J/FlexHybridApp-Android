@@ -92,7 +92,7 @@ internal object FlexUtil {
                 } else if (it is Int || it is Long || it is Double || it is Float || it is Boolean) {
                     vString.append("${it},")
                 } else if (it is String || it is Char) {
-                    vString.append("'${it}',")
+                    vString.append("`${it}`,")
                 } else if (it is Array<*> || it is Iterable<*> || it is Map<*,*> || it is JSONArray || it is JSONObject) {
                     vString.append("${convertInput(it)},")
                 } else {
@@ -110,7 +110,7 @@ internal object FlexUtil {
                 } else if (it is Int || it is Long || it is Double || it is Float || it is Boolean) {
                     vString.append("${it},")
                 } else if (it is String || it is Char) {
-                    vString.append("'${it}',")
+                    vString.append("`${it}`,")
                 } else if (it is Array<*> || it is Iterable<*> || it is Map<*,*> || it is JSONArray || it is JSONObject) {
                     vString.append("${convertInput(it)},")
                 } else {
@@ -129,7 +129,7 @@ internal object FlexUtil {
                 } else if (element is Int || element is Long || element is Double || element is Float || element is Boolean) {
                     vString.append("${element},")
                 } else if (element is String || element is Char) {
-                    vString.append("'${element}',")
+                    vString.append("`${element}`,")
                 } else if (element is Array<*> || element is Iterable<*> || element is Map<*,*> || element is JSONArray || element is JSONObject) {
                     vString.append("${convertInput(element)},")
                 } else {
@@ -150,7 +150,7 @@ internal object FlexUtil {
                 } else if (it.value is Int || it.value is Long || it.value is Double || it.value is Float || it.value is Boolean || it.value == null) {
                     vString.append("${it.key}:${it.value},")
                 } else if (it.value is String || it.value is Char) {
-                    vString.append("${it.key}:'${it.value}',")
+                    vString.append("${it.key}:`${it.value}`,")
                 } else if (it.value is Array<*> || it.value is Iterable<*> || it.value is Map<*,*> || it.value is JSONArray || it.value is JSONObject) {
                     vString.append("${it.key}:${convertInput(it.value!!)},")
                 } else {
@@ -170,7 +170,7 @@ internal object FlexUtil {
                     if (element is Int || element  is Long || element  is Double || element is Float || element  is Boolean) {
                         vString.append("${it}:${element},")
                     } else if (element is String || element is Char) {
-                        vString.append("${it}:'${element}',")
+                        vString.append("${it}:`${element}`,")
                     } else if (element is Array<*> || element is Iterable<*> || element is Map<*,*> || element is JSONArray || element is JSONObject) {
                         vString.append("${it}:${convertInput(element)},")
                     } else {
