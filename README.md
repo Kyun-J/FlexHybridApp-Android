@@ -3,6 +3,12 @@
 
 [iOS Version](https://github.com/Kyun-J/FlexHybridApp-iOS)
 
+# ToDo
+
+1. Interface Event Listener (working)
+2. Interface using Model (under consideration)
+3. <u>*Flutter version of FlexHybirdApp*</u> (in progress)
+
 # FlexibleHybrid
 
 FlexibleHybridApp is a library that provides various convenience functions to develop HybridApp, such as implementing interface between WebPage and Native with promises.
@@ -12,7 +18,7 @@ FlexibleHybridApp is a library that provides various convenience functions to de
 **minSdkVersion 19**  
 **Minimum ChromeVersion 55**
 
-1. Enable jitpack
+1. jitpack
 
 Add the following to the project build.gradle
 ```Gradle
@@ -36,7 +42,7 @@ Basically, it compensates for the shortcomings of Android's JavascriptInterface 
 2. When calling the Web function from Native, the return value **can be passed Async** from Web to Native.
 3. In addition to annotations, **you can add an interface by invoking a function that receives the Lambda (interface of Java) of Kotlin as a factor**.
 4. In addition to the basic data type, **JS array can be delivered as (Array, List) of Kotlin(JAVA) and JS Object as (Map) of Kotlin(JAVA)**.
-5. When calling Native on the web, **Native code block operates in Custom Coroutine** and operates as Multi Thread unlike JavaBridge Thread of JavascriptInterface, so it is processed in parallel when multiple interfaces are called at the same time.
+5. When calling Native from Web, **Native code block operates within Custom Coroutine** and operates as Multi Thread differently from JavaBridge Thread of JavascriptInterface and is processed in Concurrent.  
 6. By specifying BaseUrl in FlexWebView, you can **prevent native and interface on other sites and pages**.
 7. You cannot add an interface after the page is first loaded into FlexWebView and appears on the screen.
 
@@ -57,7 +63,7 @@ Basically, it compensates for the shortcomings of Android's JavascriptInterface 
 | Error | BrowserException |
 
 ## Use with Coroutine
-FlexHybrid operates in a dedicated Coroutine, and all interfaces are declared as `suspend CoroutineScope.`.  
+FlexHybrid operates in a coroutine of a dedicated thread, and all interface code blocks contain `CoroutineContext`.  
 Therefore, you can use Coroutine's features during interface.
 ```kt
 // in kotlin
@@ -92,7 +98,8 @@ flexWebView.stringInterface("CallNative") // "CallNative" becomes the function n
 ```
 `FlexData` basically provides the following type conversion functions.  
 ```kt
-fun asString(): string?
+fun asString(): String?
+fun toString(): String?
 fun asInt (): Int?
 fun asLong (): long?
 fun asDouble (): Double?
@@ -115,8 +122,8 @@ The WebToNative interface has the following features.
 2. Add interface in the form of lambda and annotation function
 3. All interfaces operate in Coroutine, **so you can use Coroutine features such as suspend function and use of Deferred objects.**
 4. Native code blocks operate in a separate Background Scope
-5. The added interface can be called in the form of $flex.function on the web.
-6. $flex Object can be used after window.onFlexLoad is called
+5. The added interface can be called in the form of `$flex.functionName` on the web.
+6. \$flex Object can be used after window.onFlexLoad is called
 
 ### ***Normal Interface***
 Normal Interface is basically used as follows.
@@ -178,6 +185,21 @@ The parameter of `promiseReturn` is only available for [Transferable Data Type](
 If the `promiseReturn` method is not called, the function in the web will be in a pending state, so be careful to call` promiseReturn` when using the Action Interface.  
 In addition, FlexAction objects that have already called `promiseReturn` do not happen even if duplicate`promiseReturn` is called.
 
+### ***FlexLambda***
+In order to code the interface operation code block in the desired location, the code block (lambda) can be specified separately as a variable type and used.
+```kt
+val myAction : FlexLambda.action = 
+{ action, arguments
+    val data = withContext {
+        ... do something
+        "result"
+    }
+    action.promiseReturn(data)
+}
+....
+flexWebView.setAction("myAction", myAction)
+```
+
 ### ***Annotation Interface***
 Similar to Android's `@JavascriptInterface`, Interface or Action can be registered through Annotation.
 #### @FlexFunInterface
@@ -185,6 +207,7 @@ Similar to Android's `@JavascriptInterface`, Interface or Action can be register
 1. Only one Array<FlexData> parameter can be used. (Exception occurs when adding another parameter)
 2. Return can only use [Transferable Data Type](#Transferable-Data-Type). (Exception occurs when returning another value)
 3. The class containing @FlexFunInterface must be passed as an argument to FlexWebView.addFlexInterface to add an interface.
+4. It can be declared with the suspend function.
 ```kt
 class MyInterface {
     @FlexFunInterface
@@ -206,12 +229,10 @@ const res = await $flex.funInterface();
 #### @FlexActionInterface
 `@FlexActionInterface` must comply with the following:
 1. Parameters must be declared in **the order of FlexAction, Array<FlexData>**, and other parameters cannot be used. (Exception occurs when violation occurs)
-2. Return can be declared, but not used.
-3. When sending the return value to the web, you should use the `promiseReturn` of the passed FlexAction parameter.
-4. The parameters of `promiseReturn` are only available for [Transferable Data Type](#Transferable-Data-Type).
-5. If the `promiseReturn` method cannot be called, the function on the web will be in a pending state, so be careful to call `promiseReturn` when using the Action Interface.
-6. `promiseReturn` works only once, and nothing happens when a duplicate call is made.
-7. The class containing @FlexActionInterface must be passed as an argument to FlexWebView.addFlexInterface to add the interface.
+2. Return can be declared, **but not used**.
+3. FlexAction should be used when sending return value to the web.
+4. The class containing @FlexActionInterface must be passed as an argument to FlexWebView.addFlexInterface to add the interface.
+5. It can be declared with the suspend function.
 ```kt
 class MyInterface {
     @FlexActionInterface
@@ -254,33 +275,23 @@ public class FlexInterfaceExample extends FlexInterfaces {
             }
         });
     }
-
-    @FlexFuncInterface
-    public void test4(FlexData[] arguments) {
-        ...
-    }
-
-    @FlexActionInterface
-    public void test5(FlexAction action, FlexData[] arguments) {
-        action.promiseReturn();
-    }
 }
 ```
 ```kt
 // in activity...
 ...
-// add interface test1, test2, test3, test4, test5
+// add interface test1, test2, test3
 mFlexWebView.addFlexInterface(FlexInterfaceExample())
 let other = FlexInterfaces()
-other.voidInterface("test6")
+other.voidInterface("test4")
 { arguments ->
 
 }
-other.setAction("test7")
+other.setAction("test5")
 { action, arguments ->
     action.promiseReturn()
 }
-// add interface test6, test7
+// add interface test4, test5
 mFlexWebView.addFlexInterface(other)
 ```
 
@@ -322,8 +333,8 @@ try {
 
 ## NativeToWeb Interface
 The NativeToWeb interface has the following features.
-1. If you add a function in the web's $flex.web Object, you can call the function through the `evalFlexFunc` method in Native(FlexWebView).
-2. After calling `window.onFlexLoad` (after creating $flex), you can add a function to $flex.web.
+1. If you add a function in the web's `$flex.web` Object, you can call the function through the `evalFlexFunc` method in Native(FlexWebView).
+2. After calling `window.onFlexLoad` (after creating \$flex), you can add a function to $flex.web.
 3. The $flex.web function can pass values ​​to Native through regular return and promise return.
 
 ```js
@@ -530,7 +541,9 @@ fun setActionForJava(name: String, invoke: InvokeAction): FlexInterfaces
 
 # $flex Object
 \$flex Object is an object composed of interfaces between FlexWebView and Promise.  
-$flex can also be used in any accessible frames. (Ex) iframe that does not violate Cross-Origin)  
+\$flex is declared in the webpage at runtime when the webpage is loaded in the webview.  
+When \$flex is finished loading, you can check the window.onFlexLoad function.  
+\$flex can also be used in any accessible frames. (Ex) iframe that does not violate Cross-Origin)  
 The components of $ flex Object are as follows.
 ```js
 window.onFlexLoad // $flex is called upon completion of loading.

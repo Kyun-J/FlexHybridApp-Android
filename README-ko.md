@@ -1,3 +1,9 @@
+# ToDo
+
+1. Interface Event Listener 적용 (작업중)
+2. Model을 사용하는 인터페이스 (고려중)
+3. <u>*Flutter 버전 FlexHybirdApp*</u> (추진중)
+
 # FlexibleHybrid
 
 FlexibleHybridApp은 Web, Native 상호간의 Interface을 Promise로 구현하는 등, HybridApp을 개발하기 위해 여러 편의 기능을 제공하는 라이브러리입니다.
@@ -7,7 +13,7 @@ FlexibleHybridApp은 Web, Native 상호간의 Interface을 Promise로 구현하�
 **minSdkVersion 19**  
 **Minimum ChromeVersion 55**
 
-1. jitpack 사용  
+1. jitpack 사용
 
 프로젝트 build.gradle에 다음을 추가
 ```gradle
@@ -31,7 +37,7 @@ dependencies {
 2. Native에서 Web함수 호출시, **Web에서 Native로 Async**하게 반환값을 전달 할 수 있습니다.
 3. Annotation외에 **Kotlin의 lambda(Java의 Interface)를 인자로 받는 함수**를 호출하여 인터페이스를 추가할 수 있습니다.
 4. 기본 자료형 외에 **JS의 Array를 JAVA의(Array, List)으로, JS의 Object를 JAVA의 Map으로** 전달할 수 있습니다.
-5. Web에서 Native 호출시, **Native 코드 블럭은 Custom Coroutine** 안에서 동작하며 JavascriptInterface의 JavaBridge Thread와 다르게 Multi Thread 로 동작하므로, 동시에 여러 인터페이스가 호출됬을 때 병렬로 처리됩니다.
+5. Web에서 Native 호출시, **Native 코드 블럭은 Custom Coroutine** 안에서 동작하며 JavascriptInterface의 JavaBridge Thread와 다르게 Multi Thread 로 동작하며 병렬로 처리됩니다.
 6. FlexWebView에 BaseUrl을 지정하여, **타 사이트 및 페이지에서 Native와 Interface하는 것을 방지**할 수 있습니다.
 7. FlexWebView에 페이지가 최초로 로드되어 화면에 나타난 후에는 WebToNative 인터페이스를 추가 할 수 없습니다.
 
@@ -41,18 +47,18 @@ dependencies {
 2. **JS의 Array를 JAVA의(Array, List)으로, JS의 Object를 JAVA의 Map으로** 전송 가능합니다.  
 3. Array와 Object형식의 데이터를 전송할 때 안에 포함된 데이터는 **반드시 아래 자료형 중 하나여야 합니다**.  
 
-| JS | Kotlin(Java) |
-|:--:|:--:|
-| Number | Int, Long, Float, Double |
-| String | String | 
-| Boolean | Boolean | 
-| Array [] | Array, Iterable |
-| Object {} | Map |
-| undefined (Single Argument Only), null | null |
-| Error | BrowserException |
+|                   JS                   |       Kotlin(Java)       |
+| :------------------------------------: | :----------------------: |
+|                 Number                 | Int, Long, Float, Double |
+|                 String                 |          String          |
+|                Boolean                 |         Boolean          |
+|                Array []                |     Array, Iterable      |
+|               Object {}                |           Map            |
+| undefined (Single Argument Only), null |           null           |
+|                 Error                  |     BrowserException     |
 
 ## Coroutine과 함께 사용
-FlexHybrid는 전용 Coroutine에서 동작하며, 모든 인터페이스는 `suspend CoroutineScope.`로 선언되어 있습니다.  
+FlexHybrid는 전용 Thread의 Coroutine에서 동작하며, 모든 인터페이스의 코드 블럭은 `CoroutineContext`가 포함되어 있습니다.  
 따라서 인터페이스시 Coroutine의 기능들을 사용할 수 있습니다.
 ```kt
 // in kotlin
@@ -67,7 +73,7 @@ flexWebView.intInterface("async")
 
 ## FlexData
 Web에서 Native로 전달되는 모든 데이터는, `FlexData` 클래스로 변환되어 전달됩니다.  
-`FlexData` 클래스는 Web의 데이터를 Type-Safe하게 사용하도록 도와줍니다.
+`FlexData` 클래스는 Web의 데이터를 TypeSafe하게 사용하도록 도와줍니다.
 ```js
 // in web javascript
 ...
@@ -88,6 +94,7 @@ flexWebView.stringInterface("CallNative") // "CallNative" becomes the function n
 `FlexData`는 기본적으로 아래의 타입 변환 함수를 제공합니다.
 ```kt
 fun asString(): String?
+fun toString(): String?
 fun asInt(): Int?
 fun asLong(): Long?
 fun asDouble(): Double?
@@ -110,9 +117,9 @@ WebToNative 인터페이스는 다음의 특징을 지닙니다.
 1. 함수 return으로 값을 전달하는 Normal Interface, Method 호출로 값을 전달하는 Action Interface 2가지 종류
 2. lambda및 Annotation function형태로 인터페이스 추가
 3. 모든 인터페이스는 Coroutine에서 동작하므로 **suspend함수, Deferred객체 사용등 Coroutine기능을 활용 가능**
-4. Native 코드 블럭은 별도의 Background Scope에서 동작
-5. 추가된 인터페이스는 Web에서 $flex.함수명 형태로 호출 가능
-6. $flex Object는 window.onFlexLoad가 호출된 이후 사용 가능
+4. Native 코드 블럭은 별도의 Background Thread에서 동작
+5. 추가된 인터페이스는 Web에서 `$flex.함수명` 형태로 호출 가능
+6. $flex Object는 `window.onFlexLoad`가 호출된 이후 사용 가능 (웹뷰가 로드시 런타임으로 로드됨)
 
 ### ***Nomal Interface***
 Normal Interface는 기본적으로 다음과 같이 사용합니다.
@@ -174,6 +181,21 @@ const res = await $flex.Action("Who Are You?"); // Pending until promiseReturn i
 `promiseReturn`메소드가 호출되지 못하면, web에서 해당 함수는 계속 pending된 상태가 되기 때문에 Action Interface를 사용시 `promiseReturn`를 반드시 호출할 수 있도록 주의가 필요합니다.  
 또한 이미 `promiseReturn`가 호출되었던 FlexAction 객체는 `promiseReturn`을 중복 호출하여도 아무런 일도 일어나지 않습니다.
 
+### ***FlexLambda***
+인터페이스 동작 코드 블럭을 원하는 위치에 코딩하기 위해 코드 블럭(lambda)을 따로 변수형으로 지정하여 사용할 수 있습니다.
+```kt
+val myAction : FlexLambda.action = 
+{ action, arguments
+    val data = withContext {
+        ... do something
+        "result"
+    }
+    action.promiseReturn(data)
+}
+....
+flexWebView.setAction("myAction", myAction)
+```
+
 ### ***Annotation 인터페이스***
 Android의 `@JavascriptInterface` 와 유사하게, Annotation을 통해 Interface 혹은 Action을 등록할 수 있습니다.
 #### @FlexFunInterface
@@ -181,6 +203,7 @@ Android의 `@JavascriptInterface` 와 유사하게, Annotation을 통해 Interfa
 1. 파라미터는 Array<FlexData> 단 1가지만 사용 가능합니다.(다른 파라미터 추가시 Exception 발생)
 2. return은 [전달 가능한 데이터 타입](#전달-가능한-데이터-타입)만 사용 가능합니다. (다른 값 리턴시 Exception 발생)
 3. @FlexFunInterface가 포함된 Class를 FlexWebView.addFlexInterface에 인자로 전달해야 인터페이스가 추가됩니다.
+4. suspend 함수로 선언할 수 있습니다.
 ```kt
 class MyInterface {
     @FlexFunInterface
@@ -190,11 +213,10 @@ class MyInterface {
     }
 }
 ...
-// in activity
 mFlexWebView.addFlexInterface(MyInterface())
 ```
 ```js
-...
+// in js
 const res = await $flex.funInterface();
 // res is 1
 ```
@@ -202,11 +224,9 @@ const res = await $flex.funInterface();
 `@FlexActionInterface`는 다음 사항을 준수해야 합니다.  
 1. 파라미터는 **FlexAction, Array<FlexData>의 순서대로** 선언해야 하며, 다른 파라미터는 사용할 수 없습니다.(위반시 Exception 발생)
 2. return은 선언 가능하나, **사용되지 않습니다**.
-3. Web에 리턴값 전송시, 전달된 FlexAction 파라미터의 `promiseReturn`을 사용해야 합니다.
-4. `promiseReturn`의 파라미터는 [전달 가능한 데이터 타입](#전달-가능한-데이터-타입)만 사용 가능합니다.
-5. `promiseReturn`메소드가 호출되지 못하면, web에서 해당 함수는 계속 pending된 상태가 되기 때문에 Action Interface를 사용시 `promiseReturn`를 반드시 호출할 수 있도록 주의가 필요합니다.  
-6. `promiseReturn`은 1번만 동작하며, 중복 호출 시 아무 일도 일어나지 않습니다.
-7. @FlexActionInterface가 포함된 Class를 FlexWebView.addFlexInterface에 인자로 전달해야 인터페이스가 추가됩니다.
+3. Web에 리턴값 전송시 FlexAction을 사용해야 합니다.
+4. @FlexActionInterface가 포함된 Class를 FlexWebView.addFlexInterface에 인자로 전달해야 인터페이스가 추가됩니다.
+5. suspend 함수로 선언할 수 있습니다.
 ```kt
 class MyInterface {
     @FlexActionInterface
@@ -216,11 +236,10 @@ class MyInterface {
     }
 }
 ...
-// in activity
 mFlexWebView.addFlexInterface(MyInterface())
 ```
 ```js
-...
+// in js
 const res = await $flex.actionInterface();
 // res is 1
 ```
@@ -249,33 +268,22 @@ public class FlexInterfaceExample extends FlexInterfaces {
             }
         });
     }
-
-    @FlexFuncInterface
-    public void test4(FlexData[] arguments) {
-        ...
-    }
-
-    @FlexActionInterface
-    public void test5(FlexAction action, FlexData[] arguments) {
-        action.promiseReturn();
-    }
 }
 ```
 ```kt
-// in activity...
 ...
-// add interface test1, test2, test3, test4, test5
+// add interface test1, test2, test3
 mFlexWebView.addFlexInterface(FlexInterfaceExample())
 let other = FlexInterfaces()
-other.voidInterface("test6")
+other.voidInterface("test4")
 { arguments ->
 
 }
-other.setAction("test7")
+other.setAction("test5")
 { action, arguments ->
     action.promiseReturn()
 }
-// add interface test6, test7
+// add interface test4, test5
 mFlexWebView.addFlexInterface(other)
 ```
 
@@ -317,8 +325,8 @@ try {
 
 ## NativeToWeb 인터페이스
 NativeToWeb 인터페이스는 다음의 특징을 지닙니다.
-1. Web의 $flex.web Object 안에 함수를 추가하면, Native(FlexWebView)에서 `evalFlexFunc` 메소드를 통해 해당 함수를 호출할 수 있습니다.
-2. window.onFlexLoad 호출 후($flex 생성 후) $flex.web에 함수 추가가 가능합니다.
+1. 웹뷰에서 로드한 페이지에서 `$flex.web` Object 안에 함수를 추가하면, Native(FlexWebView)에서 `evalFlexFunc` 메소드를 통해 해당 함수를 호출할 수 있습니다.
+2. window.onFlexLoad 호출 후(\$flex 생성 후) $flex.web에 함수 추가가 가능합니다.
 3. $flex.web 함수는, 일반 return 및 Promise return을 통해 Native에 값을 전달 할 수 있습니다.
 
 ```js
@@ -523,10 +531,13 @@ fun mapInterfaceForJava(name: String, invoke: InvokeFlex<Map<String, *>>): FlexI
 fun setActionForJava(name: String, invoke: InvokeAction): FlexInterfaces
 ```
 
-# $flex Object
+# WebPage
+## $flex Object
 \$flex Object는 FlexWebView를 와 Promise 형태로 상호간 인터페이스가 구성되어있는 객체입니다.  
-$flex는 액세스 가능한 모든 하위 프레임에서도 사용 할 수 있습니다. (Ex)Cross-Origin을 위반하지 않는 iframe)  
-$flex Object의 구성 요소는 다음과 같습니다.
+\$flex는 웹뷰에 웹페이지 로드 시, 런타임으로 웹페이지에 선언됩니다.  
+\$flex가 로드 완료되는 시점은, window.onFlexLoad함수를 통해 확인할 수 있습니다.
+\$flex는 액세스 가능한 모든 하위 프레임에서도 사용 할 수 있습니다. (Ex)Cross-Origin을 위반하지 않는 iframe)  
+\$flex Object의 구성 요소는 다음과 같습니다.
 ```js
 window.onFlexLoad // $flex is called upon completion of loading.
 $flex // Object that contains functions that can call Native area as WebToNative

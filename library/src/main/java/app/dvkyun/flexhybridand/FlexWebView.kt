@@ -241,7 +241,7 @@ open class FlexWebView: WebView {
 
     fun addFlexInterface(flexInterfaces: Any) {
         flexInterfaces::class.members.forEach {
-            if(it.findAnnotation<FlexFuncInterface>() != null) {
+            if(it.hasAnnotation<FlexFuncInterface>()) {
                 if(it.visibility != KVisibility.PUBLIC) {
                     throw FlexException(FlexException.ERROR12)
                 }
@@ -254,7 +254,7 @@ open class FlexWebView: WebView {
                     if(it.isSuspend) it.callSuspend(flexInterfaces, arguments)
                     else it.call(flexInterfaces, arguments)
                 }
-            } else if(it.findAnnotation<FlexActionInterface>() != null) {
+            } else if(it.hasAnnotation<FlexActionInterface>()) {
                 if(it.visibility != KVisibility.PUBLIC) {
                     throw FlexException(FlexException.ERROR12)
                 }
