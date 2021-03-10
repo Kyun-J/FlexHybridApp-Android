@@ -274,7 +274,7 @@ public class FlexInterfaceExample extends FlexInterfaces {
 ...
 // add interface test1, test2, test3
 mFlexWebView.addFlexInterface(FlexInterfaceExample())
-let other = FlexInterfaces()
+val other = FlexInterfaces()
 other.voidInterface("test4")
 { arguments ->
 
