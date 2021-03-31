@@ -1,10 +1,11 @@
 (function () {
-    "use strict"
+    'use strict'
     const keys = keysfromAnd;
     const options = optionsfromAnd;
     const device = deviceinfoFromAnd;
     const listeners = [];
-    const option = {
+    const defineFlex = defineflexfromAnd;
+    const _option = {
         timeout: 60000,
         flexLoadWait: 100
     };
@@ -26,28 +27,29 @@
     const setOptions = () => {
         Object.keys(options).forEach(k => {
             if(k === 'timeout' && typeof options[k] === 'number') {
-                Object.defineProperty(option, k, {
+                Object.defineProperty(_option, k, {
                     value: options[k], writable: false, enumerable: true
                 });
             }
             if(k === 'flexLoadWait' && typeof options[k] === 'number') {
-                Object.defineProperty(option, k, {
+                Object.defineProperty(_option, k, {
                     value: options[k], writable: false, enumerable: true
                 });
             }
         });
     }
     setOptions();
-    Object.defineProperty(window, "$flex", { value: {}, writable: false, enumerable: true });
+    Object.defineProperty(window, '$flex', { value: {}, writable: false, enumerable: true });
     Object.defineProperties($flex,
         {
-            version: { value: '0.6.3.2', writable: false, enumerable: true },
+            version: { value: '0.7', writable: false, enumerable: true },
+            isMobile: { value: true, writable: false, enumerable: true },
             isAndroid: { value: true, writable: false, enumerable: true },
             isiOS: { value: false, writable: false, enumerable: true },
             device: { value: device, writable: false, enumerable: true },
-            addEventListener: { value: function(event, callback) { listeners.push({ e: event, c: callback }) }, writable: false, enumerable: false  },
+            addEventListener: { value: function(event, callback) { listeners.push({ e: event, c: callback }) }, writable: false, enumerable: false },
             web: { value: {}, writable: false, enumerable: true },
-            options: { value: option, writable: false, enumerable: true },
+            options: { value: _option, writable: false, enumerable: true },
             flex: { value: {}, writable: false, enumerable: false }
         }
     );
@@ -60,28 +62,39 @@
                     return new Promise((resolve, reject) => {
                         genFName().then(name => {
                             let counter;
-                            if(option.timeout > 0) {
+                            if(_option.timeout !== 0) {
                                 counter = setTimeout(() => {
-                                    $flex.flex[name](false, "timeout error");
+                                    $flex.flex[name](false, 'timeout error');
+                                    $flex.flexTimeout(key, location.href);
                                     triggerEventListener('timeout', {
-                                        "function": key
+                                        'function': key
                                     });
-                                }, option.timeout);
+                                }, _option.timeout);
                             }
                             $flex.flex[name] = (j, e, r) => {
-                                if(option.timeout > 0) clearTimeout(counter);
                                 delete $flex.flex[name];
+                                if(_option.timeout !== 0) clearTimeout(counter);
                                 if(j) {
                                     resolve(r);
+                                    if(!defineFlex.contains(key)) {
+                                        $flex.flexSuccess(key, location.href, r);
+                                        triggerEventListener('success', {
+                                            'function' : key,
+                                            'data': r
+                                        });
+                                    }
                                 } else {
                                     let err;
                                     if(typeof e === 'string') err = Error(e);
                                     else err = '$flex Error occurred in function -- $flex.' + key;
                                     reject(err);
-                                    triggerEventListener('error', {
-                                        "function" : key,
-                                        "err": err
-                                    });
+                                    if(!defineFlex.contains(key)) {
+                                        $flex.flexException(key, location.href, err.toString());
+                                        triggerEventListener('error', {
+                                            'function' : key,
+                                            'err': err
+                                        });
+                                    }
                                 }
                             };
                             try {
@@ -102,14 +115,12 @@
         if(typeof window.onFlexLoad === 'function') {
             f = window.onFlexLoad;
         }
-        Object.defineProperty(window, "onFlexLoad", {
+        Object.defineProperty(window, 'onFlexLoad', {
             set: function(val){
-                window._onFlexLoad = val;
                 if(typeof val === 'function') {
-                    (function() {
-                        return Promise.resolve(val());
-                    })().then( _ => {
-                        setTimeout(() => { $flex.flexload(); }, option.flexLoadWait);
+                    window._onFlexLoad = val;
+                    Promise.resolve(val()).then( _ => {
+                        setTimeout(() => { $flex.flexload(); }, _option.flexLoadWait);
                     });
                 }
             },
@@ -122,12 +133,12 @@
             for(let i = 0 ; i < w.frames.length; i++) {
                 delete w.frames[i].flexdefine;
                 if(typeof w.frames[i].$flex === 'undefined') {
-                    Object.defineProperty(w.frames[i], "$flex", { value: window.$flex, writable: false, enumerable: true });
+                    Object.defineProperty(w.frames[i], '$flex', { value: window.$flex, writable: false, enumerable: true });
                     let f = undefined;
                     if(typeof w.frames[i].onFlexLoad === 'function') {
                         f = w.frames[i].onFlexLoad;
                     }
-                    Object.defineProperty(w.frames[i], "onFlexLoad", { 
+                    Object.defineProperty(w.frames[i], 'onFlexLoad', { 
                         set: function(val) {
                             window.onFlexLoad = val;
                         },
@@ -143,5 +154,6 @@
             }
         }
         evalFrames(window);
+        $flex.flexInit('flexInit', location.href);
     }, 0);
 })();

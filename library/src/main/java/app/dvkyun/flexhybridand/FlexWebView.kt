@@ -7,10 +7,7 @@ import android.os.Build
 import android.util.AttributeSet
 import android.webkit.*
 import androidx.annotation.RequiresApi
-import app.dvkyun.flexhybridand.forjava.InvokeAction
-import app.dvkyun.flexhybridand.forjava.FlexDataListener
-import app.dvkyun.flexhybridand.forjava.InvokeFlex
-import app.dvkyun.flexhybridand.forjava.InvokeFlexVoid
+import app.dvkyun.flexhybridand.forjava.*
 import kotlinx.coroutines.*
 import org.json.JSONArray
 import org.json.JSONException
@@ -33,14 +30,21 @@ open class FlexWebView: WebView {
         /*
         * options
         * */
-        private const val TIMEOUT = "timeout"
-        private const val LOADWAIT = "flexLoadWait"
+        private const val OPT_TIMEOUT = "timeout"
+        private const val OPT_LOAD_WAIT = "flexLoadWait"
 
         /*
         * internal interface
         * */
-        private const val RETURN = "flexreturn"
-        private const val LOAD = "flexload"
+        private const val INT_RETURN = "flexreturn"
+        private const val INT_LOAD = "flexload"
+        /*
+        * event interface
+        * */
+        private const val EVT_SUC = "flexSuccess"
+        private const val EVT_EXC = "flexException"
+        private const val EVT_TIMEOUT = "flexTimeout"
+        private const val EVT_INIT = "flexInit"
     }
 
     constructor(context: Context) : super(context)
@@ -55,7 +59,7 @@ open class FlexWebView: WebView {
     private val options: JSONObject = JSONObject()
     private val dependencies: ArrayList<String> = ArrayList()
     private val returnFromWeb: HashMap<Int, suspend CoroutineScope.(FlexData) -> Unit> = HashMap()
-    private val internalInterface = arrayOf(RETURN, LOAD)
+    private val internalInterface = arrayOf(INT_RETURN, INT_LOAD, EVT_SUC, EVT_EXC, EVT_TIMEOUT, EVT_INIT)
     private var tCount = Runtime.getRuntime().availableProcessors()
     val scope by lazy {
         CoroutineScope(Executors.newFixedThreadPool(tCount).asCoroutineDispatcher())
@@ -81,6 +85,52 @@ open class FlexWebView: WebView {
             }
             field = value
         }
+
+    private var flexEventList : ArrayList<Pair<FlexEvent, FlexListener>> = ArrayList()
+    private var flexEventListJava : ArrayList<Pair<FlexEvent, FlexListenerForJava>> = ArrayList()
+
+    fun addFlexEventListener(type: FlexEvent, listener: FlexListener) {
+        flexEventList.add(Pair(type,listener))
+    }
+
+    fun addFlexEventListener(type: FlexEvent, listener: (type: FlexEvent, url: String, funcName: String, msg: String) -> Unit) {
+        flexEventList.add(Pair(type, FlexListener(listener)))
+    }
+
+    fun addFlexEventListener(listener: FlexListener) {
+        flexEventList.add(Pair(FlexEvent.SUCCESS, listener))
+        flexEventList.add(Pair(FlexEvent.EXCEPTION, listener))
+        flexEventList.add(Pair(FlexEvent.TIMEOUT, listener))
+        flexEventList.add(Pair(FlexEvent.INIT, listener))
+    }
+
+    fun addFlexEventListener(listener: (type: FlexEvent, url: String, funcName: String, msg: String) -> Unit) {
+        flexEventList.add(Pair(FlexEvent.SUCCESS, FlexListener(listener)))
+        flexEventList.add(Pair(FlexEvent.EXCEPTION, FlexListener(listener)))
+        flexEventList.add(Pair(FlexEvent.TIMEOUT, FlexListener(listener)))
+        flexEventList.add(Pair(FlexEvent.INIT, FlexListener(listener)))
+    }
+
+    fun addFlexEventListenerForJava(type: FlexEvent, listener: FlexListenerForJava) {
+        flexEventListJava.add(Pair(type, listener))
+    }
+    fun addFlexEventListenerForJava(listener: FlexListenerForJava) {
+        flexEventListJava.add(Pair(FlexEvent.SUCCESS, listener))
+        flexEventListJava.add(Pair(FlexEvent.EXCEPTION, listener))
+        flexEventListJava.add(Pair(FlexEvent.TIMEOUT, listener))
+        flexEventListJava.add(Pair(FlexEvent.INIT, listener))
+    }
+
+    fun removeFlexEventListener(listener: FlexListener) {
+        flexEventList = flexEventList.filter { _item ->
+            _item.second.id != listener.id
+        } as ArrayList<Pair<FlexEvent, FlexListener>>
+    }
+
+    fun removeAllFlexEventListener() {
+        flexEventList = ArrayList()
+        flexEventListJava = ArrayList()
+    }
 
     init {
         if(activity == null) throw FlexException(FlexException.ERROR1)
@@ -240,6 +290,9 @@ open class FlexWebView: WebView {
     }
 
     fun addFlexInterface(flexInterfaces: Any) {
+        if(isAfterFirstLoad) {
+            throw FlexException(FlexException.ERROR6)
+        }
         flexInterfaces::class.members.forEach {
             if(it.hasAnnotation<FlexFuncInterface>()) {
                 if(it.visibility != KVisibility.PUBLIC) {
@@ -294,14 +347,14 @@ open class FlexWebView: WebView {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR6)
         }
-        options.put(TIMEOUT, timeout)
+        options.put(OPT_TIMEOUT, if(timeout != 0 && timeout < 100) 100 else timeout)
     }
 
     fun setFlexOnLoadWait(timeout: Int) {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR6)
         }
-        options.put(LOADWAIT, timeout)
+        options.put(OPT_LOAD_WAIT, timeout)
     }
 
     fun setInterfaceThreadCount(count: Int) {
@@ -336,7 +389,7 @@ open class FlexWebView: WebView {
         if(!isFlexLoad) {
             beforeFlexLoadEvalList.add(BeforeFlexEval(funcName))
         } else {
-            FlexUtil.evaluateJavaScript(this,"\$flex.web.$funcName();")
+            FlexUtil.evaluateJavaScript(this, "!function(){try{const e=\$flex.web.$funcName()if(e instanceof Promise){e.then((e)=>{\$flex.flexSuccess('web.$funcName',location.href,e);}).catch((e)=>{\$flex.flexException('web.$funcName',location.href,e.toString());}else{\$flex.flexSuccess('web.$funcName',location.href,e);}}catch(e){\$flex.flexException('web.$funcName',location.href,e.toString());")
         }
     }
 
@@ -346,7 +399,7 @@ open class FlexWebView: WebView {
         } else {
             val tID = Random.nextInt(10000)
             returnFromWeb[tID] = response
-            FlexUtil.evaluateJavaScript(this,"!async function(){try{const e=await \$flex.web.$funcName();\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();")
+            FlexUtil.evaluateJavaScript(this, "!function(){try{const e=\$flex.web.$funcName()if(e instanceof Promise){e.then((e)=>{\$flex.flexSuccess('web.$funcName',location.href,e);\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}).catch((e)=>{\$flex.flexException('web.$funcName',location.href,e.toString());\$flex.flexreturn({TID:$tID,Value:e,Error:!0})});}else{\$flex.flexSuccess('web.$funcName',location.href,e);\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}}catch(e){\$flex.flexException('web.$funcName',location.href,e.toString());\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();")
         }
     }
 
@@ -354,7 +407,7 @@ open class FlexWebView: WebView {
         if(!isFlexLoad) {
             beforeFlexLoadEvalList.add(BeforeFlexEval(funcName, sendData))
         } else {
-            FlexUtil.evaluateJavaScript(this, "\$flex.web.$funcName(${FlexUtil.convertInput(sendData)});")
+            FlexUtil.evaluateJavaScript(this, "!function(){try{const e=\$flex.web.$funcName(${FlexUtil.convertInput(sendData)})if(e instanceof Promise){e.then((e)=>{\$flex.flexSuccess('web.$funcName',location.href,e);}).catch((e)=>{\$flex.flexException('web.$funcName',location.href,e.toString());}else{\$flex.flexSuccess('web.$funcName',location.href,e);}}catch(e){\$flex.flexException('web.$funcName',location.href,e.toString());")
         }
     }
 
@@ -364,7 +417,7 @@ open class FlexWebView: WebView {
         } else {
             val tID = Random.nextInt(10000)
             returnFromWeb[tID] = response
-            FlexUtil.evaluateJavaScript(this, "!async function(){try{const e=await \$flex.web.$funcName(${FlexUtil.convertInput(sendData)});\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}catch(e){\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();")
+            FlexUtil.evaluateJavaScript(this, "!function(){try{const e=\$flex.web.$funcName(${FlexUtil.convertInput(sendData)})if(e instanceof Promise){e.then((e)=>{\$flex.flexSuccess('web.$funcName',location.href,e);\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}).catch((e)=>{\$flex.flexException('web.$funcName',location.href,e.toString());\$flex.flexreturn({TID:$tID,Value:e,Error:!0})});}else{\$flex.flexSuccess('web.$funcName',location.href,e);\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}}catch(e){\$flex.flexException('web.$funcName',location.href,e.toString());\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();")
         }
     }
 
@@ -456,12 +509,12 @@ open class FlexWebView: WebView {
                                     if (value.reason == null) null else "\"${value.reason}\""
                                 FlexUtil.evaluateJavaScript(
                                     this@FlexWebView,
-                                    "\$flex.flex.${fName}(false, ${reason})"
+                                    "\$flex.flex.$fName(false, ${reason})"
                                 )
                             } else if (value == null || value == Unit || value is Void) {
                                 FlexUtil.evaluateJavaScript(
                                     this@FlexWebView,
-                                    "\$flex.flex.${fName}(true)"
+                                    "\$flex.flex.$fName(true)"
                                 )
                             } else {
                                 FlexUtil.evaluateJavaScript(
@@ -472,8 +525,8 @@ open class FlexWebView: WebView {
                         } else if (actions[intName] != null) { // call Action
                             actions[intName]?.also { it(FlexAction(fName, this@FlexWebView), FlexUtil.jsonArrayToFlexData(args)) }
                         } else { // call library interface
-                            when (internalInterface.indexOf(intName)) {
-                                0 -> { // flexreturn
+                            when (intName) {
+                                INT_RETURN -> { // flexreturn
                                     val iData = args.getJSONObject(0)
                                     val tID = iData.getInt("TID")
                                     val value = iData.opt("Value")
@@ -486,14 +539,14 @@ open class FlexWebView: WebView {
                                     }
                                     FlexUtil.evaluateJavaScript(
                                         this@FlexWebView,
-                                        "\$flex.flex.${fName}(true)"
+                                        "\$flex.flex.$fName(true)"
                                     )
                                 }
-                                1 -> { // flexload
+                                INT_LOAD -> { // flexload
                                     if(isFlexLoad) {
                                         FlexUtil.evaluateJavaScript(
                                             this@FlexWebView,
-                                            "\$flex.flex.${fName}(true)"
+                                            "\$flex.flex.$fName(true)"
                                         )
                                         return@launch
                                     }
@@ -512,8 +565,30 @@ open class FlexWebView: WebView {
                                     beforeFlexLoadEvalList.clear()
                                     FlexUtil.evaluateJavaScript(
                                         this@FlexWebView,
-                                        "\$flex.flex.${fName}(true)"
+                                        "\$flex.flex.$fName(true)"
                                     )
+                                }
+                                EVT_SUC, EVT_EXC, EVT_TIMEOUT, EVT_INIT -> { // events
+                                    FlexUtil.evaluateJavaScript(
+                                        this@FlexWebView,
+                                        "\$flex.flex.$fName(true)"
+                                    )
+                                    val funcName = args.getString(0)
+                                    val url = args.getString(1)
+                                    val msg = args.getString(2)
+                                    val type: FlexEvent =
+                                        when(intName) {
+                                            EVT_SUC -> FlexEvent.SUCCESS
+                                            EVT_EXC -> FlexEvent.EXCEPTION
+                                            EVT_TIMEOUT -> FlexEvent.TIMEOUT
+                                            EVT_INIT -> FlexEvent.INIT
+                                            else -> FlexEvent.EXCEPTION
+                                        }
+                                    flexEventList.forEach { _item ->
+                                        if(_item.first == type) {
+                                            _item.second.listener(type, url, funcName, msg)
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -521,7 +596,7 @@ open class FlexWebView: WebView {
                         FlexUtil.ERR(e)
                         FlexUtil.evaluateJavaScript(
                             this@FlexWebView,
-                            "\$flex.flex.${fName}(false, \"${e.cause?.message}\")"
+                            "\$flex.flex.$fName(false, \"${e.cause?.message}\")"
                         )
                         e.printStackTrace()
                     }
