@@ -1,4 +1,5 @@
 const webpack = require("webpack");
+const path = require("path");
 
 const config = {
   mode: process.env.NODE_ENV,
@@ -7,8 +8,8 @@ const config = {
     "and": "./and.js",
   },
   output: {
-    path: __dirname + "/dist",
-    filename: "[name].js",
+    path: path.resolve(__dirname, "../library/src/main/assets"),
+    filename: "FlexHybridAnd.js",
   },
   resolve: {
     extensions: [".js"],

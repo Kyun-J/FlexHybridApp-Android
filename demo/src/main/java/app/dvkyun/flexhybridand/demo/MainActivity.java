@@ -27,6 +27,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         flexWebView = findViewById(R.id.flex_web_view);
         flexWebView.evalFlexFunc("webtest","webtest");
+        flexWebView.evalFlexFunc("webtest");
+        flexWebView.evalFlexFuncWithRespForJava("webtest", new FlexDataListener() {
+            @Override
+            public void onResponse(@NotNull FlexData response) {
+                FlexData[] arr = response.asArray();
+                Log.i("console", "Receive from web --- " + arr[0].asString() + arr[1].asInt() + arr[2].asMap().toString());
+            }
+        });
 
         flexWebView.setBaseUrl("file:///android_asset");
         flexWebView.setInterfaceTimeout(3000);

@@ -93,7 +93,7 @@ open class FlexWebView: WebView {
         flexEventList.add(Pair(type,listener))
     }
 
-    fun addFlexEventListener(type: FlexEvent, listener: (type: FlexEvent, url: String, funcName: String, msg: String) -> Unit) {
+    fun addFlexEventListener(type: FlexEvent, listener: (type: FlexEvent, url: String, funcName: String, msg: String?) -> Unit) {
         flexEventList.add(Pair(type, FlexListener(listener)))
     }
 
@@ -104,7 +104,7 @@ open class FlexWebView: WebView {
         flexEventList.add(Pair(FlexEvent.INIT, listener))
     }
 
-    fun addFlexEventListener(listener: (type: FlexEvent, url: String, funcName: String, msg: String) -> Unit) {
+    fun addFlexEventListener(listener: (type: FlexEvent, url: String, funcName: String, msg: String?) -> Unit) {
         flexEventList.add(Pair(FlexEvent.SUCCESS, FlexListener(listener)))
         flexEventList.add(Pair(FlexEvent.EXCEPTION, FlexListener(listener)))
         flexEventList.add(Pair(FlexEvent.TIMEOUT, FlexListener(listener)))
@@ -389,7 +389,7 @@ open class FlexWebView: WebView {
         if(!isFlexLoad) {
             beforeFlexLoadEvalList.add(BeforeFlexEval(funcName))
         } else {
-            FlexUtil.evaluateJavaScript(this, "!function(){try{const e=\$flex.web.$funcName()if(e instanceof Promise){e.then((e)=>{\$flex.flexSuccess('web.$funcName',location.href,e);}).catch((e)=>{\$flex.flexException('web.$funcName',location.href,e.toString());}else{\$flex.flexSuccess('web.$funcName',location.href,e);}}catch(e){\$flex.flexException('web.$funcName',location.href,e.toString());")
+            FlexUtil.evaluateJavaScript(this, "!function(){try{const e=\$flex.web.$funcName();if(e instanceof Promise){e.then(e=>{\$flex.flexSuccess('web.$funcName',location.href,e)}).catch(e=>{\$flex.flexException('web.$funcName',location.href,e.toString())})}else{\$flex.flexSuccess('web.$funcName',location.href,e)}}catch(e){\$flex.flexException('web.$funcName',location.href,e.toString())}}();")
         }
     }
 
@@ -399,7 +399,7 @@ open class FlexWebView: WebView {
         } else {
             val tID = Random.nextInt(10000)
             returnFromWeb[tID] = response
-            FlexUtil.evaluateJavaScript(this, "!function(){try{const e=\$flex.web.$funcName()if(e instanceof Promise){e.then((e)=>{\$flex.flexSuccess('web.$funcName',location.href,e);\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}).catch((e)=>{\$flex.flexException('web.$funcName',location.href,e.toString());\$flex.flexreturn({TID:$tID,Value:e,Error:!0})});}else{\$flex.flexSuccess('web.$funcName',location.href,e);\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}}catch(e){\$flex.flexException('web.$funcName',location.href,e.toString());\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();")
+            FlexUtil.evaluateJavaScript(this, "!function(){try{const e=\$flex.web.$funcName();if(e instanceof Promise){e.then(e=>{\$flex.flexSuccess('web.$funcName',location.href,e),\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}).catch(e=>{\$flex.flexException('web.$funcName',location.href,e.toString()),\$flex.flexreturn({TID:$tID,Value:e,Error:!0})})}else{\$flex.flexSuccess('web.$funcName',location.href,e),\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}}catch(e){\$flex.flexException('web.$funcName',location.href,e.toString()),\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();")
         }
     }
 
@@ -407,7 +407,7 @@ open class FlexWebView: WebView {
         if(!isFlexLoad) {
             beforeFlexLoadEvalList.add(BeforeFlexEval(funcName, sendData))
         } else {
-            FlexUtil.evaluateJavaScript(this, "!function(){try{const e=\$flex.web.$funcName(${FlexUtil.convertInput(sendData)})if(e instanceof Promise){e.then((e)=>{\$flex.flexSuccess('web.$funcName',location.href,e);}).catch((e)=>{\$flex.flexException('web.$funcName',location.href,e.toString());}else{\$flex.flexSuccess('web.$funcName',location.href,e);}}catch(e){\$flex.flexException('web.$funcName',location.href,e.toString());")
+            FlexUtil.evaluateJavaScript(this, "!function(){try{const e=\$flex.web.$funcName(${FlexUtil.convertInput(sendData)});if(e instanceof Promise){e.then(e=>{\$flex.flexSuccess('web.$funcName',location.href,e)}).catch(e=>{\$flex.flexException('web.$funcName',location.href,e.toString())})}else{\$flex.flexSuccess('web.$funcName',location.href,e)}}catch(e){\$flex.flexException('web.$funcName',location.href,e.toString())}}();")
         }
     }
 
@@ -417,7 +417,7 @@ open class FlexWebView: WebView {
         } else {
             val tID = Random.nextInt(10000)
             returnFromWeb[tID] = response
-            FlexUtil.evaluateJavaScript(this, "!function(){try{const e=\$flex.web.$funcName(${FlexUtil.convertInput(sendData)})if(e instanceof Promise){e.then((e)=>{\$flex.flexSuccess('web.$funcName',location.href,e);\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}).catch((e)=>{\$flex.flexException('web.$funcName',location.href,e.toString());\$flex.flexreturn({TID:$tID,Value:e,Error:!0})});}else{\$flex.flexSuccess('web.$funcName',location.href,e);\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}}catch(e){\$flex.flexException('web.$funcName',location.href,e.toString());\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();")
+            FlexUtil.evaluateJavaScript(this, "!function(){try{const e=\$flex.web.$funcName(${FlexUtil.convertInput(sendData)});if(e instanceof Promise){e.then((e)=>{\$flex.flexSuccess('web.$funcName',location.href,e);\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}).catch((e)=>{\$flex.flexException('web.$funcName',location.href,e.toString());\$flex.flexreturn({TID:$tID,Value:e,Error:!0})})}else{\$flex.flexSuccess('web.$funcName',location.href,e);\$flex.flexreturn({TID:$tID,Value:e,Error:!1})}}catch(e){\$flex.flexException('web.$funcName',location.href,e.toString());\$flex.flexreturn({TID:$tID,Value:e,Error:!0})}}();")
         }
     }
 
@@ -478,6 +478,7 @@ open class FlexWebView: WebView {
             keys.append("\"]")
             flexJsString = flexJsString.replaceFirst("keysfromAnd",keys.toString())
             flexJsString = flexJsString.replaceFirst("optionsfromAnd", FlexUtil.convertInput(options))
+            flexJsString = flexJsString.replaceFirst("defineflexfromAnd", FlexUtil.convertInput(internalInterface))
             val device = JSONObject()
             device.put("os","Android")
             device.put("version", Build.VERSION.SDK_INT)
@@ -575,7 +576,7 @@ open class FlexWebView: WebView {
                                     )
                                     val funcName = args.getString(0)
                                     val url = args.getString(1)
-                                    val msg = args.getString(2)
+                                    val msg = if(args.length() > 2) args.getString(2) else null
                                     val type: FlexEvent =
                                         when(intName) {
                                             EVT_SUC -> FlexEvent.SUCCESS

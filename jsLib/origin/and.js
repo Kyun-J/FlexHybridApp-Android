@@ -76,7 +76,7 @@
                                 if(_option.timeout !== 0) clearTimeout(counter);
                                 if(j) {
                                     resolve(r);
-                                    if(!defineFlex.contains(key)) {
+                                    if(!defineFlex.includes(key)) {
                                         $flex.flexSuccess(key, location.href, r);
                                         triggerEventListener('success', {
                                             'function' : key,
@@ -88,7 +88,7 @@
                                     if(typeof e === 'string') err = Error(e);
                                     else err = '$flex Error occurred in function -- $flex.' + key;
                                     reject(err);
-                                    if(!defineFlex.contains(key)) {
+                                    if(!defineFlex.includes(key)) {
                                         $flex.flexException(key, location.href, err.toString());
                                         triggerEventListener('error', {
                                             'function' : key,
