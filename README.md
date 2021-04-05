@@ -374,7 +374,7 @@ The following events related to the Flex Interface can be detected.
 1. INIT - Called when `$flex` is loaded in WebPage.
 2. SUCCESS - Called when the Interface is successful.
 3. EXCEPTION - Called when an error occurs during Interface.
-4. TIMEOUT - Called when the time set in [InterfaceTimeout](###InterfaceTimeout) is exceeded during Interface.
+4. TIMEOUT - Called when the time set in [InterfaceTimeout](#InterfaceTimeout) is exceeded during Interface.
 
 # Native Class 
 Describes native classes of libraries including FlexWebView.

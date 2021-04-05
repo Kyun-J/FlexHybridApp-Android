@@ -366,7 +366,7 @@ Flex Interface에 관련된 다음의 이벤트를 감지 할 수 있습니다.
 1. INIT - WebPage에 `$flex`가 로드 완료되었을 때 호출됩니다.
 2. SUCCESS - Interface가 성공했을 때 호출됩니다.
 3. EXCEPTION - Interface중 오류가 발생했을 때 호출됩니다.
-4. TIMEOUT - Interface시 [InterfaceTimeout](###InterfaceTimeout)에 설정한 시간이 초과 되었을 때 호출됩니다.
+4. TIMEOUT - Interface시 [InterfaceTimeout](#InterfaceTimeout)에 설정한 시간이 초과 되었을 때 호출됩니다.
 
 # Native Class 
 FlexWebView를 비롯한 라이브러리의 Native class를 설명합니다.
