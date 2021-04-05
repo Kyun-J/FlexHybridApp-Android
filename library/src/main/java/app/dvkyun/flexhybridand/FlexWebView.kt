@@ -587,7 +587,16 @@ open class FlexWebView: WebView {
                                         }
                                     flexEventList.forEach { _item ->
                                         if(_item.first == type) {
-                                            _item.second.listener(type, url, funcName, msg)
+                                            launch(Dispatchers.Main) {
+                                                _item.second.listener(type, url, funcName, msg)
+                                            }
+                                        }
+                                    }
+                                    flexEventListJava.forEach { _item ->
+                                        if(_item.first == type) {
+                                            launch(Dispatchers.Main) {
+                                                _item.second.onEvent(type, url, funcName, msg)
+                                            }
                                         }
                                     }
                                 }

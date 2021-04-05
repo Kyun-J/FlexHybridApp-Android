@@ -3,17 +3,19 @@ package app.dvkyun.flexhybridand.demo;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
 import app.dvkyun.flexhybridand.FlexAction;
 import app.dvkyun.flexhybridand.FlexData;
+import app.dvkyun.flexhybridand.FlexEvent;
 import app.dvkyun.flexhybridand.FlexWebView;
 import app.dvkyun.flexhybridand.forjava.FlexDataListener;
+import app.dvkyun.flexhybridand.forjava.FlexListenerForJava;
 import app.dvkyun.flexhybridand.forjava.InvokeAction;
 import app.dvkyun.flexhybridand.forjava.InvokeFlexVoid;
 
@@ -27,12 +29,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         flexWebView = findViewById(R.id.flex_web_view);
         flexWebView.evalFlexFunc("webtest","webtest");
-        flexWebView.evalFlexFunc("webtest");
-        flexWebView.evalFlexFuncWithRespForJava("webtest", new FlexDataListener() {
+        flexWebView.addFlexEventListenerForJava(new FlexListenerForJava() {
             @Override
-            public void onResponse(@NotNull FlexData response) {
-                FlexData[] arr = response.asArray();
-                Log.i("console", "Receive from web --- " + arr[0].asString() + arr[1].asInt() + arr[2].asMap().toString());
+            public void onEvent(@NotNull FlexEvent type, @NotNull String url, @NotNull String funcName, @Nullable String msg) {
+                Log.i("listener", "type: " + type.name() +
+                        "\nurl: " + url +
+                        "\nfuncName: " + funcName +
+                        "\nmsg: " + msg);
             }
         });
 

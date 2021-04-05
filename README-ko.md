@@ -1,8 +1,9 @@
 # ToDo
 
-1. Interface Event Listener 적용 (작업중)
-2. Model을 사용하는 인터페이스 (고려중)
-3. <u>*Flutter 버전 FlexHybirdApp*</u> (추진중)
+1. Interface Event Listener 적용 (완료)
+2. Interface각각 개별 설정 적용 (작업중)
+3. Model을 사용하는 인터페이스 (고려중)
+4. <u>*Flutter 버전 FlexHybirdApp*</u> (추진중)
 
 # FlexibleHybrid
 
@@ -358,6 +359,14 @@ mFlexWebView.evalFlexFunc("promiseReturn")
 // call function and send data
 mFlexWebView.evalFlexFunc("webFunc",arrayOf("data1","data2"))
 ```
+
+## Interface 모니터링
+Flex Interface에 관련된 다음의 이벤트를 감지 할 수 있습니다.
+
+1. INIT - WebPage에 `$flex`가 로드 완료되었을 때 호출됩니다.
+2. SUCCESS - Interface가 성공했을 때 호출됩니다.
+3. EXCEPTION - Interface중 오류가 발생했을 때 호출됩니다.
+4. TIMEOUT - Interface시 [InterfaceTimeout](###InterfaceTimeout)에 설정한 시간이 초과 되었을 때 호출됩니다.
 
 # Native Class 
 FlexWebView를 비롯한 라이브러리의 Native class를 설명합니다.

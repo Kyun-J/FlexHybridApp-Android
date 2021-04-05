@@ -154,6 +154,6 @@
             }
         }
         evalFrames(window);
-        $flex.flexInit('flexInit', location.href);
+        $flex.flexInit('INIT', location.href);
     }, 0);
 })();
