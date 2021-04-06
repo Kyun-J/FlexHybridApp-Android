@@ -2,6 +2,8 @@ package app.dvkyun.flexhybridand.demo;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,6 +16,7 @@ import app.dvkyun.flexhybridand.FlexAction;
 import app.dvkyun.flexhybridand.FlexData;
 import app.dvkyun.flexhybridand.FlexEvent;
 import app.dvkyun.flexhybridand.FlexWebView;
+import app.dvkyun.flexhybridand.FlexWebViewClient;
 import app.dvkyun.flexhybridand.forjava.FlexDataListener;
 import app.dvkyun.flexhybridand.forjava.FlexListenerForJava;
 import app.dvkyun.flexhybridand.forjava.InvokeAction;
@@ -28,10 +31,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         flexWebView = findViewById(R.id.flex_web_view);
+        flexWebView.setWebViewClient(new FlexWebViewClient() {
+            @Override
+            public void notAllowedUrlLoad(@NotNull WebView view, @Nullable WebResourceRequest request, @Nullable String url) {
+                super.notAllowedUrlLoad(view, request, url);
+            }
+        });
         flexWebView.evalFlexFunc("webtest","webtest");
         flexWebView.addFlexEventListenerForJava(new FlexListenerForJava() {
             @Override
-            public void onEvent(@NotNull FlexEvent type, @NotNull String url, @NotNull String funcName, @Nullable String msg) {
+            public void onEvent(@NotNull FlexWebView view, @NotNull FlexEvent type, @NotNull String url, @NotNull String funcName, @Nullable String msg) {
                 Log.i("listener", "type: " + type.name() +
                         "\nurl: " + url +
                         "\nfuncName: " + funcName +

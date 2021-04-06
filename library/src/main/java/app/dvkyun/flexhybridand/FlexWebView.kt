@@ -86,6 +86,8 @@ open class FlexWebView: WebView {
             field = value
         }
 
+    val allowUrlList: ArrayList<String> = ArrayList()
+
     private var flexEventList : ArrayList<Pair<FlexEvent, FlexListener>> = ArrayList()
     private var flexEventListJava : ArrayList<Pair<FlexEvent, FlexListenerForJava>> = ArrayList()
 
@@ -93,7 +95,7 @@ open class FlexWebView: WebView {
         flexEventList.add(Pair(type,listener))
     }
 
-    fun addFlexEventListener(type: FlexEvent, listener: (type: FlexEvent, url: String, funcName: String, msg: String?) -> Unit) {
+    fun addFlexEventListener(type: FlexEvent, listener: (view: FlexWebView, type: FlexEvent, url: String, funcName: String, msg: String?) -> Unit) {
         flexEventList.add(Pair(type, FlexListener(listener)))
     }
 
@@ -104,7 +106,7 @@ open class FlexWebView: WebView {
         flexEventList.add(Pair(FlexEvent.INIT, listener))
     }
 
-    fun addFlexEventListener(listener: (type: FlexEvent, url: String, funcName: String, msg: String?) -> Unit) {
+    fun addFlexEventListener(listener: (view: FlexWebView, type: FlexEvent, url: String, funcName: String, msg: String?) -> Unit) {
         flexEventList.add(Pair(FlexEvent.SUCCESS, FlexListener(listener)))
         flexEventList.add(Pair(FlexEvent.EXCEPTION, FlexListener(listener)))
         flexEventList.add(Pair(FlexEvent.TIMEOUT, FlexListener(listener)))
@@ -588,14 +590,14 @@ open class FlexWebView: WebView {
                                     flexEventList.forEach { _item ->
                                         if(_item.first == type) {
                                             launch(Dispatchers.Main) {
-                                                _item.second.listener(type, url, funcName, msg)
+                                                _item.second.listener(this@FlexWebView, type, url, funcName, msg)
                                             }
                                         }
                                     }
                                     flexEventListJava.forEach { _item ->
                                         if(_item.first == type) {
                                             launch(Dispatchers.Main) {
-                                                _item.second.onEvent(type, url, funcName, msg)
+                                                _item.second.onEvent(this@FlexWebView, type, url, funcName, msg)
                                             }
                                         }
                                     }
