@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void notAllowedUrlLoad(@NotNull WebView view, @Nullable WebResourceRequest request, @Nullable String url) {
                 super.notAllowedUrlLoad(view, request, url);
+                flexWebView.loadUrl("https://appassets.androidplatform.net/assets/html/test.html");
             }
         });
         flexWebView.evalFlexFunc("webtest","webtest");
@@ -48,11 +49,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        flexWebView.setBaseUrl("file:///android_asset");
         flexWebView.setInterfaceTimeout(3000);
         flexWebView.setInterfaceThreadCount(Runtime.getRuntime().availableProcessors());
-        flexWebView.setAllowFileAccessAndUrlAccessInFile(true);
-
         flexWebView.getSettings().setTextZoom(250);
 
         flexWebView.setActionForJava("test4", new InvokeAction() {
@@ -91,7 +89,15 @@ public class MainActivity extends AppCompatActivity {
 
         flexWebView.addFlexInterface(new FlexInterfaceExample());
         flexWebView.addFlexInterface(new FlexInterfaceExample2());
-        flexWebView.loadUrl("file:///android_asset/html/test.html");
+
+//        flexWebView.setBaseUrl("file:///android_asset");
+//        flexWebView.setAllowFileAccessAndUrlAccessInFile(true);
+//        flexWebView.loadUrl("file:///android_asset/html/test.html");
+
+        flexWebView.setBaseUrl("appassets.androidplatform.net");
+        flexWebView.addAllowUrl("www.google.com", false);
+        flexWebView.setAssetsLoaderUse(true, "/assets/");
+        flexWebView.loadUrl("https://appassets.androidplatform.net/assets/html/test.html");
     }
 
     @Override

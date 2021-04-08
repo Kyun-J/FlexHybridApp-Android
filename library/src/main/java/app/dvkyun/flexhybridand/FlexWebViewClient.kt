@@ -17,73 +17,40 @@ open class FlexWebViewClient: WebViewClient(), FlexWebViewClientInterface {
     internal var isAssetLoaderUse = false
     internal var assetLoaderPrefixPath = "/assets/"
 
-    override fun notAllowedUrlLoad(view: WebView, request: WebResourceRequest?, url: String?) {
-        FlexUtil.DEBUG("Not Allowed Url Called - $url")
-    }
-
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
         if(view is FlexWebView) {
-            val requestUrl = request?.url?.toString()
-            if(requestUrl != null) {
-                view.baseUrl?.also { baseUrl ->
-                    if(requestUrl.startsWith(baseUrl)) {
-                        return super.shouldOverrideUrlLoading(view, request)
-                    }
-                }
-                var isFoundAllowUrl = view.allowUrlList.size == 0
-                view.allowUrlList.forEach {
-                    if(requestUrl.startsWith(it)) {
-                        isFoundAllowUrl = true
-                        return@forEach
-                    }
-                }
-                if(!isFoundAllowUrl) {
-                    notAllowedUrlLoad(view, request, requestUrl)
-                    return false
-                }
-            }
+            return !checkAllowedUrl(view, request)
         }
-        return super.shouldOverrideUrlLoading(view, request)
+        return false
     }
 
     @Suppress("DEPRECATION")
     override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
         if(view is FlexWebView) {
-            if(url != null) {
-                view.baseUrl?.also { baseUrl ->
-                    if(url.startsWith(baseUrl)) {
-                        return super.shouldOverrideUrlLoading(view, url)
-                    }
-                }
-                var isFoundAllowUrl = false
-                view.allowUrlList.forEach {
-                    if(url.startsWith(it)) {
-                        isFoundAllowUrl = true
-                        return@forEach
-                    }
-                }
-                if(!isFoundAllowUrl) {
-                    notAllowedUrlLoad(view, url = url)
-                    return false
-                }
-            }
+            return !checkAllowedUrl(view, url)
         }
-        return super.shouldOverrideUrlLoading(view, url)
+        return false
     }
 
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-        super.onPageStarted(view, url, favicon)
         if(view is FlexWebView && url != null) {
-            val baseUrl = view.baseUrl
-            if(baseUrl == null || url.startsWith(baseUrl)) {
-                view.flexInitInPage()
+            if(FlexUtil.checkAllowSite(view.baseUrl, url)) view.flexInitInPage()
+            else {
+                view.allowUrlList.forEach {
+                    if(it.second && FlexUtil.checkAllowSite(it.first, url)) {
+                        view.flexInitInPage()
+                        return@forEach
+                    }
+                }
             }
         }
+        super.onPageStarted(view, url, favicon)
     }
 
     @Suppress("DEPRECATION")
     override fun shouldInterceptRequest(view: WebView?, url: String?): WebResourceResponse? {
+        Uri.parse(url)?.scheme
         if(isAssetLoaderUse && view != null && url != null) {
             if(assetLoader == null) {
                 assetLoader = WebViewAssetLoader
@@ -96,14 +63,17 @@ open class FlexWebViewClient: WebViewClient(), FlexWebViewClientInterface {
             return assetLoader?.shouldInterceptRequest(Uri.parse(url))
         }
         assetLoader = null
-        return super.shouldInterceptRequest(view, url)
+        return null
     }
 
-    @RequiresApi(21)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun shouldInterceptRequest(
         view: WebView?,
         request: WebResourceRequest?
     ): WebResourceResponse? {
+        if(request?.isForMainFrame == true && view is FlexWebView) {
+            checkAllowedUrl(view, request)
+        }
         if(isAssetLoaderUse && view != null && request?.url != null) {
             if(assetLoader == null) {
                 assetLoader = WebViewAssetLoader
@@ -116,7 +86,30 @@ open class FlexWebViewClient: WebViewClient(), FlexWebViewClientInterface {
             return assetLoader?.shouldInterceptRequest(request.url)
         }
         assetLoader = null
-        return super.shouldInterceptRequest(view, request)
+        return null
+    }
+
+    override fun notAllowedUrlLoad(view: WebView, request: WebResourceRequest?, url: String?) {
+        FlexUtil.ERR("Unacceptable url called - $url")
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun checkAllowedUrl(view: FlexWebView, request: WebResourceRequest?): Boolean {
+        return checkAllowedUrl(view, request?.url?.toString(), request)
+    }
+
+    private fun checkAllowedUrl(view: FlexWebView, requestUrl: String?, request: WebResourceRequest? = null): Boolean {
+        if(requestUrl != null) {
+            if(view.baseUrl != null && FlexUtil.checkAllowSite(view.baseUrl, requestUrl)) return true
+            view.allowUrlList.forEach {
+                if(FlexUtil.checkAllowSite(it.first, requestUrl)) return true
+            }
+            view.activity?.runOnUiThread {
+                notAllowedUrlLoad(view, request, requestUrl)
+            }
+            return false
+        }
+        return true
     }
 }
 

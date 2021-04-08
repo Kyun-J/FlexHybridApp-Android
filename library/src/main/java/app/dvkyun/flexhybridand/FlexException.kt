@@ -21,7 +21,7 @@ class FlexException : Exception {
         const val ERROR10 = "FlexFuncInterface can only have one parameter of Array<FlexData?>."
         const val ERROR11 = "FlexActionInterface can only have 2 parameters in order of FlexAction and Array<FlexData?>."
         const val ERROR12 = "FlexFuncInterface and FlexActionInterface must be public."
-        const val ERROR13 = "The BaseUrl can only use file://, http://, https:// protocols."
+        const val ERROR13 = "Please set the BaseUrl first and then add the AllowUrls."
         const val ERROR14 = "The Unique interface cannot be removed."
         const val ERROR15 = "The saved data and the called type do not match."
     }

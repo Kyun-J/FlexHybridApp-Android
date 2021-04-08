@@ -3,6 +3,7 @@ package app.dvkyun.flexhybridand
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.net.Uri
 import android.os.Build
 import android.util.AttributeSet
 import android.webkit.*
@@ -15,7 +16,10 @@ import org.json.JSONObject
 import java.io.InputStream
 import java.io.Reader
 import java.lang.Exception
+import java.util.*
 import java.util.concurrent.Executors
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 import kotlin.random.Random
 import kotlin.reflect.KTypeProjection
 import kotlin.reflect.KVisibility
@@ -24,7 +28,8 @@ import kotlin.reflect.full.*
 open class FlexWebView: WebView {
 
     companion object {
-        private const val UNIQUE = "flexdefine"
+        private const val VERSION = "0.7.1"
+        private val UNIQUE = UUID.randomUUID().toString()
         private const val FLEX = "flex"
 
         /*
@@ -53,7 +58,9 @@ open class FlexWebView: WebView {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes)
 
-    val activity: Activity? = FlexUtil.getActivity(context)
+    var activity: Activity? = null
+        internal set
+        get() = FlexUtil.getActivity(context)
     private val interfaces : HashMap<String, suspend CoroutineScope.(arguments: Array<FlexData>) -> Any?> = HashMap()
     private val actions: HashMap<String, suspend CoroutineScope.(action: FlexAction, arguments: Array<FlexData>) -> Unit> = HashMap()
     private val options: JSONObject = JSONObject()
@@ -80,13 +87,16 @@ open class FlexWebView: WebView {
                 field = value
                 return
             }
-            if(!value.startsWith("http://") && !value.startsWith("https://") && !value.startsWith("file://")) {
-                throw FlexException(FlexException.ERROR13)
-            }
             field = value
+            baseUri = Uri.parse(value)
         }
+    var baseUri: Uri? = null
+    internal val allowUrlList: ArrayList<Pair<String, Boolean>> = ArrayList()
 
-    val allowUrlList: ArrayList<String> = ArrayList()
+    fun addAllowUrl(url: String, canUseFlex: Boolean = false) {
+        if(baseUrl == null) throw FlexException(FlexException.ERROR13)
+        allowUrlList.add(Pair(url, canUseFlex))
+    }
 
     private var flexEventList : ArrayList<Pair<FlexEvent, FlexListener>> = ArrayList()
     private var flexEventListJava : ArrayList<Pair<FlexEvent, FlexListenerForJava>> = ArrayList()
@@ -135,9 +145,9 @@ open class FlexWebView: WebView {
     }
 
     init {
-        if(activity == null) throw FlexException(FlexException.ERROR1)
+        val atv = activity ?: throw FlexException(FlexException.ERROR1)
         flexJsString = FlexUtil.fileToString(context.assets.open("FlexHybridAnd.js"))
-        webChromeClient = FlexWebChromeClient(activity)
+        webChromeClient = FlexWebChromeClient(atv)
         webViewClient = FlexWebViewClient()
         super.addJavascriptInterface(InternalInterface(), UNIQUE)
         initialize()
@@ -466,6 +476,8 @@ open class FlexWebView: WebView {
 
     internal fun flexInitInPage() {
         if(!isAfterFirstLoad) {
+            flexJsString = flexJsString.replaceFirst("definefromAnd", "'$UNIQUE'")
+            flexJsString = flexJsString.replaceFirst("versionFromAnd", "'$VERSION'")
             val keys = StringBuilder()
             keys.append("[\"")
             keys.append(internalInterface.joinToString(separator = "\",\""))

@@ -1,5 +1,6 @@
 (function () {
     'use strict'
+    const flexDefine = definefromAnd;
     const keys = keysfromAnd;
     const options = optionsfromAnd;
     const device = deviceinfoFromAnd;
@@ -42,7 +43,7 @@
     Object.defineProperty(window, '$flex', { value: {}, writable: false, enumerable: true });
     Object.defineProperties($flex,
         {
-            version: { value: '0.7', writable: false, enumerable: true },
+            version: { value: versionFromAnd, writable: false, enumerable: true },
             isMobile: { value: true, writable: false, enumerable: true },
             isAndroid: { value: true, writable: false, enumerable: true },
             isiOS: { value: false, writable: false, enumerable: true },
@@ -53,8 +54,8 @@
             flex: { value: {}, writable: false, enumerable: false }
         }
     );
-    const define = window.flexdefine;
-    delete window.flexdefine;
+    const define = window[flexDefine];
+    delete window[flexDefine];
     keys.forEach(key => {
         if ($flex[key] === undefined) {
             Object.defineProperty($flex, key, {

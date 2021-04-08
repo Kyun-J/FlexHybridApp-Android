@@ -3,6 +3,7 @@ package app.dvkyun.flexhybridand
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.net.Uri
 import android.os.Build
 import android.webkit.ValueCallback
 import android.webkit.WebView
@@ -236,7 +237,7 @@ internal object FlexUtil {
         }
     }
 
-    private const val TAG = "FLEXHYBRID"
+    private const val TAG = "FLEXWEBVIEW"
 
     internal fun INFO(msg: Any?) {
         android.util.Log.i(TAG, msg.toString())
@@ -287,6 +288,27 @@ internal object FlexUtil {
         } catch (e: java.lang.Exception) {
             throw FlexException(e)
         }
+    }
+
+    internal fun checkAllowSite(origin: String?, input: String?): Boolean {
+        if(origin == null) return true
+        if(origin == input) return true
+        if(input == null) return false
+        val originUri = Uri.parse(origin)
+        val inputUri = Uri.parse(input)
+        if(originUri.scheme == null) {
+            val isOriginWild = origin.startsWith(".")
+            val originRealDomain = if(isOriginWild) origin.substring(1) else origin
+            if(originRealDomain == inputUri.host) return true
+            else if(isOriginWild) {
+                val inputDomains = inputUri.host?.split(".")
+                val inputDotCount = inputDomains?.size
+                if((inputDotCount == 2 && originRealDomain == inputUri.host)
+                    || (inputDotCount == 3 && originRealDomain == "${inputDomains[1]}.${inputDomains[2]}"))
+                    return true
+            }
+        } else if(originUri.scheme.equals(inputUri.scheme) && originUri.host.equals(inputUri.host)) return true
+        return false
     }
 
 }
