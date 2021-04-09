@@ -301,11 +301,17 @@ internal object FlexUtil {
             val originRealDomain = if(isOriginWild) origin.substring(1) else origin
             if(originRealDomain == inputUri.host) return true
             else if(isOriginWild) {
+                val originDomains = origin.split(".")
                 val inputDomains = inputUri.host?.split(".")
-                val inputDotCount = inputDomains?.size
-                if((inputDotCount == 2 && originRealDomain == inputUri.host)
-                    || (inputDotCount == 3 && originRealDomain == "${inputDomains[1]}.${inputDomains[2]}"))
-                    return true
+                if(originDomains.size != inputDomains?.size) return false
+                var isAllow = true
+                inputDomains.forEachIndexed { i, domain ->
+                    if(i != 0 && originDomains[i] != domain) {
+                        isAllow = false
+                        return@forEachIndexed
+                    }
+                }
+                return isAllow
             }
         } else if(originUri.scheme.equals(inputUri.scheme) && originUri.host.equals(inputUri.host)) return true
         return false

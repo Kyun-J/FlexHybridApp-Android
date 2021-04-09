@@ -7,6 +7,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.annotation.CallSuper
 import androidx.annotation.RequiresApi
 import androidx.webkit.WebViewAssetLoader
 
@@ -33,6 +34,7 @@ open class FlexWebViewClient: WebViewClient(), FlexWebViewClientInterface {
         return false
     }
 
+    @CallSuper
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
         if(view is FlexWebView && url != null) {
             if(FlexUtil.checkAllowSite(view.baseUrl, url)) view.flexInitInPage()
@@ -50,7 +52,6 @@ open class FlexWebViewClient: WebViewClient(), FlexWebViewClientInterface {
 
     @Suppress("DEPRECATION")
     override fun shouldInterceptRequest(view: WebView?, url: String?): WebResourceResponse? {
-        Uri.parse(url)?.scheme
         if(isAssetLoaderUse && view != null && url != null) {
             if(assetLoader == null) {
                 assetLoader = WebViewAssetLoader
@@ -99,18 +100,18 @@ open class FlexWebViewClient: WebViewClient(), FlexWebViewClientInterface {
     }
 
     private fun checkAllowedUrl(view: FlexWebView, requestUrl: String?, request: WebResourceRequest? = null): Boolean {
-        if(requestUrl != null) {
-            if(view.baseUrl != null && FlexUtil.checkAllowSite(view.baseUrl, requestUrl)) return true
-            view.allowUrlList.forEach {
-                if(FlexUtil.checkAllowSite(it.first, requestUrl)) return true
-            }
-            view.activity?.runOnUiThread {
-                notAllowedUrlLoad(view, request, requestUrl)
-            }
-            return false
+        if(requestUrl == null) return true
+        if(view.baseUrl == null && view.allowUrlList.size == 0) return true
+        if(view.baseUrl != null && FlexUtil.checkAllowSite(view.baseUrl, requestUrl)) return true
+        view.allowUrlList.forEach {
+            if(FlexUtil.checkAllowSite(it.first, requestUrl)) return true
         }
-        return true
+        view.activity?.runOnUiThread {
+            notAllowedUrlLoad(view, request, requestUrl)
+        }
+        return false
     }
+
 }
 
 private interface FlexWebViewClientInterface {

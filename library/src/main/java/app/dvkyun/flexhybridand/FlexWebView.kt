@@ -20,6 +20,7 @@ import java.util.*
 import java.util.concurrent.Executors
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
+import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 import kotlin.reflect.KTypeProjection
 import kotlin.reflect.KVisibility
@@ -68,8 +69,11 @@ open class FlexWebView: WebView {
     private val returnFromWeb: HashMap<Int, suspend CoroutineScope.(FlexData) -> Unit> = HashMap()
     private val internalInterface = arrayOf(INT_RETURN, INT_LOAD, EVT_SUC, EVT_EXC, EVT_TIMEOUT, EVT_INIT)
     private var tCount = Runtime.getRuntime().availableProcessors()
+    private var cContext: CoroutineContext? = null
     val scope by lazy {
-        CoroutineScope(Executors.newFixedThreadPool(tCount).asCoroutineDispatcher())
+        cContext?.let {
+            CoroutineScope(it)
+        } ?: CoroutineScope(Executors.newFixedThreadPool(tCount).asCoroutineDispatcher())
     }
     var isFlexLoad: Boolean = false
         private set
@@ -94,7 +98,7 @@ open class FlexWebView: WebView {
     internal val allowUrlList: ArrayList<Pair<String, Boolean>> = ArrayList()
 
     fun addAllowUrl(url: String, canUseFlex: Boolean = false) {
-        if(baseUrl == null) throw FlexException(FlexException.ERROR13)
+//        if(baseUrl == null) throw FlexException(FlexException.ERROR13)
         allowUrlList.add(Pair(url, canUseFlex))
     }
 
@@ -374,6 +378,13 @@ open class FlexWebView: WebView {
             throw FlexException(FlexException.ERROR6)
         }
         tCount = count
+    }
+
+    fun setCoroutineContext(coroutineContext: CoroutineContext) {
+        if(isAfterFirstLoad) {
+            throw FlexException(FlexException.ERROR6)
+        }
+        cContext = coroutineContext
     }
 
     fun setDependency(inputStream: InputStream) {
