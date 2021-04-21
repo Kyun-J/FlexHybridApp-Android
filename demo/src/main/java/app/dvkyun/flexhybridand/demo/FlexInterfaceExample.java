@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 
 import app.dvkyun.flexhybridand.FlexAction;
+import app.dvkyun.flexhybridand.FlexArguments;
 import app.dvkyun.flexhybridand.FlexData;
 import app.dvkyun.flexhybridand.FlexInterfaces;
 import app.dvkyun.flexhybridand.forjava.InvokeAction;
@@ -18,12 +19,12 @@ public class FlexInterfaceExample extends FlexInterfaces {
     FlexInterfaceExample() {
         this.intInterfaceForJava("test1", new InvokeFlex<Integer>() {
             @Override
-            public Integer invoke(@NotNull FlexData[] arguments) {
-                return arguments[0].asInt() + 1;
+            public Integer invoke(@NotNull FlexArguments arguments) {
+                return arguments.get(0).asInt() + 1;
             }
         }).setActionForJava("test2", new InvokeAction() {
             @Override
-            public void invoke(@NotNull FlexAction action, @NotNull FlexData[] arguments) {
+            public void invoke(@NotNull FlexAction action, @NotNull FlexArguments arguments) {
                 try {
                     Thread.sleep(1000);
                     action.resolveVoid();
@@ -33,8 +34,8 @@ public class FlexInterfaceExample extends FlexInterfaces {
             }
         }).voidInterfaceForJava("test3", new InvokeFlexVoid() {
             @Override
-            public void invoke(@NotNull FlexData[] arguments) {
-                HashMap<String, FlexData> obj = (HashMap) arguments[0].asMap();
+            public void invoke(@NotNull FlexArguments arguments) {
+                HashMap<String, FlexData> obj = (HashMap) arguments.get(0).asMap();
                 Log.i("console", "Receive from web");
                 Log.i("console", "stringData --- " + obj.get("stringData").asString());
                 Log.i("console", "intData --- " + obj.get("intData").asInt());

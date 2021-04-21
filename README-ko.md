@@ -85,10 +85,10 @@ const res = await $flex.CallNative("Hi Android", 100.2,[false, true]]);
 // in kotlin
 flexWebView.stringInterface("CallNative") // "CallNative" becomes the function name in Web JavaScript. 
 { arguments ->
-    // arguments is Arguemnts Data from web. Type is Array<FlexData>
+    // arguments is Arguemnts Data from web. Type is FlexDataArray
     val hello = arguments[0].asString() // hello = "Hi Android"
     val number: Float = arguments[1].reified() // number = 100.2
-    val array: Array<FlexData> = arguments[2].reified() // array = [FlexData(false), FlexData(true)]
+    val array: FlexDataArray = arguments[2].reified() // array = [FlexData(false), FlexData(true)]
     "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
 }
 ```
@@ -101,7 +101,7 @@ fun asLong(): Long?
 fun asDouble(): Double?
 fun asFloat(): Float?
 fun asBoolean(): Boolean?
-fun asArray(): Array<FlexData>?
+fun asArray(): FlexDataArray?
 fun asMap(): Map<String, FlexData>?
 fun asErr(): BrowserException?
 ```
@@ -109,7 +109,7 @@ fun asErr(): BrowserException?
 ```kt
 inline fun <reified T> reified() : T?
 ```
-이때 사용 가능한 데이터 타입은 `String, Int, Long, Float, Double, Boolean, Array<FlexData>, Map<String,FlexData>, BrowserException` 입니다.  
+이때 사용 가능한 데이터 타입은 `String, Int, Long, Float, Double, Boolean, FlexDataArray, Map<String,FlexData>, BrowserException` 입니다.
 이 외의 데이터 타입을 변환하면 Exception이 발생합니다.  
 
 
@@ -134,25 +134,25 @@ const res = await $flex.Normal("data1",2,false);
 // in Kotlin
 flexWebView.stringInterface("Normal") // "Normal" becomes the function name in Web JavaScript. 
 { arguments ->
-    // arguments is Arguemnts Data from web. Type is Array<FlexData>
+    // arguments is Arguemnts Data from web. Type is FlexDataArray
     // ["data", 2, false]
     "HiFlexWeb" // "HiFlexWeb" is passed to web in Promise pattern.
 }
 ```
 `stringInterface`의 첫 인자로 웹에서의 함수 이름을 지정하고 이어지는 lambda는 함수가 동작하는 코드 블럭이 됩니다.  
-lambda로 전달되는 arguments는 Array<FlexData> 객체로서 web에서 함수 호출시 전달된 값들이 담겨 있습니다.  
+lambda로 전달되는 arguments는 FlexDataArray 객체로서 web에서 함수 호출시 전달된 값들이 담겨 있습니다.
 Normal Interface의 종류는 web에 리턴하는 타입에 따라 나뉘어져 있으며, 그 종류는 다음과 같습니다.  
 ```kt
-fun voidInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Unit): FlexWebView
-fun stringInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> String): FlexWebView
-fun intInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Int): FlexWebView 
-fun charInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Char): FlexWebView
-fun longInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Long): FlexWebView
-fun doubleInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Double): FlexWebView
-fun floatInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Float): FlexWebView
-fun boolInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Boolean): FlexWebView
-fun arrayInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Array<*>): FlexWebView
-fun mapInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Map<String, *>): FlexWebView
+fun voidInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Unit): FlexWebView
+fun stringInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> String): FlexWebView
+fun intInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Int): FlexWebView
+fun charInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Char): FlexWebView
+fun longInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Long): FlexWebView
+fun doubleInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Double): FlexWebView
+fun floatInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Float): FlexWebView
+fun boolInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Boolean): FlexWebView
+fun arrayInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Array<*>): FlexWebView
+fun mapInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Map<String, *>): FlexWebView
 ```
 
 ### ***Action Interface***
@@ -163,7 +163,7 @@ var mAction: FlexAction? = null
 ...
 flexWebView.setAction("Action")
 { action, arguments ->
-// arguments is Array<FlexData>, ["Who Are You?"]
+// arguments is FlexDataArray, ["Who Are You?"]
 // action is FlexAction Object
     mAction = action
 }
@@ -201,14 +201,14 @@ flexWebView.setAction("myAction", myAction)
 Android의 `@JavascriptInterface` 와 유사하게, Annotation을 통해 Interface 혹은 Action을 등록할 수 있습니다.
 #### @FlexFunInterface
 `@FlexFunInterface`는 다음 사항을 준수해야 합니다.  
-1. 파라미터는 Array<FlexData> 단 1가지만 사용 가능합니다.(다른 파라미터 추가시 Exception 발생)
+1. 파라미터는 FlexDataArray 단 1가지만 사용 가능합니다.(다른 파라미터 추가시 Exception 발생)
 2. return은 [전달 가능한 데이터 타입](#전달-가능한-데이터-타입)만 사용 가능합니다. (다른 값 리턴시 Exception 발생)
 3. @FlexFunInterface가 포함된 Class를 FlexWebView.addFlexInterface에 인자로 전달해야 인터페이스가 추가됩니다.
 4. suspend 함수로 선언할 수 있습니다.
 ```kt
 class MyInterface {
     @FlexFunInterface
-    suspend fun funInterface(arguments: Array<FlexData>): Int {
+    suspend fun funInterface(arguments: FlexDataArray): Int {
         // .... work something
         return 1
     }
@@ -223,7 +223,7 @@ const res = await $flex.funInterface();
 ```
 #### @FlexActionInterface
 `@FlexActionInterface`는 다음 사항을 준수해야 합니다.  
-1. 파라미터는 **FlexAction, Array<FlexData>의 순서대로** 선언해야 하며, 다른 파라미터는 사용할 수 없습니다.(위반시 Exception 발생)
+1. 파라미터는 **FlexAction, FlexDataArray의 순서대로** 선언해야 하며, 다른 파라미터는 사용할 수 없습니다.(위반시 Exception 발생)
 2. return은 선언 가능하나, **사용되지 않습니다**.
 3. Web에 리턴값 전송시 FlexAction을 사용해야 합니다.
 4. @FlexActionInterface가 포함된 Class를 FlexWebView.addFlexInterface에 인자로 전달해야 인터페이스가 추가됩니다.
@@ -231,7 +231,7 @@ const res = await $flex.funInterface();
 ```kt
 class MyInterface {
     @FlexActionInterface
-    fun actionInterface(action: FlexAction, arguments: Array<FlexData>) {
+    fun actionInterface(action: FlexAction, arguments: FlexDataArray) {
         // .... work something
         action.promiseReturn(1)
     }
@@ -457,17 +457,17 @@ FlexWebView에 인터페이스를 추가합니다.
 상세한 사항은 [WebToNavite 인터페이스](#WebToNative-인터페이스) 항목을 참고하세요.
 ```kt
 fun addFlexInterface(flexInterfaces: Any)
-fun voidInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Unit): FlexWebView
-fun stringInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> String): FlexWebView
-fun intInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Int): FlexWebView 
-fun charInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Char): FlexWebView
-fun longInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Long): FlexWebView
-fun doubleInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Double): FlexWebView
-fun floatInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Float): FlexWebView
-fun boolInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Boolean): FlexWebView
-fun arrayInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Array<*>): FlexWebView
-fun mapInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Map<String, *>): FlexWebView
-fun setAction(name: String, action: suspend CoroutineScope.(action: FlexAction?, arguments: Array<FlexData>) -> Unit): FlexWebView
+fun voidInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Unit): FlexWebView
+fun stringInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> String): FlexWebView
+fun intInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Int): FlexWebView
+fun charInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Char): FlexWebView
+fun longInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Long): FlexWebView
+fun doubleInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Double): FlexWebView
+fun floatInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Float): FlexWebView
+fun boolInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Boolean): FlexWebView
+fun arrayInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Array<*>): FlexWebView
+fun mapInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Map<String, *>): FlexWebView
+fun setAction(name: String, action: suspend CoroutineScope.(action: FlexAction?, arguments: FlexDataArray) -> Unit): FlexWebView
 /**
  * for Java
  */
@@ -513,17 +513,17 @@ FlexAction Class를 직접 생성 및 사용하면 아무런 효과도 얻을 �
 FlexInterfaces 클래스는 FlexWebView에서 setInterface, setAction 기능만 따로 분리한 클래스 입니다.
 사용 예제는 [인터페이스 예제](#class-FlexInterfaces) 항목을 참고하세요
 ```kt
-fun voidInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Unit): FlexInterfaces
-fun stringInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> String): FlexInterfaces
-fun intInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Int): FlexInterfaces 
-fun charInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Char): FlexInterfaces
-fun longInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Long): FlexInterfaces
-fun doubleInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Double): FlexInterfaces
-fun floatInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Float): FlexInterfaces
-fun boolInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Boolean): FlexInterfaces
-fun arrayInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Array<*>): FlexInterfaces
-fun mapInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Map<String, *>): FlexInterfaces
-fun setAction(name: String, action: suspend (action: FlexAction?, arguments: Array<FlexData>) -> Unit): FlexInterfaces
+fun voidInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Unit): FlexInterfaces
+fun stringInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> String): FlexInterfaces
+fun intInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Int): FlexInterfaces
+fun charInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Char): FlexInterfaces
+fun longInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Long): FlexInterfaces
+fun doubleInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Double): FlexInterfaces
+fun floatInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Float): FlexInterfaces
+fun boolInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Boolean): FlexInterfaces
+fun arrayInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Array<*>): FlexInterfaces
+fun mapInterface(name: String, lambda: suspend CoroutineScope.(FlexDataArray) -> Map<String, *>): FlexInterfaces
+fun setAction(name: String, action: suspend (action: FlexAction?, arguments: FlexDataArray) -> Unit): FlexInterfaces
 /**
  * for Java
  */

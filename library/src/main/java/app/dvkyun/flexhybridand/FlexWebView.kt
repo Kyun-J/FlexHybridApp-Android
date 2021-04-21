@@ -29,7 +29,7 @@ import kotlin.reflect.full.*
 open class FlexWebView: WebView {
 
     companion object {
-        private const val VERSION = "0.7.1"
+        private const val VERSION = "0.8"
         private val UNIQUE = UUID.randomUUID().toString()
         private const val FLEX = "flex"
 
@@ -62,8 +62,8 @@ open class FlexWebView: WebView {
     var activity: Activity? = null
         internal set
         get() = FlexUtil.getActivity(context)
-    private val interfaces : HashMap<String, suspend CoroutineScope.(arguments: Array<FlexData>) -> Any?> = HashMap()
-    private val actions: HashMap<String, suspend CoroutineScope.(action: FlexAction, arguments: Array<FlexData>) -> Unit> = HashMap()
+    private val interfaces : HashMap<String, suspend CoroutineScope.(arguments: FlexArguments) -> Any?> = HashMap()
+    private val actions: HashMap<String, suspend CoroutineScope.(action: FlexAction, arguments: FlexArguments) -> Unit> = HashMap()
     private val options: JSONObject = JSONObject()
     private val dependencies: ArrayList<String> = ArrayList()
     private val returnFromWeb: HashMap<Int, suspend CoroutineScope.(FlexData) -> Unit> = HashMap()
@@ -185,7 +185,12 @@ open class FlexWebView: WebView {
         }
     }
 
-    private fun setInterface(name: String, lambda: suspend CoroutineScope.(Array<FlexData>) -> Any?): FlexWebView {
+    override fun destroy() {
+        scope.cancel(CancellationException(FlexException.ERROR13))
+        super.destroy()
+    }
+
+    private fun setInterface(name: String, lambda: suspend CoroutineScope.(FlexArguments) -> Any?): FlexWebView {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR6)
         }
@@ -199,51 +204,51 @@ open class FlexWebView: WebView {
         return this
     }
 
-    fun voidInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Unit): FlexWebView {
+    fun voidInterface(name: String, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Unit): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun stringInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> String?): FlexWebView {
+    fun stringInterface(name: String, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> String?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun intInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Int?): FlexWebView {
+    fun intInterface(name: String, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Int?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun charInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Char?): FlexWebView {
+    fun charInterface(name: String, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Char?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun longInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Long?): FlexWebView {
+    fun longInterface(name: String, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Long?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun doubleInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Double?): FlexWebView {
+    fun doubleInterface(name: String, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Double?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun floatInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Float?): FlexWebView {
+    fun floatInterface(name: String, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Float?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun boolInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Boolean?): FlexWebView {
+    fun boolInterface(name: String, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Boolean?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun arrayInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Array<*>?): FlexWebView {
+    fun arrayInterface(name: String, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Array<*>?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun listInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Iterable<*>?): FlexWebView {
+    fun listInterface(name: String, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Iterable<*>?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun mapInterface(name: String, lambda: suspend CoroutineScope.(arguments: Array<FlexData>) -> Map<String, *>?): FlexWebView {
+    fun mapInterface(name: String, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Map<String, *>?): FlexWebView {
         return setInterface(name, lambda)
     }
 
-    fun setAction(name: String, action: suspend CoroutineScope.(action: FlexAction, arguments: Array<FlexData>) -> Unit): FlexWebView {
+    fun setAction(name: String, action: suspend CoroutineScope.(action: FlexAction, arguments: FlexArguments) -> Unit): FlexWebView {
         if(isAfterFirstLoad) {
             throw FlexException(FlexException.ERROR6)
         }
@@ -529,7 +534,7 @@ open class FlexWebView: WebView {
                     val args: JSONArray = data.getJSONArray("arguments")
                     try {
                         if (interfaces[intName] != null) { // call interface
-                            val value = interfaces[intName]?.let { it(FlexUtil.jsonArrayToFlexData(args)) }
+                            val value = interfaces[intName]?.let { it(FlexUtil.jsonArrayToFlexArguments(args)) }
                             if (value is BrowserException) {
                                 val reason =
                                     if (value.reason == null) null else "\"${value.reason}\""
@@ -549,7 +554,7 @@ open class FlexWebView: WebView {
                                 )
                             }
                         } else if (actions[intName] != null) { // call Action
-                            actions[intName]?.also { it(FlexAction(fName, this@FlexWebView), FlexUtil.jsonArrayToFlexData(args)) }
+                            actions[intName]?.also { it(FlexAction(fName, this@FlexWebView), FlexUtil.jsonArrayToFlexArguments(args)) }
                         } else { // call library interface
                             when (intName) {
                                 INT_RETURN -> { // flexreturn

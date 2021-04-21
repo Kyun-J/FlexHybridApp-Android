@@ -34,12 +34,12 @@ class FlexInterfaceExample2: FlexInterfaces() {
     }
 
     @FlexFuncInterface
-    suspend fun test8(arguments: Array<FlexData>) {
+    suspend fun test8(arguments: FlexArguments) {
         throw FlexException("Exception test!")
     }
 
     @FlexActionInterface
-    fun test9(action: FlexAction, arguments: Array<FlexData>) {
+    fun test9(action: FlexAction, arguments: FlexArguments) {
         action.reject("action reject test")
     }
 

@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.net.Uri
 import android.os.Build
-import android.webkit.ValueCallback
 import android.webkit.WebView
 import org.json.JSONArray
 import org.json.JSONObject
@@ -186,6 +185,23 @@ internal object FlexUtil {
         } else {
             throw FlexException(FlexException.ERROR3)
         }
+    }
+
+    internal fun jsonArrayToFlexArguments(value: JSONArray?): FlexArguments {
+        if(value == null) return FlexArguments(emptyArray())
+        val res = FlexArguments(Array(value.length()) { FlexData() })
+        for(i in 0 until value.length()) {
+            when(val ele = value[i]) {
+                is Int -> res[i] = FlexData(ele)
+                is String -> res[i] = FlexData(ele)
+                is Long -> res[i] = FlexData(ele)
+                is Double -> res[i] = FlexData(ele)
+                is Boolean -> res[i] = FlexData(ele)
+                is JSONArray -> res[i] = FlexData(jsonArrayToFlexData(ele))
+                is JSONObject -> res[i] = FlexData(jsonObjectToFlexData(ele))
+            }
+        }
+        return res
     }
 
     internal fun jsonArrayToFlexData(value: JSONArray?): Array<FlexData> {

@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 
 import app.dvkyun.flexhybridand.FlexAction;
+import app.dvkyun.flexhybridand.FlexArguments;
 import app.dvkyun.flexhybridand.FlexData;
 import app.dvkyun.flexhybridand.FlexEvent;
 import app.dvkyun.flexhybridand.FlexWebView;
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         flexWebView.setActionForJava("test4", new InvokeAction() {
             @Override
-            public void invoke(@NotNull FlexAction action, @NotNull FlexData[] arguments) {
+            public void invoke(@NotNull FlexAction action, @NotNull FlexArguments arguments) {
                 HashMap<String,Object> data = new HashMap<>();
                 data.put("intData",1);
                 data.put("StringData","test\ntest\n");
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }).voidInterfaceForJava("test5", new InvokeFlexVoid() {
             @Override
-            public void invoke(@NotNull FlexData[] arguments) {
+            public void invoke(@NotNull FlexArguments arguments) {
                 flexWebView.evalFlexFuncWithRespForJava("webtest", "hi! $flex!", new FlexDataListener() {
                     @Override
                     public void onResponse(@NotNull FlexData response) {
