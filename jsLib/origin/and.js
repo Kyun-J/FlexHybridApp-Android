@@ -2,6 +2,7 @@
     'use strict'
     const flexDefine = definefromAnd;
     const keys = keysfromAnd;
+    const timeouts = timesfromAnd;
     const options = optionsfromAnd;
     const device = deviceinfoFromAnd;
     const listeners = [];
@@ -63,18 +64,24 @@
                     return new Promise((resolve, reject) => {
                         genFName().then(name => {
                             let counter;
-                            if(_option.timeout !== 0) {
+                            let wait = 0;
+                            if(typeof timeouts[key] !== undefined && timeouts[key] !== 0) {
+                                wait = timeouts[key];
+                            } else if(_option.timeout !== 0) {
+                                wait = _option.timeout;
+                            }
+                            if(wait !== 0) {
                                 counter = setTimeout(() => {
                                     $flex.flex[name](false, 'timeout error');
                                     $flex.flexTimeout(key, location.href);
                                     triggerEventListener('timeout', {
                                         'function': key
                                     });
-                                }, _option.timeout);
+                                }, wait);
                             }
                             $flex.flex[name] = (j, e, r) => {
                                 delete $flex.flex[name];
-                                if(_option.timeout !== 0) clearTimeout(counter);
+                                if(wait !== 0) clearTimeout(counter);
                                 if(j) {
                                     resolve(r);
                                     if(!defineFlex.includes(key)) {

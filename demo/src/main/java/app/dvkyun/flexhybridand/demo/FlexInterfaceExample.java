@@ -17,12 +17,12 @@ import app.dvkyun.flexhybridand.forjava.InvokeFlexVoid;
 public class FlexInterfaceExample extends FlexInterfaces {
 
     FlexInterfaceExample() {
-        this.intInterfaceForJava("test1", new InvokeFlex<Integer>() {
+        this.intInterfaceForJava("test1", 2000, new InvokeFlex<Integer>() {
             @Override
             public Integer invoke(@NotNull FlexArguments arguments) {
                 return arguments.get(0).asInt() + 1;
             }
-        }).setActionForJava("test2", new InvokeAction() {
+        }).setActionForJava("test2", null, new InvokeAction() {
             @Override
             public void invoke(@NotNull FlexAction action, @NotNull FlexArguments arguments) {
                 try {
@@ -32,7 +32,7 @@ public class FlexInterfaceExample extends FlexInterfaces {
                     e.printStackTrace();
                 }
             }
-        }).voidInterfaceForJava("test3", new InvokeFlexVoid() {
+        }).voidInterfaceForJava("test3", null, new InvokeFlexVoid() {
             @Override
             public void invoke(@NotNull FlexArguments arguments) {
                 HashMap<String, FlexData> obj = (HashMap) arguments.get(0).asMap();

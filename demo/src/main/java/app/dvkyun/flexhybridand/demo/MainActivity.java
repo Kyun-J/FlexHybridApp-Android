@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 //        flexWebView.setCoroutineContext(Dispatchers.getIO());
         flexWebView.getSettings().setTextZoom(250);
 
-        flexWebView.setActionForJava("test4", new InvokeAction() {
+        flexWebView.setActionForJava("test4", null, new InvokeAction() {
             @Override
             public void invoke(@NotNull FlexAction action, @NotNull FlexArguments arguments) {
                 HashMap<String,Object> data = new HashMap<>();
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("console","Send to web --- " + data.toString());
                 action.promiseReturn(data);
             }
-        }).voidInterfaceForJava("test5", new InvokeFlexVoid() {
+        }).voidInterfaceForJava("test5", null, new InvokeFlexVoid() {
             @Override
             public void invoke(@NotNull FlexArguments arguments) {
                 flexWebView.evalFlexFuncWithRespForJava("webtest", "hi! $flex!", new FlexDataListener() {
