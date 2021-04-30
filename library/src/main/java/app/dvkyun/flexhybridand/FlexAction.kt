@@ -21,11 +21,11 @@ class FlexAction internal constructor(name: String, webView: FlexWebView) {
         }
         if(response is BrowserException) {
             val reason = if(response.reason == null) null else "\"${response.reason}\""
-            FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(false, ${reason})")
+            FlexUtil.rejectPromise(flexWebView, funName, reason)
         } else if(response == null || response is Unit || response is Void) {
-            FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(true)")
+            FlexUtil.responsePromise(flexWebView, funName)
         } else {
-            FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(true, null, ${FlexUtil.convertInput(response)})")
+            FlexUtil.responsePromise(flexWebView, funName, response)
         }
         finish()
     }
@@ -99,7 +99,7 @@ class FlexAction internal constructor(name: String, webView: FlexWebView) {
             FlexUtil.INFO(FlexException.ERROR9)
             return
         }
-        FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(true)")
+        FlexUtil.responsePromise(flexWebView, funName)
         finish()
     }
 
@@ -109,7 +109,7 @@ class FlexAction internal constructor(name: String, webView: FlexWebView) {
             return
         }
         val rejectReason = if(reason.reason == null) null else "\"${reason.reason}\""
-        FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(false, ${rejectReason})")
+        FlexUtil.rejectPromise(flexWebView, funName, rejectReason)
         finish()
     }
 
@@ -118,7 +118,7 @@ class FlexAction internal constructor(name: String, webView: FlexWebView) {
             FlexUtil.INFO(FlexException.ERROR9)
             return
         }
-        FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(false, \"${reason}\")")
+        FlexUtil.rejectPromise(flexWebView, funName, reason)
         finish()
     }
 
@@ -127,7 +127,7 @@ class FlexAction internal constructor(name: String, webView: FlexWebView) {
             FlexUtil.INFO(FlexException.ERROR9)
             return
         }
-        FlexUtil.evaluateJavaScript(flexWebView,"\$flex.flex.${funName}(false)")
+        FlexUtil.rejectPromise(flexWebView, funName)
         finish()
     }
 

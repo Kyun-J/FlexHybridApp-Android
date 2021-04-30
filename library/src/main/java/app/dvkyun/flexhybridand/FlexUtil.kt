@@ -39,6 +39,38 @@ internal object FlexUtil {
         }
     }
 
+    internal fun responsePromise(webView: WebView?, funName: String, response: Any? = null) {
+        if(webView == null) {
+            throw FlexException(FlexException.ERROR4)
+        }
+        webView.post {
+            val eval = if(response != null ) "\$flex.flex.$funName(true, null, ${convertInput(response)})"
+            else "\$flex.flex.$funName(true)"
+            val js = "javascript:if(typeof \$flex.flex.$funName === 'function'){ $eval }; void 0;"
+            if (Build.VERSION.SDK_INT >= 19) {
+                webView.evaluateJavascript(js,null)
+            } else {
+                webView.loadUrl(js)
+            }
+        }
+    }
+
+    internal fun rejectPromise(webView: WebView?, funName: String, reason: String? = null) {
+        if (webView == null) {
+            throw FlexException(FlexException.ERROR4)
+        }
+        webView.post {
+            val eval = if (reason != null) "\$flex.flex.$funName(false, `$reason`)"
+            else "\$flex.flex.$funName(false)"
+            val js = "javascript:if(typeof \$flex.flex.$funName === 'function'){ $eval }; void 0;"
+            if (Build.VERSION.SDK_INT >= 19) {
+                webView.evaluateJavascript(js, null)
+            } else {
+                webView.loadUrl(js)
+            }
+        }
+    }
+
     internal fun convertJSONArray(value: JSONArray): Array<Any?> {
         return Array(value.length())
         { i ->

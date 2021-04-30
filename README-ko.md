@@ -1,8 +1,10 @@
+# Readme 재 작성 중
+
 # ToDo
 
 1. Interface Event Listener 적용 (완료)
-2. Interface각각 개별 설정 적용 (작업중)
-3. Model을 사용하는 인터페이스 (고려중)
+2. Interface각각 개별 설정 적용 (완료)
+3. Model을 사용하는 인터페이스 (취소)
 4. <u>*Flutter 버전 FlexHybirdApp*</u> (추진중)
 
 # FlexibleHybrid

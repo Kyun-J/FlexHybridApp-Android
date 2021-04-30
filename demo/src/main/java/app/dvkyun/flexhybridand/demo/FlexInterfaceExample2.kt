@@ -35,8 +35,8 @@ class FlexInterfaceExample2: FlexInterfaces() {
 
     @FlexFuncInterface
     suspend fun test8(arguments: FlexArguments) {
-        Log.i("ttt", arguments[0]?.asString().toString())
-//        throw FlexException("Exception test!")
+        Log.i("console", arguments[0]?.asString().toString())
+        throw FlexException("Exception test!")
     }
 
     @FlexActionInterface

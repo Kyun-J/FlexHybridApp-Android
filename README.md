@@ -3,11 +3,13 @@
 
 [iOS Version](https://github.com/Kyun-J/FlexHybridApp-iOS)
 
+# Rewriting ReadMe...
+
 # ToDo
 
 1. Interface Event Listener (complete)
-2. Individual settings applied to each interface (during work)
-3. Interface using Model (under consideration)
+2. Individual settings applied to each interface (complete)
+3. Interface using Model (cancel)
 4. <u>*Flutter version of FlexHybirdApp*</u> (in progress)
 
 # FlexibleHybrid

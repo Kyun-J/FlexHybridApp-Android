@@ -17,12 +17,12 @@ import app.dvkyun.flexhybridand.forjava.InvokeFlexVoid;
 public class FlexInterfaceExample extends FlexInterfaces {
 
     FlexInterfaceExample() {
-        this.intInterfaceForJava("test1", 2000, new InvokeFlex<Integer>() {
+        this.intInterfaceForJava("test1", null, new InvokeFlex<Integer>() {
             @Override
             public Integer invoke(@NotNull FlexArguments arguments) {
                 return arguments.get(0).asInt() + 1;
             }
-        }).setActionForJava("test2", null, new InvokeAction() {
+        }).setActionForJava("test2", 10000, new InvokeAction() {
             @Override
             public void invoke(@NotNull FlexAction action, @NotNull FlexArguments arguments) {
                 try {

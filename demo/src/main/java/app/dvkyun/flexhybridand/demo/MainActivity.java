@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         flexWebView.addFlexEventListenerForJava(new FlexListenerForJava() {
             @Override
             public void onEvent(@NotNull FlexWebView view, @NotNull FlexEvent type, @NotNull String url, @NotNull String funcName, @Nullable String msg) {
-                Log.i("listener", "type: " + type.name() +
+                Log.i("listener", "\ntype: " + type.name() +
                         "\nurl: " + url +
                         "\nfuncName: " + funcName +
                         "\nmsg: " + msg);

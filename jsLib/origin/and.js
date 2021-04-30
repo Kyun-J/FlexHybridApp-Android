@@ -65,14 +65,15 @@
                         genFName().then(name => {
                             let counter;
                             let wait = 0;
-                            if(typeof timeouts[key] !== undefined && timeouts[key] !== 0) {
+                            if(typeof timeouts[key] !== 'undefined' && timeouts[key] !== 0) {
                                 wait = timeouts[key];
                             } else if(_option.timeout !== 0) {
                                 wait = _option.timeout;
                             }
                             if(wait !== 0) {
                                 counter = setTimeout(() => {
-                                    $flex.flex[name](false, 'timeout error');
+                                    delete $flex.flex[name];
+                                    reject('timeout error');
                                     $flex.flexTimeout(key, location.href);
                                     triggerEventListener('timeout', {
                                         'function': key
@@ -81,7 +82,7 @@
                             }
                             $flex.flex[name] = (j, e, r) => {
                                 delete $flex.flex[name];
-                                if(wait !== 0) clearTimeout(counter);
+                                if(typeof counter !== 'undefined') clearTimeout(counter);
                                 if(j) {
                                     resolve(r);
                                     if(!defineFlex.includes(key)) {

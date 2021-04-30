@@ -329,43 +329,45 @@ open class FlexWebView: WebView {
                 if(it.visibility != KVisibility.PUBLIC) {
                     throw FlexException(FlexException.ERROR12)
                 }
-                var find: Int = -1
+                var findArgs: Int = -1
                 val params: Array<Any?> = arrayOfNulls(it.valueParameters.size)
-                it.valueParameters.forEachIndexed vp@{ index, kParameter ->
+                it.valueParameters.forEachIndexed { index, kParameter ->
                     if(kParameter.type.classifier == FlexArguments::class.starProjectedType.classifier) {
-                        find = index
-                        return@vp
+                        findArgs = index
                     }
                 }
-                if(find == -1) {
+                if(findArgs == -1) {
                     throw FlexException(FlexException.ERROR10)
                 }
-//                val inputClass = it.valueParameters[0].type
-//                val checkClass = Array::class.createType(List(1) { KTypeProjection.invariant(FlexData::class.starProjectedType) })
-//                FlexArguments::class.starProjectedType.classifier
-//                if(it.valueParameters.size != 1 || !(inputClass.classifier == checkClass.classifier && inputClass.arguments[0].type?.classifier == checkClass.arguments[0].type?.classifier)) {
-//                    throw FlexException(FlexException.ERROR10)
-//                }
                 setInterface(it.name) { arguments ->
-                    params[find] = arguments
+                    params[findArgs] = arguments
+                    if(it.isSuspend) it.callSuspend(flexInterfaces, *params)
+                    else it.call(flexInterfaces, *params)
+                }
+            } else if(it.hasAnnotation<FlexActionInterface>()) {
+                if(it.visibility != KVisibility.PUBLIC) {
+                    throw FlexException(FlexException.ERROR12)
+                }
+                var findArgs: Int = -1
+                var findAction: Int = -1
+                val params: Array<Any?> = arrayOfNulls(it.valueParameters.size)
+                it.valueParameters.forEachIndexed { index, kParameter ->
+                    if(kParameter.type.classifier == FlexArguments::class.starProjectedType.classifier) {
+                        findArgs = index
+                    } else if(kParameter.type.classifier == FlexAction::class.starProjectedType.classifier) {
+                        findAction = index
+                    }
+                }
+                if(findArgs == -1 || findAction == -1) {
+                    throw FlexException(FlexException.ERROR11)
+                }
+                setAction(it.name) { action, arguments ->
+                    params[findAction] = action
+                    params[findArgs] = arguments
                     if(it.isSuspend) it.callSuspend(flexInterfaces, *params)
                     else it.call(flexInterfaces, *params)
                 }
             }
-//            else if(it.hasAnnotation<FlexActionInterface>()) {
-//                if(it.visibility != KVisibility.PUBLIC) {
-//                    throw FlexException(FlexException.ERROR12)
-//                }
-//                val inputClass = it.valueParameters[1].type
-//                val checkClass = Array::class.createType(List(1) { KTypeProjection.invariant(FlexData::class.starProjectedType) })
-//                if(it.valueParameters.size != 2 || it.valueParameters[0].type.classifier != FlexAction::class.starProjectedType.classifier || !(inputClass.classifier == checkClass.classifier && inputClass.arguments[0].type?.classifier == checkClass.arguments[0].type?.classifier)) {
-//                    throw FlexException(FlexException.ERROR11)
-//                }
-//                setAction(it.name) { action, arguments ->
-//                    if(it.isSuspend) it.callSuspend(flexInterfaces, action, arguments)
-//                    else it.call(flexInterfaces, action, arguments)
-//                }
-//            }
         }
         if(flexInterfaces is FlexInterfaces) {
             flexInterfaces.interfaces.keys.forEach {
@@ -571,20 +573,11 @@ open class FlexWebView: WebView {
                             if (value is BrowserException) {
                                 val reason =
                                     if (value.reason == null) null else "\"${value.reason}\""
-                                FlexUtil.evaluateJavaScript(
-                                    this@FlexWebView,
-                                    "\$flex.flex.$fName(false, ${reason})"
-                                )
+                                FlexUtil.rejectPromise(this@FlexWebView, fName, reason)
                             } else if (value == null || value == Unit || value is Void) {
-                                FlexUtil.evaluateJavaScript(
-                                    this@FlexWebView,
-                                    "\$flex.flex.$fName(true)"
-                                )
+                                FlexUtil.responsePromise(this@FlexWebView, fName)
                             } else {
-                                FlexUtil.evaluateJavaScript(
-                                    this@FlexWebView,
-                                    "\$flex.flex.$fName(true, null, ${FlexUtil.convertInput(value)})"
-                                )
+                                FlexUtil.responsePromise(this@FlexWebView, fName, value)
                             }
                         } else if (actions[intName] != null) { // call Action
                             actions[intName]?.also { it(FlexAction(fName, this@FlexWebView), FlexUtil.jsonArrayToFlexArguments(args)) }
@@ -601,17 +594,11 @@ open class FlexWebView: WebView {
                                     } else {
                                         returnFromWeb[tID]?.also { it(FlexUtil.anyToFlexData(value)) }
                                     }
-                                    FlexUtil.evaluateJavaScript(
-                                        this@FlexWebView,
-                                        "\$flex.flex.$fName(true)"
-                                    )
+                                    FlexUtil.responsePromise(this@FlexWebView, fName)
                                 }
                                 INT_LOAD -> { // flexload
                                     if(isFlexLoad) {
-                                        FlexUtil.evaluateJavaScript(
-                                            this@FlexWebView,
-                                            "\$flex.flex.$fName(true)"
-                                        )
+                                        FlexUtil.responsePromise(this@FlexWebView, fName)
                                         return@launch
                                     }
                                     isFlexLoad = true
@@ -627,16 +614,10 @@ open class FlexWebView: WebView {
                                         }
                                     }
                                     beforeFlexLoadEvalList.clear()
-                                    FlexUtil.evaluateJavaScript(
-                                        this@FlexWebView,
-                                        "\$flex.flex.$fName(true)"
-                                    )
+                                    FlexUtil.responsePromise(this@FlexWebView, fName)
                                 }
                                 EVT_SUC, EVT_EXC, EVT_TIMEOUT, EVT_INIT -> { // events
-                                    FlexUtil.evaluateJavaScript(
-                                        this@FlexWebView,
-                                        "\$flex.flex.$fName(true)"
-                                    )
+                                    FlexUtil.responsePromise(this@FlexWebView, fName)
                                     val funcName = args.getString(0)
                                     val url = args.getString(1)
                                     val msg = if(args.length() > 2) args.getString(2) else null
@@ -667,10 +648,7 @@ open class FlexWebView: WebView {
                         }
                     } catch (e: Exception) {
                         FlexUtil.ERR(e)
-                        FlexUtil.evaluateJavaScript(
-                            this@FlexWebView,
-                            "\$flex.flex.$fName(false, \"${e.cause?.message}\")"
-                        )
+                        FlexUtil.rejectPromise(this@FlexWebView, fName, e.cause?.message)
                         e.printStackTrace()
                     }
                 } catch (e: JSONException) {
