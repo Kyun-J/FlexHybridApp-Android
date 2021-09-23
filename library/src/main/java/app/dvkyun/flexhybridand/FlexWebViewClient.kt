@@ -10,8 +10,6 @@ import android.webkit.WebViewClient
 import androidx.annotation.CallSuper
 import androidx.annotation.RequiresApi
 import androidx.webkit.WebViewAssetLoader
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.isActive
 
 open class FlexWebViewClient: WebViewClient(), FlexWebViewClientInterface {
 

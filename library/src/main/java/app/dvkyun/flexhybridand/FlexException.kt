@@ -24,5 +24,7 @@ class FlexException : Exception {
         const val ERROR13 = "FlexWebView is destroyed."
         const val ERROR14 = "The Unique interface cannot be removed."
         const val ERROR15 = "The saved data and the called type do not match."
+        const val ERROR16 = "interface does not exist."
+        const val ERROR17 = "Only FlexArguments classes or classes that inherited FlexDataClass annotations can be used as Arguments."
     }
 }

@@ -11,6 +11,11 @@ import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.Reader
+import java.lang.reflect.ParameterizedType
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlin.reflect.full.*
+import kotlin.reflect.jvm.javaType
 
 internal object FlexUtil {
 
@@ -31,11 +36,7 @@ internal object FlexUtil {
         }
         webView.post {
             val js = "javascript:$javascript; void 0;"
-            if (Build.VERSION.SDK_INT >= 19) {
-                webView.evaluateJavascript(js,null)
-            } else {
-                webView.loadUrl(js)
-            }
+            webView.evaluateJavascript(js,null)
         }
     }
 
@@ -44,13 +45,15 @@ internal object FlexUtil {
             throw FlexException(FlexException.ERROR4)
         }
         webView.post {
-            val eval = if(response != null ) "\$flex.flex.$funName(true, null, ${convertInput(response)})"
-            else "\$flex.flex.$funName(true)"
-            val js = "javascript:if(typeof \$flex.flex.$funName === 'function'){ $eval }; void 0;"
-            if (Build.VERSION.SDK_INT >= 19) {
+            try {
+                val eval = if(response != null ) "\$flex.flex.$funName(true, null, ${convertInput(response)})"
+                else "\$flex.flex.$funName(true)"
+                val js = "javascript:if(typeof \$flex.flex.$funName === 'function'){ $eval }; void 0;"
                 webView.evaluateJavascript(js,null)
-            } else {
-                webView.loadUrl(js)
+            } catch (e: Exception) {
+                ERR(e)
+                rejectPromise(webView, funName, e.cause?.message)
+                e.printStackTrace()
             }
         }
     }
@@ -63,11 +66,7 @@ internal object FlexUtil {
             val eval = if (reason != null) "\$flex.flex.$funName(false, `$reason`)"
             else "\$flex.flex.$funName(false)"
             val js = "javascript:if(typeof \$flex.flex.$funName === 'function'){ $eval }; void 0;"
-            if (Build.VERSION.SDK_INT >= 19) {
-                webView.evaluateJavascript(js, null)
-            } else {
-                webView.loadUrl(js)
-            }
+            webView.evaluateJavascript(js, null)
         }
     }
 
@@ -89,7 +88,7 @@ internal object FlexUtil {
         }
     }
 
-    internal fun convertJSONObject(value: JSONObject): Map<*,*> {
+    internal fun convertJSONObject(value: JSONObject): Map<String, Any?> {
         val result = HashMap<String, Any?>()
         value.keys().forEach {
             if (value.isNull(it)) {
@@ -127,6 +126,8 @@ internal object FlexUtil {
                     vString.append("`${it}`,")
                 } else if (it is Array<*> || it is Iterable<*> || it is Map<*,*> || it is JSONArray || it is JSONObject) {
                     vString.append("${convertInput(it)},")
+                } else if(it is FlexType) {
+                    vString.append("${convertInput(objectToMap(it))},")
                 } else {
                     throw FlexException(FlexException.ERROR3)
                 }
@@ -145,6 +146,8 @@ internal object FlexUtil {
                     vString.append("`${it}`,")
                 } else if (it is Array<*> || it is Iterable<*> || it is Map<*,*> || it is JSONArray || it is JSONObject) {
                     vString.append("${convertInput(it)},")
+                } else if(it is FlexType) {
+                    vString.append("${convertInput(objectToMap(it))},")
                 } else {
                     throw FlexException(FlexException.ERROR3)
                 }
@@ -164,6 +167,8 @@ internal object FlexUtil {
                     vString.append("`${element}`,")
                 } else if (element is Array<*> || element is Iterable<*> || element is Map<*,*> || element is JSONArray || element is JSONObject) {
                     vString.append("${convertInput(element)},")
+                } else if(element is FlexType) {
+                    vString.append("${convertInput(objectToMap(element))},")
                 } else {
                     throw FlexException(FlexException.ERROR3)
                 }
@@ -174,17 +179,21 @@ internal object FlexUtil {
             val vString = StringBuilder()
             vString.append("{")
             value.forEach {
-                if (it.key !is String) {
+                val localKey = it.key
+                val localValue = it.value
+                if (localKey !is String) {
                     throw FlexException(FlexException.ERROR3)
                 }
-                if (it.value == null) {
-                    vString.append("${it.key}: null,")
-                } else if (it.value is Int || it.value is Long || it.value is Double || it.value is Float || it.value is Boolean || it.value == null) {
-                    vString.append("${it.key}:${it.value},")
-                } else if (it.value is String || it.value is Char) {
-                    vString.append("${it.key}:`${it.value}`,")
-                } else if (it.value is Array<*> || it.value is Iterable<*> || it.value is Map<*,*> || it.value is JSONArray || it.value is JSONObject) {
-                    vString.append("${it.key}:${convertInput(it.value!!)},")
+                if (localValue == null) {
+                    vString.append("${localKey}: null,")
+                } else if (localValue is Int || localValue is Long || localValue is Double || localValue is Float || localValue is Boolean) {
+                    vString.append("${localKey}:${localValue},")
+                } else if (localValue is String || localValue is Char) {
+                    vString.append("${localKey}:`${localValue}`,")
+                } else if (localValue is Array<*> || localValue is Iterable<*> || localValue is Map<*,*> || localValue is JSONArray || localValue is JSONObject) {
+                    vString.append("${localKey}:${convertInput(localValue)},")
+                } else if(localValue is FlexType) {
+                    vString.append("${localKey}:${convertInput(objectToMap(localValue))},")
                 } else {
                     throw FlexException(FlexException.ERROR3)
                 }
@@ -205,6 +214,8 @@ internal object FlexUtil {
                         vString.append("${it}:`${element}`,")
                     } else if (element is Array<*> || element is Iterable<*> || element is Map<*,*> || element is JSONArray || element is JSONObject) {
                         vString.append("${it}:${convertInput(element)},")
+                    } else if(element is FlexType) {
+                        vString.append("${it}:${convertInput(objectToMap(element))},")
                     } else {
                         throw FlexException(FlexException.ERROR3)
                     }
@@ -214,6 +225,8 @@ internal object FlexUtil {
             vString.toString()
         } else if(value == null) {
             "null"
+        } else if(value is FlexType) {
+            convertInput(objectToMap(value))
         } else {
             throw FlexException(FlexException.ERROR3)
         }
@@ -283,6 +296,47 @@ internal object FlexUtil {
             is BrowserException -> FlexData(value)
             else -> FlexData()
         }
+    }
+
+    internal fun mapToObject(map: Map<String, Any?>, clazz: KClass<*>): Any {
+        val constructor = clazz.constructors.first()
+        val argsValue: HashMap<String, Any?> = HashMap()
+        clazz.memberProperties.map {
+            argsValue[it.name] = anyToObject(map[it.name], it.returnType)
+        }
+        val args = constructor
+            .parameters
+            .map { it to argsValue[it.name] }
+            .toMap()
+        return constructor.callBy(args)
+    }
+
+    internal fun anyToObject(value: Any?, type: KType): Any? {
+        if (value == null) return null
+        val clazz = type.classifier as KClass<*>
+        return when {
+            clazz.allSuperclasses.contains(Iterable::class.starProjectedType.classifier as KClass<*>) -> {
+                val arrGenericType = ((type.javaType as ParameterizedType).actualTypeArguments[0] as Class<*>).kotlin.starProjectedType
+                val arrValue = value as Array<*>
+                val listResult: ArrayList<Any?> = ArrayList()
+                arrValue.forEach { any ->
+                    listResult.add(anyToObject(any, arrGenericType))
+                }
+                listResult
+            }
+            clazz.allSuperclasses.contains(Map::class.starProjectedType.classifier as KClass<*>) -> {
+                val keyGenericType = ((type.javaType as ParameterizedType).actualTypeArguments[0] as Class<*>).kotlin.starProjectedType
+                if (String::class.starProjectedType != keyGenericType) throw Exception()
+                mapToObject(value as Map<String, Any?>, clazz)
+            }
+            clazz.allSuperclasses.contains(FlexType::class.starProjectedType.classifier as KClass<*>) -> mapToObject(value as Map<String, Any?>, clazz)
+            else -> value
+        }
+    }
+
+    internal fun <T: Any> objectToMap(data: T) : Map<String, Any?> {
+        val props = data::class.memberProperties.associateBy { it.name }
+        return props.keys.associateWith { props[it]?.getter?.call(data) }
     }
 
     private const val TAG = "FLEXWEBVIEW"
@@ -364,5 +418,4 @@ internal object FlexUtil {
         } else if(originUri.scheme.equals(inputUri.scheme) && originUri.host.equals(inputUri.host)) return true
         return false
     }
-
 }

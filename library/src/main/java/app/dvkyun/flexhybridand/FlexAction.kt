@@ -11,7 +11,6 @@ class FlexAction internal constructor(name: String, webView: FlexWebView) {
     var isFinished = false
         private set
 
-    var onFinishedInterface: ActionFinished? = null
     var onFinished: (() -> Unit)? = null
 
     private fun pReturn(response: Any?) {
@@ -78,6 +77,10 @@ class FlexAction internal constructor(name: String, webView: FlexWebView) {
         pReturn(response)
     }
 
+    fun <T: FlexType> promiseReturn(response: T) {
+        pReturn(response)
+    }
+
     fun promiseReturn(response: Unit) {
         pReturn(response)
     }
@@ -133,7 +136,6 @@ class FlexAction internal constructor(name: String, webView: FlexWebView) {
 
     private fun finish() {
         isFinished = true
-        onFinishedInterface?.onFinished()
         onFinished?.invoke()
     }
 

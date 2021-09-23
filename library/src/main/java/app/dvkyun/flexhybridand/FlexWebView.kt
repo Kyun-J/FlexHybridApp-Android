@@ -23,15 +23,14 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
-import kotlin.reflect.KParameter
-import kotlin.reflect.KTypeProjection
+import kotlin.reflect.KClass
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.*
 
 open class FlexWebView: WebView {
 
     companion object {
-        private const val VERSION = "0.8"
+        private const val VERSION = "1.0"
         private val UNIQUE = UUID.randomUUID().toString()
         internal const val FLEX = "flex"
 
@@ -65,9 +64,7 @@ open class FlexWebView: WebView {
     var activity: Activity? = null
         internal set
         get() = FlexUtil.getActivity(context)
-    private val interfaces : HashMap<String, suspend CoroutineScope.(arguments: FlexArguments) -> Any?> = HashMap()
-    private val actions: HashMap<String, suspend CoroutineScope.(action: FlexAction, arguments: FlexArguments) -> Unit> = HashMap()
-    private val iTimeouts : HashMap<String, Int> = HashMap()
+    private val interfaceObj: FlexInterfaces = FlexInterfaces()
     private val options: JSONObject = JSONObject()
     private val dependencies: ArrayList<String> = ArrayList()
     private val returnFromWeb: HashMap<Int, suspend CoroutineScope.(FlexData) -> Unit> = HashMap()
@@ -180,9 +177,7 @@ open class FlexWebView: WebView {
         settings.mediaPlaybackRequiresUserGesture = false
         settings.enableSmoothTransition()
         settings.javaScriptCanOpenWindowsAutomatically = true
-        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-            settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-        }
+        settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         if(Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
             setRendererPriorityPolicy(RENDERER_PRIORITY_IMPORTANT, true)
         }
@@ -194,130 +189,44 @@ open class FlexWebView: WebView {
         super.destroy()
     }
 
-    private fun setInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(FlexArguments) -> Any?): FlexWebView {
-        if(isAfterFirstLoad) {
-            throw FlexException(FlexException.ERROR6)
-        }
-        if(interfaces[name] != null || actions[name] != null) {
-            throw FlexException(FlexException.ERROR7)
-        }
-        if(name.contains(FLEX)) {
-            throw FlexException(FlexException.ERROR8)
-        }
-        timeout?.also {
-            iTimeouts[name] = if(it != 0 && it < 100) 100 else it
-        }
-        interfaces[name] = lambda
+    fun <T: FlexType, R> typeInterface(name: String, tClazz: KClass<T>, timeout: Int? = null, lambda: suspend CoroutineScope.(T) -> R?): FlexWebView {
+        interfaceObj.typeInterface(name, tClazz, timeout, lambda)
         return this
     }
 
-    fun voidInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Unit): FlexWebView {
-        return setInterface(name, timeout, lambda)
+    inline fun <reified T: FlexType, R> typeInterface(name: String, timeout: Int? = null, noinline lambda: suspend CoroutineScope.(arguments: T) -> R?): FlexWebView {
+        return typeInterface(name, T::class, timeout, lambda)
     }
 
-    fun stringInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> String?): FlexWebView {
-        return setInterface(name, timeout, lambda)
+    fun <R> setInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(FlexArguments) -> R?): FlexWebView {
+        return typeInterface(name, FlexArguments::class, timeout, lambda)
     }
 
-    fun intInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Int?): FlexWebView {
-        return setInterface(name, timeout, lambda)
+    fun <T: FlexType> typeAction(name: String, tClazz: KClass<T>, timeout: Int? = null, action: suspend CoroutineScope.(action: FlexAction, arguments: T) -> Unit): FlexWebView {
+        interfaceObj.typeAction(name, tClazz, timeout, action)
+        return this
     }
 
-    fun charInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Char?): FlexWebView {
-        return setInterface(name, timeout, lambda)
-    }
-
-    fun longInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Long?): FlexWebView {
-        return setInterface(name, timeout, lambda)
-    }
-
-    fun doubleInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Double?): FlexWebView {
-        return setInterface(name, timeout, lambda)
-    }
-
-    fun floatInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Float?): FlexWebView {
-        return setInterface(name, timeout, lambda)
-    }
-
-    fun boolInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Boolean?): FlexWebView {
-        return setInterface(name, timeout, lambda)
-    }
-
-    fun arrayInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Array<*>?): FlexWebView {
-        return setInterface(name, timeout, lambda)
-    }
-
-    fun listInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Iterable<*>?): FlexWebView {
-        return setInterface(name, timeout, lambda)
-    }
-
-    fun mapInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Map<String, *>?): FlexWebView {
-        return setInterface(name, timeout, lambda)
+    inline fun <reified T: FlexType> typeAction(name: String, timeout: Int? = null, noinline action: suspend CoroutineScope.(action: FlexAction, arguments: T) -> Unit): FlexWebView {
+        return typeAction(name, T::class, timeout, action)
     }
 
     fun setAction(name: String, timeout: Int? = null, action: suspend CoroutineScope.(action: FlexAction, arguments: FlexArguments) -> Unit): FlexWebView {
-        if(isAfterFirstLoad) {
-            throw FlexException(FlexException.ERROR6)
-        }
-        if(interfaces[name] != null || actions[name] != null) {
-            throw FlexException(FlexException.ERROR7)
-        }
-        if(name.contains(FLEX)) {
-            throw FlexException(FlexException.ERROR8)
-        }
-        timeout?.also {
-            iTimeouts[name] = if(it != 0 && it < 100) 100 else it
-        }
-        actions[name] = action
+        return typeAction(name, FlexArguments::class, timeout, action)
+    }
+
+    fun setInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlexVoid): FlexWebView {
+        interfaceObj.setInterfaceForJava(name, timeout, invoke)
         return this
     }
 
-    fun voidInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlexVoid): FlexWebView {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun stringInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<String>): FlexWebView {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun intInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Int>): FlexWebView {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun charInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Char>): FlexWebView {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun longInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Long>): FlexWebView {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun doubleInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Double>): FlexWebView {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun floatInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Float>): FlexWebView {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun boolInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Boolean>): FlexWebView {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun arrayInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Array<*>>): FlexWebView {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun listInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Iterable<*>>): FlexWebView {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun mapInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Map<String, *>>): FlexWebView {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
+    fun <R> setInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<R>): FlexWebView {
+        interfaceObj.setInterfaceForJava(name, timeout, invoke)
+        return this
     }
 
     fun setActionForJava(name: String, timeout: Int?, invoke: InvokeAction): FlexWebView {
-        return setAction(name, timeout) { ac, args -> invoke.invoke(ac, args) }
+        return typeAction(name, FlexArguments::class, timeout) { ac, args -> invoke.invoke(ac, args) }
     }
 
     fun addFlexInterface(flexInterfaces: Any) {
@@ -332,14 +241,14 @@ open class FlexWebView: WebView {
                 var findArgs: Int = -1
                 val params: Array<Any?> = arrayOfNulls(it.valueParameters.size)
                 it.valueParameters.forEachIndexed { index, kParameter ->
-                    if(kParameter.type.classifier == FlexArguments::class.starProjectedType.classifier) {
+                    if((kParameter.type.classifier as? KClass<*>)?.allSuperclasses?.contains(FlexType::class.starProjectedType.classifier as KClass<*>) == true) {
                         findArgs = index
                     }
                 }
                 if(findArgs == -1) {
                     throw FlexException(FlexException.ERROR10)
                 }
-                setInterface(it.name) { arguments ->
+                interfaceObj.setInterface(it.name) { arguments: FlexArguments ->
                     params[findArgs] = arguments
                     if(it.isSuspend) it.callSuspend(flexInterfaces, *params)
                     else it.call(flexInterfaces, *params)
@@ -352,7 +261,7 @@ open class FlexWebView: WebView {
                 var findAction: Int = -1
                 val params: Array<Any?> = arrayOfNulls(it.valueParameters.size)
                 it.valueParameters.forEachIndexed { index, kParameter ->
-                    if(kParameter.type.classifier == FlexArguments::class.starProjectedType.classifier) {
+                    if((kParameter.type.classifier as? KClass<*>)?.allSuperclasses?.contains(FlexType::class.starProjectedType.classifier as KClass<*>) == true) {
                         findArgs = index
                     } else if(kParameter.type.classifier == FlexAction::class.starProjectedType.classifier) {
                         findAction = index
@@ -361,7 +270,7 @@ open class FlexWebView: WebView {
                 if(findArgs == -1 || findAction == -1) {
                     throw FlexException(FlexException.ERROR11)
                 }
-                setAction(it.name) { action, arguments ->
+                setAction(it.name) { action, arguments: FlexArguments ->
                     params[findAction] = action
                     params[findArgs] = arguments
                     if(it.isSuspend) it.callSuspend(flexInterfaces, *params)
@@ -370,12 +279,8 @@ open class FlexWebView: WebView {
             }
         }
         if(flexInterfaces is FlexInterfaces) {
-            flexInterfaces.interfaces.keys.forEach {
-                setInterface(it, flexInterfaces.iTimeouts[it], flexInterfaces.interfaces[it]!!)
-            }
-            flexInterfaces.actions.keys.forEach {
-                setAction(it, flexInterfaces.iTimeouts[it], flexInterfaces.actions[it]!!)
-            }
+            interfaceObj.interfaces.putAll(flexInterfaces.interfaces)
+            interfaceObj.actions.putAll(flexInterfaces.actions)
         }
     }
 
@@ -529,19 +434,17 @@ open class FlexWebView: WebView {
             val keys = StringBuilder()
             keys.append("[\"")
             keys.append(internalInterface.joinToString(separator = "\",\""))
-            if(interfaces.size > 0) {
+            if(interfaceObj.interfaces.size > 0) {
                 keys.append("\",\"")
-                keys.append(interfaces.keys.joinToString(separator = "\",\""))
+                keys.append(interfaceObj.interfaces.keys.joinToString(separator = "\",\""))
             }
-            if(actions.size > 0) {
+            if(interfaceObj.actions.size > 0) {
                 keys.append("\",\"")
-                keys.append(actions.keys.joinToString(separator = "\",\""))
+                keys.append(interfaceObj.actions.keys.joinToString(separator = "\",\""))
             }
             keys.append("\"]")
             flexJsString = flexJsString.replaceFirst("keysfromAnd", keys.toString())
-            if(iTimeouts.keys.size > 0) {
-                flexJsString = flexJsString.replaceFirst("timesfromAnd", FlexUtil.convertInput(iTimeouts))
-            }
+            flexJsString = flexJsString.replaceFirst("timesfromAnd", FlexUtil.convertInput(interfaceObj.iTimeouts))
             flexJsString = flexJsString.replaceFirst("optionsfromAnd", FlexUtil.convertInput(options))
             flexJsString = flexJsString.replaceFirst("defineflexfromAnd", FlexUtil.convertInput(internalInterface))
             val device = JSONObject()
@@ -568,8 +471,15 @@ open class FlexWebView: WebView {
                     val fName: String = data.getString("funName")
                     val args: JSONArray = data.getJSONArray("arguments")
                     try {
-                        if (interfaces[intName] != null) { // call interface
-                            val value = interfaces[intName]?.let { it(FlexUtil.jsonArrayToFlexArguments(args)) }
+                        if (interfaceObj.interfaces[intName] != null) { // call interface
+                            val dataInfo = interfaceObj.interfaces[intName] ?: throw FlexException(FlexException.ERROR16)
+                            val value = dataInfo.second.let {
+                                when {
+                                    dataInfo.first == FlexArguments::class -> it(FlexUtil.jsonArrayToFlexArguments(args))
+                                    dataInfo.first.allSuperclasses.contains(FlexType::class.starProjectedType.classifier as KClass<*>) -> it(FlexUtil.mapToObject(FlexUtil.convertJSONObject(args.getJSONObject(0)), dataInfo.first))
+                                    else -> throw FlexException(FlexException.ERROR17)
+                                }
+                            }
                             if (value is BrowserException) {
                                 val reason =
                                     if (value.reason == null) null else "\"${value.reason}\""
@@ -579,8 +489,15 @@ open class FlexWebView: WebView {
                             } else {
                                 FlexUtil.responsePromise(this@FlexWebView, fName, value)
                             }
-                        } else if (actions[intName] != null) { // call Action
-                            actions[intName]?.also { it(FlexAction(fName, this@FlexWebView), FlexUtil.jsonArrayToFlexArguments(args)) }
+                        } else if (interfaceObj.actions[intName] != null) { // call Action
+                            val dataInfo = interfaceObj.actions[intName] ?: throw FlexException(FlexException.ERROR16)
+                            dataInfo.second.also {
+                                when {
+                                    dataInfo.first == FlexArguments::class -> it(FlexAction(fName, this@FlexWebView), FlexUtil.jsonArrayToFlexArguments(args))
+                                    dataInfo.first.allSuperclasses.contains(FlexType::class.starProjectedType.classifier as KClass<*>) -> it(FlexAction(fName, this@FlexWebView), FlexUtil.mapToObject(FlexUtil.convertJSONObject(args.getJSONObject(0)), dataInfo.first))
+                                    else -> throw FlexException(FlexException.ERROR17)
+                                }
+                            }
                         } else { // call library interface
                             when (intName) {
                                 INT_RETURN -> { // flexreturn

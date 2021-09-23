@@ -11,7 +11,7 @@ import kotlinx.coroutines.delay
 class FlexInterfaceExample2: FlexInterfaces() {
 
     init {
-        voidInterface("test6")
+        setInterface("test6")
         {
             (nowAppContext as Activity).runOnUiThread {
                 AlertDialog.Builder(nowAppContext as Activity)
@@ -30,6 +30,13 @@ class FlexInterfaceExample2: FlexInterfaces() {
                 Log.i("console", "test7 finished!")
             }
             action.promiseReturn(res)
+        }.typeAction("test10")
+        { action, args: DataTest1 ->
+            Log.i("test10", args.data[0].test + " model test")
+            action.promiseReturn(DataTest2(args.data, args.testLong + 1))
+        }.typeInterface("test11")
+        { args: FlexArguments ->
+            FlexInterfaces()
         }
     }
 

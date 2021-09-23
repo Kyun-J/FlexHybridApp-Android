@@ -60,6 +60,10 @@
             console.log(e);
         }
     }
+    const t10 = async () => {
+        const z = await $flex.test10({ data: [{ test: 'wow' }], testLong: 999999 });
+        console.log(z)
+    }
 
     window.onFlexLoad = function() {
         console.log('$flex is load complete!')
@@ -79,6 +83,7 @@
 <button onclick='t7()' style="width: 100%; height: 150px;">test Action interface</button>
 <button onclick='t8()' style="width: 100%; height: 150px;">test Annotation Interface reject</button>
 <button onclick='t9()' style="width: 100%; height: 150px;">test Annotation Action reject</button>
+<button onclick='t10()' style="width: 100%; height: 150px;">test Model Interface</button>
 <iframe src="./frame.html"></iframe>
 </body>
 </html>

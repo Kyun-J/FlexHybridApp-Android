@@ -4,18 +4,18 @@ import kotlinx.coroutines.CoroutineScope
 
 class FlexLambda {
     companion object {
-        fun void(lambda: suspend CoroutineScope.(FlexArguments) -> Unit): suspend CoroutineScope.(FlexArguments) -> Unit = lambda
-        fun int(lambda: suspend CoroutineScope.(FlexArguments) -> Int?): suspend CoroutineScope.(FlexArguments) -> Int? = lambda
-        fun long(lambda: suspend CoroutineScope.(FlexArguments) -> Long?): suspend CoroutineScope.(FlexArguments) -> Long? = lambda
-        fun float(lambda: suspend CoroutineScope.(FlexArguments) -> Float?): suspend CoroutineScope.(FlexArguments) -> Float? = lambda
-        fun double(lambda: suspend CoroutineScope.(FlexArguments) -> Double?): suspend CoroutineScope.(FlexArguments) -> Double? = lambda
-        fun char(lambda: suspend CoroutineScope.(FlexArguments) -> Char?): suspend CoroutineScope.(FlexArguments) -> Char? = lambda
-        fun string(lambda: suspend CoroutineScope.(FlexArguments) -> String?): suspend CoroutineScope.(FlexArguments) -> String? = lambda
-        fun bool(lambda: suspend CoroutineScope.(FlexArguments) -> Boolean?): suspend CoroutineScope.(FlexArguments) -> Boolean? = lambda
-        fun array(lambda: suspend CoroutineScope.(FlexArguments) -> Array<*>?): suspend CoroutineScope.(FlexArguments) -> Array<*>? = lambda
-        fun list(lambda: suspend CoroutineScope.(FlexArguments) -> Iterable<*>?): suspend CoroutineScope.(FlexArguments) -> Iterable<*>? = lambda
-        fun map(lambda: suspend CoroutineScope.(FlexArguments) -> Map<String, *>?): suspend CoroutineScope.(FlexArguments) -> Map<String, *>? = lambda
-        fun any(lambda: suspend CoroutineScope.(FlexArguments) -> Any?): suspend CoroutineScope.(FlexArguments) -> Any? = lambda
-        fun action(lambda: suspend CoroutineScope.(action: FlexAction, arguments: FlexArguments) -> Unit): suspend CoroutineScope.(action: FlexAction, arguments: FlexArguments) -> Unit = lambda
+        fun <T: FlexType> void(lambda: suspend CoroutineScope.(T) -> Unit): suspend CoroutineScope.(T) -> Unit = lambda
+        fun <T: FlexType> int(lambda: suspend CoroutineScope.(T) -> Int?): suspend CoroutineScope.(T) -> Int? = lambda
+        fun <T: FlexType> long(lambda: suspend CoroutineScope.(T) -> Long?): suspend CoroutineScope.(T) -> Long? = lambda
+        fun <T: FlexType> float(lambda: suspend CoroutineScope.(T) -> Float?): suspend CoroutineScope.(T) -> Float? = lambda
+        fun <T: FlexType> double(lambda: suspend CoroutineScope.(T) -> Double?): suspend CoroutineScope.(T) -> Double? = lambda
+        fun <T: FlexType> char(lambda: suspend CoroutineScope.(T) -> Char?): suspend CoroutineScope.(T) -> Char? = lambda
+        fun <T: FlexType> string(lambda: suspend CoroutineScope.(T) -> String?): suspend CoroutineScope.(T) -> String? = lambda
+        fun <T: FlexType> bool(lambda: suspend CoroutineScope.(T) -> Boolean?): suspend CoroutineScope.(T) -> Boolean? = lambda
+        fun <T: FlexType> array(lambda: suspend CoroutineScope.(T) -> Array<*>?): suspend CoroutineScope.(T) -> Array<*>? = lambda
+        fun <T: FlexType> list(lambda: suspend CoroutineScope.(T) -> Iterable<*>?): suspend CoroutineScope.(T) -> Iterable<*>? = lambda
+        fun <T: FlexType> map(lambda: suspend CoroutineScope.(T) -> Map<String, *>?): suspend CoroutineScope.(T) -> Map<String, *>? = lambda
+        fun <T: FlexType, R: FlexType> model(lambda: suspend CoroutineScope.(T) -> R?): suspend CoroutineScope.(T) -> R? = lambda
+        fun <T: FlexType> action(lambda: suspend CoroutineScope.(action: FlexAction, arguments: T) -> Unit): suspend CoroutineScope.(action: FlexAction, arguments: T) -> Unit = lambda
     }
 }

@@ -2,132 +2,60 @@ package app.dvkyun.flexhybridand
 
 import app.dvkyun.flexhybridand.forjava.*
 import kotlinx.coroutines.CoroutineScope
+import kotlin.reflect.KClass
 
 open class FlexInterfaces {
 
-    internal val interfaces: HashMap<String, suspend CoroutineScope.(FlexArguments) -> Any?> = HashMap()
-    internal val actions: HashMap<String, suspend CoroutineScope.(action: FlexAction, arguments: FlexArguments) -> Unit> = HashMap()
+    internal val interfaces: HashMap<String, Pair<KClass<*>, suspend CoroutineScope.(data: Any) -> Any?>> = HashMap()
+    internal val actions: HashMap<String, Pair<KClass<*>, suspend CoroutineScope.(action: FlexAction, data: Any) -> Unit>> = HashMap()
     internal val iTimeouts: HashMap<String, Int> = HashMap()
 
-    private fun setInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(FlexArguments) -> Any?): FlexInterfaces {
-        if(interfaces[name] != null || actions[name] != null) {
-            throw FlexException(FlexException.ERROR7)
-        }
-        if(name.contains(FlexWebView.FLEX)) {
-            throw FlexException(FlexException.ERROR8)
-        }
+    private fun vailInterface(name: String, timeout: Int? = null) {
+        if(interfaces[name] != null || actions[name] != null) throw FlexException(FlexException.ERROR7)
+        if(name.contains(FlexWebView.FLEX)) throw FlexException(FlexException.ERROR8)
         timeout?.also {
             iTimeouts[name] = if(it != 0 && it < 100) 100 else it
         }
-        interfaces[name] = lambda
+    }
+
+    fun <T: FlexType, R> typeInterface(name: String, tClazz: KClass<T>, timeout: Int? = null, lambda: suspend CoroutineScope.(T) -> R?): FlexInterfaces {
+        vailInterface(name, timeout)
+        interfaces[name] = Pair(tClazz, lambda as suspend CoroutineScope.(Any) -> Any?)
         return this
     }
 
-    fun voidInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Unit): FlexInterfaces {
-        return setInterface(name, timeout, lambda)
+    inline fun <reified T: FlexType, R> typeInterface(name: String, timeout: Int? = null, noinline lambda: suspend CoroutineScope.(T) -> R?): FlexInterfaces {
+        return typeInterface(name, T::class, timeout, lambda)
     }
 
-    fun stringInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> String?): FlexInterfaces {
-        return setInterface(name, timeout, lambda)
+    fun <R> setInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(FlexArguments) -> R?): FlexInterfaces {
+        return typeInterface(name, FlexArguments::class, timeout, lambda)
     }
 
-    fun intInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Int?): FlexInterfaces {
-        return setInterface(name, timeout, lambda)
+    fun <T: FlexType> typeAction(name: String, tClazz: KClass<T>, timeout: Int? = null, action: suspend CoroutineScope.(action: FlexAction, arguments: T) -> Unit): FlexInterfaces {
+        vailInterface(name, timeout)
+        actions[name] = Pair(tClazz, action as suspend CoroutineScope.(FlexAction, Any) -> Unit)
+        return this
     }
 
-    fun charInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Char?): FlexInterfaces {
-        return setInterface(name, timeout, lambda)
-    }
-
-    fun longInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Long?): FlexInterfaces {
-        return setInterface(name, timeout, lambda)
-    }
-
-    fun doubleInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Double?): FlexInterfaces {
-        return setInterface(name, timeout, lambda)
-    }
-
-    fun floatInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Float?): FlexInterfaces {
-        return setInterface(name, timeout, lambda)
-    }
-
-    fun boolInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Boolean?): FlexInterfaces {
-        return setInterface(name, timeout, lambda)
-    }
-
-    fun arrayInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Array<*>?): FlexInterfaces {
-        return setInterface(name, timeout, lambda)
-    }
-
-    fun listInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Iterable<*>?): FlexInterfaces {
-        return setInterface(name, timeout, lambda)
-    }
-
-    fun mapInterface(name: String, timeout: Int? = null, lambda: suspend CoroutineScope.(arguments: FlexArguments) -> Map<String, *>?): FlexInterfaces {
-        return setInterface(name, timeout, lambda)
+    inline fun <reified T: FlexType> typeAction(name: String, timeout: Int? = null, noinline action: suspend CoroutineScope.(action: FlexAction, arguments: T) -> Unit): FlexInterfaces {
+        return typeAction(name, T::class, timeout, action)
     }
 
     fun setAction(name: String, timeout: Int? = null, action: suspend CoroutineScope.(action: FlexAction, arguments: FlexArguments) -> Unit): FlexInterfaces {
-        if(interfaces[name] != null || actions[name] != null) {
-            throw FlexException(FlexException.ERROR7)
-        }
-        if(name.contains("flex")) {
-            throw FlexException(FlexException.ERROR8)
-        }
-        timeout?.also {
-            iTimeouts[name] = if(it != 0 && it < 100) 100 else it
-        }
-        actions[name] = action
-        return this
+        return typeAction(name, FlexArguments::class, timeout, action)
     }
 
-
-    fun voidInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlexVoid): FlexInterfaces {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
+    fun setInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlexVoid): FlexInterfaces {
+        return typeInterface(name, FlexArguments::class, timeout) { args -> invoke.invoke(args) }
     }
 
-    fun stringInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<String>): FlexInterfaces {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun intInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Int>): FlexInterfaces {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun charInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Char>): FlexInterfaces {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun longInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Long>): FlexInterfaces {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun doubleInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Double>): FlexInterfaces {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun floatInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Float>): FlexInterfaces {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun boolInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Boolean>): FlexInterfaces {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun arrayInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Array<*>>): FlexInterfaces {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun listInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Iterable<*>>): FlexInterfaces {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
-    }
-
-    fun mapInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<Map<String, *>>): FlexInterfaces {
-        return setInterface(name, timeout) { args -> invoke.invoke(args) }
+    fun <R> setInterfaceForJava(name: String, timeout: Int?, invoke: InvokeFlex<R>): FlexInterfaces {
+        return typeInterface(name, FlexArguments::class, timeout) { args -> invoke.invoke(args) }
     }
 
     fun setActionForJava(name: String, timeout: Int?, invoke: InvokeAction): FlexInterfaces {
-        return setAction(name, timeout) { ac, args -> invoke.invoke(ac, args) }
+        return typeAction(name, FlexArguments::class, timeout) { ac, args -> invoke.invoke(ac, args) }
     }
 
 }

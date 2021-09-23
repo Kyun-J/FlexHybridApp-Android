@@ -1,6 +1,6 @@
 package app.dvkyun.flexhybridand
 
-class FlexArguments internal constructor(private val array: Array<FlexData>) {
+class FlexArguments internal constructor(private val array: Array<FlexData>): FlexType {
 
     operator fun get(index: Int): FlexData? {
         return try {

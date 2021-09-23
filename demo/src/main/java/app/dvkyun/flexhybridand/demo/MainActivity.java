@@ -42,53 +42,40 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         flexWebView.evalFlexFunc("webtest","webtest");
-        flexWebView.addFlexEventListenerForJava(new FlexListenerForJava() {
-            @Override
-            public void onEvent(@NotNull FlexWebView view, @NotNull FlexEvent type, @NotNull String url, @NotNull String funcName, @Nullable String msg) {
+        flexWebView.addFlexEventListenerForJava((view, type, url, funcName, msg) ->
                 Log.i("listener", "\ntype: " + type.name() +
-                        "\nurl: " + url +
-                        "\nfuncName: " + funcName +
-                        "\nmsg: " + msg);
-            }
-        });
+                "\nurl: " + url +
+                "\nfuncName: " + funcName +
+                "\nmsg: " + msg));
 
         flexWebView.setInterfaceTimeout(3000);
         flexWebView.setInterfaceThreadCount(63);
 //        flexWebView.setCoroutineContext(Dispatchers.getIO());
         flexWebView.getSettings().setTextZoom(250);
 
-        flexWebView.setActionForJava("test4", null, new InvokeAction() {
-            @Override
-            public void invoke(@NotNull FlexAction action, @NotNull FlexArguments arguments) {
-                HashMap<String,Object> data = new HashMap<>();
-                data.put("intData",1);
-                data.put("StringData","test\ntest\n");
-                data.put("doubleData",1.0000000001);
-                data.put("boolData", false);
-                Object[] arrayData = new Object[3];
-                arrayData[0] = 1;
-                arrayData[1] = 22;
-                arrayData[2] = 333;
-                data.put("arrayData", arrayData);
-                HashMap<String,Object> objectData = new HashMap<>();
-                objectData.put("o1",null);
-                objectData.put("o2",999.9999);
-                objectData.put("o3","dataO3");
-                data.put("objectData", objectData);
-                Log.i("console","Send to web --- " + data.toString());
-                action.promiseReturn(data);
-            }
-        }).voidInterfaceForJava("test5", null, new InvokeFlexVoid() {
-            @Override
-            public void invoke(@NotNull FlexArguments arguments) {
-                flexWebView.evalFlexFuncWithRespForJava("webtest", "hi! $flex!", new FlexDataListener() {
-                    @Override
-                    public void onResponse(@NotNull FlexData response) {
-                        FlexData[] arr = response.asArray();
-                        Log.i("console", "Receive from web --- " + arr[0].asString() + arr[1].asInt() + arr[2].asMap().toString());
-                    }
-                });
-            }
+        flexWebView.setActionForJava("test4", null, (action, arguments) -> {
+            HashMap<String,Object> data = new HashMap<>();
+            data.put("intData",1);
+            data.put("StringData","test\ntest\n");
+            data.put("doubleData",1.0000000001);
+            data.put("boolData", false);
+            Object[] arrayData = new Object[3];
+            arrayData[0] = 1;
+            arrayData[1] = 22;
+            arrayData[2] = 333;
+            data.put("arrayData", arrayData);
+            HashMap<String,Object> objectData = new HashMap<>();
+            objectData.put("o1",null);
+            objectData.put("o2",999.9999);
+            objectData.put("o3","dataO3");
+            data.put("objectData", objectData);
+            Log.i("console","Send to web --- " + data.toString());
+            action.promiseReturn(data);
+        }).setInterfaceForJava("test5",null, arguments -> {
+            flexWebView.evalFlexFuncWithRespForJava("webtest", "hi! $flex!", response -> {
+                FlexData[] arr = response.asArray();
+                Log.i("console", "Receive from web --- " + arr[0].asString() + arr[1].asInt() + arr[2].asMap().toString());
+            });
         });
 
         flexWebView.addFlexInterface(new FlexInterfaceExample());
