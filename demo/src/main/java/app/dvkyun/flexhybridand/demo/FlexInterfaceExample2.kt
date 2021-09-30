@@ -4,17 +4,16 @@ import android.app.Activity
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import app.dvkyun.flexhybridand.*
-import app.dvkyun.flexhybridand.demo.KtObject.nowAppContext
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 
-class FlexInterfaceExample2: FlexInterfaces() {
+class FlexInterfaceExample2(private val activity: Activity) : FlexInterfaces() {
 
     init {
         setInterface("test6")
         {
-            (nowAppContext as Activity).runOnUiThread {
-                AlertDialog.Builder(nowAppContext as Activity)
+            activity.runOnUiThread {
+                AlertDialog.Builder(activity)
                     .setTitle("DialogTest")
                     .setMessage("AlertDialogSuccess!!")
                     .create()
@@ -34,9 +33,6 @@ class FlexInterfaceExample2: FlexInterfaces() {
         { action, args: DataTest1 ->
             Log.i("test10", args.data[0].test + " model test")
             action.promiseReturn(DataTest2(args.data, args.testLong + 1))
-        }.typeInterface("test11")
-        { args: FlexArguments ->
-            FlexInterfaces()
         }
     }
 

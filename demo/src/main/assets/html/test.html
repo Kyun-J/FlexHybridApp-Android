@@ -64,6 +64,15 @@
         const z = await $flex.test10({ data: [{ test: 'wow' }], testLong: 999999 });
         console.log(z)
     }
+    const t11 = () => {
+        window.location.href = "https://google.com"
+    }
+    const t12 = () => {
+        window.location.href = "https://facebook.com"
+    }
+    const t13 = () => {
+        window.location.href = "https://microsoft.com"
+    }
 
     window.onFlexLoad = function() {
         console.log('$flex is load complete!')
@@ -71,19 +80,25 @@
             console.log('Received from native ---- ' + data);
             return Promise.resolve(["hi",1,{"o1":1}]);
         }
+        $flex.web.notAllowed = (data) => {
+            console.log('Not Allowed Url Load ---- ' + data);
+        }
     }
 </script>
 <body style="width: 100%; height: 10500px;">
-<button onclick='t1()' style="width: 100%; height: 150px;">test value change in native</button>
-<button onclick='t2()' style="width: 100%; height: 150px;">test Action with 1s delay</button>
-<button onclick='t3()' style="width: 100%; height: 150px;">test object send to native</button>
-<button onclick='t4()' style="width: 100%; height: 150px;">test object receive from native</button>
-<button onclick='t5()' style="width: 100%; height: 150px;">test $flex.web func call</button>
-<button onclick='t6()' style="width: 100%; height: 150px;">test popup dialog with Annotation interface</button>
-<button onclick='t7()' style="width: 100%; height: 150px;">test Action interface</button>
-<button onclick='t8()' style="width: 100%; height: 150px;">test Annotation Interface reject</button>
-<button onclick='t9()' style="width: 100%; height: 150px;">test Annotation Action reject</button>
-<button onclick='t10()' style="width: 100%; height: 150px;">test Model Interface</button>
+<button onclick='t1()' style="width: 100%; height: 150px;">test1 value change in native</button>
+<button onclick='t2()' style="width: 100%; height: 150px;">test2 Action with 1s delay</button>
+<button onclick='t3()' style="width: 100%; height: 150px;">test3 object send to native</button>
+<button onclick='t4()' style="width: 100%; height: 150px;">test4 object receive from native</button>
+<button onclick='t5()' style="width: 100%; height: 150px;">test5 $flex.web func call</button>
+<button onclick='t6()' style="width: 100%; height: 150px;">test6 popup dialog with Annotation interface</button>
+<button onclick='t7()' style="width: 100%; height: 150px;">test7 Action interface</button>
+<button onclick='t8()' style="width: 100%; height: 150px;">test8 Annotation Interface reject</button>
+<button onclick='t9()' style="width: 100%; height: 150px;">test9 Annotation Action reject</button>
+<button onclick='t10()' style="width: 100%; height: 150px;">test10 Model Interface</button>
+<button onclick='t11()' style="width: 100%; height: 150px;">test11 AllowUrl test(google)</button>
+<button onclick='t12()' style="width: 100%; height: 150px;">test12 AllowUrl test(facebook)</button>
+<button onclick='t13()' style="width: 100%; height: 150px;">test13 AllowUrl test(microsoft)</button>
 <iframe src="./frame.html"></iframe>
 </body>
 </html>
