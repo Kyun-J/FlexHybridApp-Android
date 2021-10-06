@@ -6,6 +6,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 import app.dvkyun.flexhybridand.*
+import app.dvkyun.flexhybridand.demo.model.ActionDataTest
 import java.util.HashMap
 
 class MainActivity : AppCompatActivity() {
@@ -61,10 +62,9 @@ class MainActivity : AppCompatActivity() {
         flexWebView?.setInterfaceTimeout(3000)
         flexWebView?.setInterfaceThreadCount(63)
 //        flexWebView?.setCoroutineContext(Dispatchers.getIO())
-        flexWebView?.settings?.textZoom = 250
 
-        flexWebView?.addFlexInterface(FlexInterfaceExample())
-        flexWebView?.addFlexInterface(FlexInterfaceExample2(this))
+        flexWebView?.addFlexInterface(JavaExample())
+        flexWebView?.addFlexInterface(FlexInterfaceClassExample(this))
         flexWebView?.setAction("test4", action = test4)
         flexWebView?.setInterface("test5", lambda = test5)
 
@@ -77,5 +77,13 @@ class MainActivity : AppCompatActivity() {
         flexWebView?.addAllowUrl(".google.com", true)
         flexWebView?.addAllowUrl(".facebook.com", false)
         flexWebView?.loadUrl("https://appassets.androidplatform.net/assets/html/test.html")
+    }
+
+    override fun onBackPressed() {
+        if (flexWebView?.canGoBack() == true) {
+            flexWebView?.goBack()
+        } else {
+            super.onBackPressed()
+        }
     }
 }

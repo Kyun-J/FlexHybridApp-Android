@@ -1,4 +1,4 @@
-package app.dvkyun.flexhybridand.demo
+package app.dvkyun.flexhybridand.demo.model
 
 import app.dvkyun.flexhybridand.FlexType
 

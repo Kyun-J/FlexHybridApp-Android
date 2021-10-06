@@ -6,9 +6,9 @@ import app.dvkyun.flexhybridand.FlexData;
 import app.dvkyun.flexhybridand.FlexInterfaces;
 import app.dvkyun.flexhybridand.forjava.InvokeFlex;
 
-public class FlexInterfaceExample extends FlexInterfaces {
+public class JavaExample extends FlexInterfaces {
 
-    FlexInterfaceExample() {
+    JavaExample() {
         this.setInterfaceForJava("test1", null, (InvokeFlex) arguments -> arguments.get(0).asInt() + 1
         ).setActionForJava("test2", 10000, (action, arguments) -> {
             try {

@@ -4,10 +4,12 @@ import android.app.Activity
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import app.dvkyun.flexhybridand.*
+import app.dvkyun.flexhybridand.demo.model.DataTest1
+import app.dvkyun.flexhybridand.demo.model.DataTest2
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 
-class FlexInterfaceExample2(private val activity: Activity) : FlexInterfaces() {
+class FlexInterfaceClassExample(private val activity: Activity) : FlexInterfaces() {
 
     init {
         setInterface("test6")
