@@ -1,17 +1,11 @@
-# Readme 재 작성 중
+[iOS Version](https://github.com/Kyun-J/FlexHybridApp-iOS)
 
-# 0.8 버전과 호환되지 않는 부분이 있음
-
-# ToDo
-
-1. Interface Event Listener 적용 (완료)
-2. Interface각각 개별 설정 적용 (완료)
-3. Model을 사용하는 인터페이스 (취소)
-4. <u>_Flutter 버전 FlexHybirdApp_</u> (추진중)
+# README 작성중...
 
 # FlexibleHybrid
 
-FlexibleHybridApp은 Web, Native 상호간의 Interface을 Promise로 구현하는 등, HybridApp을 개발하기 위해 여러 편의 기능을 제공하는 라이브러리입니다.
+Webview와 Native간 인터페이스 간소화, 비동기 처리를 비롯하여  
+Webview사용에 여러 편의 기능을 제공하는 라이브러리입니다.
 
 # 라이브러리 추가 방법
 
@@ -20,36 +14,34 @@ FlexibleHybridApp은 Web, Native 상호간의 Interface을 Promise로 구현하�
 
 1. jitpack 사용
 
-프로젝트 build.gradle에 다음을 추가
+gradle의 repositories에 다음을 추가
 
 ```gradle
-allprojects {
-    repositories {
-        ...
-        maven { url 'https://jitpack.io' }
-    }
+repositories {
+    ...
+    maven { url 'https://jitpack.io' }
 }
 ```
 
-그후 모듈의 build.gradle에 다음을 추가
+gradle의 dependencies 다음을 추가
 
 ```gradle
 dependencies {
-        implementation 'com.github.Kyun-J:FlexHybridApp-Android:latest-version'
+    ...
+    implementation 'com.github.Kyun-J:FlexHybridApp-Android:latest-version'
 }
 ```
 
-# Flex 라이브러리 인터페이스 주요 특징
+# Flex 라이브러리 주요 특징
 
-기본적으로 Android의 JavascriptInterface의 단점을 보완하며 추가 제약이 있습니다.
-
-1. Web에서 Native 함수 호출시, **Native함수의 Return이 Web에 Promise로** 전달됩니다.
-2. Native에서 Web함수 호출시, **Web에서 Native로 Async**하게 반환값을 전달 할 수 있습니다.
-3. Annotation외에 **Kotlin의 lambda(Java의 Interface)를 인자로 받는 함수**를 호출하여 인터페이스를 추가할 수 있습니다.
-4. 기본 자료형 외에 **JS의 Array를 JAVA의(Array, List)으로, JS의 Object를 JAVA의 Map으로** 전달할 수 있습니다.
-5. Web에서 Native 호출시, **Native 코드 블럭은 Custom Coroutine** 안에서 동작하며 JavascriptInterface의 JavaBridge Thread와 다르게 Multi Thread 로 동작하며 병렬로 처리됩니다.
-6. FlexWebView에 BaseUrl을 지정하여, **타 사이트 및 페이지에서 Native와 Interface하는 것을 방지**할 수 있습니다.
-7. FlexWebView에 페이지가 최초로 로드되어 화면에 나타난 후에는 WebToNative 인터페이스를 추가 할 수 없습니다.
+1. [iOS 버전](https://github.com/Kyun-J/FlexHybridApp-iOS)과 서로 유사한 개발 규칙 및 기능을 가집니다.
+2. Webview와 Native간의 인터페이스가 비동기적으로 동작합니다.
+   1. Web에서 **Promise로 호출 및 반환**됩니다.
+   2. Native에서는 **Coroutine으로 동작**합니다.
+3. **Kotlin의 lambda**로 인터페이스시 동작을 정의할 수 있습니다.
+4. 기본 자료형 외, **Array, Map, Model**을 사용할 수 있습니다.
+5. 인터페이스가 실행될 스레드 개수를 설정하여, 복수의 동작을 **병렬처리** 할 수 있습니다.
+6. 인터페이스 동작이 가능한 Url을 지정하여 **원하지 않는 사이트에서의 Native호출**을 막을 수 있습니다.
 
 # WebPage
 
@@ -71,4 +63,6 @@ $flex.isAndroid; // true
 $flex.isiOS; // false
 ```
 
-상세한 사용법은 [Flex 인터페이스 구현](#Flex-인터페이스-구현) 항목을 참고하세요.
+# ToDo
+
+Flutter 버전 FlexHybirdApp
