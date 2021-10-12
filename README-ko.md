@@ -55,6 +55,8 @@ Web에서는 응답이 발생할 때 까지 **pending상태**가 됩니다.
 
 ### 인터페이스 등록
 
+Web to Nativew 인터페이스는 웹뷰에 페이지가 로드되기전에 설정되어야합니다.
+
 ```kt
 // in kotlin
 flexWebView.setInterface("funcName") { args ->
@@ -257,6 +259,140 @@ fletWebView.setInterface("funcName", timeout) {}
 ```kt
 flexWebView.setCoroutineContext(mCoroutineContext)
 flexWebView.setInterfaceThreadCount(threadCnt)
+```
+
+## 인터페이스 이벤트 리스너
+
+인터페이스 모듈 초기화, 인터페이스 성공, 실패, 타임아웃에 대한 이벤트를 청취 할 수 있습니다.
+
+```kt
+// Listen for specific events
+flexWebView.addFlexEventListener(FlexEvent.EXCEPTION) { view, type, url, funcName, msg ->
+    Log.i("Flex EXCEPTION", "type: ${type.name} url: $url funcName: $funcName msg: $msg")
+}
+
+// Listen to all events
+val AllListener = { view, type, url, funcName, msg ->
+    Log.i("Flex ALL Listen", "type: ${type.name} url: $url funcName: $funcName msg: $msg")
+}
+flexWebView.addFlexEventListener(AllListener)
+
+// Remove specific EventListener
+flexWebView.removeFlexEventListener(AllListener)
+
+// Remove all EventListeners
+flexWebView.removeAllFlexEventListener()
+```
+
+# FlexWebView 기능들
+
+## Default WebSetting
+
+FlexWebView는 WebView의 WebSetting 항목 중 아래 사항이 기본으로 선언되어 있습니다.
+
+```kt
+settings.javaScriptEnabled = true
+settings.displayZoomControls = false
+settings.builtInZoomControls = false
+settings.setSupportZoom(false)
+settings.textZoom = 100
+settings.domStorageEnabled = true
+settings.loadWithOverviewMode = true
+settings.loadsImagesAutomatically = true
+settings.useWideViewPort = true
+settings.cacheMode = WebSettings.LOAD_DEFAULT
+settings.layoutAlgorithm = WebSettings.LayoutAlgorithm.SINGLE_COLUMN
+settings.mediaPlaybackRequiresUserGesture = false
+settings.enableSmoothTransition()
+settings.javaScriptCanOpenWindowsAutomatically = true
+settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+if(Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
+    setRendererPriorityPolicy(RENDERER_PRIORITY_IMPORTANT, true)
+}
+```
+
+## FlexWebViewClient와 FlexWebChromeClient
+
+FlexWebView는 WebViewClient, WebChromeClient 대신 FlexWebViewClient와 FlexWebChromeClient를 반드시 사용해야 합니다.  
+FlexWebChromeClient는 풀 스크린 기능을 제공하며, FlexWebViewClient는 URL제한, AssetLoader설정 등의 기능을 제공합니다.
+
+## URL 제한
+
+의도하지 않은 사이트로의 로드를 막고, URL별 인터페이스 허용 여부를 설정하는 기능입니다.
+
+### BaseUrl
+
+BaseUrl은 url제한을 하지 않고 인터페이스 가능 여부만 설정할 때 사용할 수 있는 기능입니다.  
+AllowUrlList와 BaseUrl을 모두 설정하지 않을경우 FlexWebView는 모든 사이트로의 접근을 허용하지만, 인터페이스 기능을 사용할 수 없습니다.  
+BaseUrl만 설정할 경우, 모든 사이트로의 접근을 허용하며 BaseUrl에 매치되는 URL에만 인터페이스 기능이 열립니다.
+
+```kt
+flexWebVeiw.baseUrl = "www.myurl.com"
+```
+
+와일드카드 서브도메인을 포함하는 url을 지정하고자 한다면, 서브도메인을 넣지 않고 .으로 시작하는 url을 세팅하면 됩니다.
+
+```kt
+flexWebVeiw.baseUrl = ".myurl.com"
+```
+
+### AllowUrlList
+
+AllowUrlList을 설정하면, 설정된 url들과 BaseUrl을 제외한 모든 url의 접근이 차단됩니다.
+
+```kt
+flexWebView.addAllowUrl(".myurl.com")
+```
+
+URL설정 시 인터페이스를 허용하려면 addAllowUrl함수의 두번째 프로퍼티에 true를 추가하면 됩니다.
+
+```kt
+flexWebView.addAllowUrl(".myurl.com", true)
+```
+
+FlexWebViewClient의 notAllowedUrlLoad함수를 통해 접근이 제한된 url의 로드를 감지 할 수 있습니다.
+
+```kt
+flexWebView.webViewClient = object : FlexWebViewClient() {
+    override fun notAllowedUrlLoad(
+        view: WebView,
+        request: WebResourceRequest?,
+        url: String?
+    ) {
+        super.notAllowedUrlLoad(view, request, url)
+    }
+}
+```
+
+## 로컬 파일 로드
+
+WebView의 로컬 파일 로드 기능을 종합하여 제공합니다.
+
+### AssetLoader
+
+Asset 내의 파일에 접근하기 위한 AssetLoader 간편 설정 기능.
+
+```kt
+flexWebview.setAssetsLoaderUse(true, "/assets/")
+flexWebView.loadUrl("https://appassets.androidplatform.net/assets/my.html")
+```
+
+### FileAccess
+
+기본 WebSetting의 allowFileAccess, allowFileAccessFromFileURLs, allowUniversalAccessFromFileURLs 항목을 한번에 설정하는 기능.
+
+```kt
+flexWebView.setAllowFileAccessAndUrlAccessInFile(true)
+```
+
+## 풀스크린
+
+js에서 컨트롤하는 풀스크린 기능을 바로 사용 가능합니다.
+
+```js
+// in js
+document.documentElement.requestFullscreen();
+document.exitFullscreen();
 ```
 
 # WebPage

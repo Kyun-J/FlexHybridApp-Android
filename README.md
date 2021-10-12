@@ -254,6 +254,140 @@ flexWebView.setCoroutineContext(mCoroutineContext)
 flexWebView.setInterfaceThreadCount(threadCnt)
 ```
 
+## Interface event listener
+
+You can listen to events about interface module initialization, interface success, failure, and timeout.
+
+```kt
+// Listen for specific events
+flexWebView.addFlexEventListener(FlexEvent.EXCEPTION) { view, type, url, funcName, msg ->
+    Log.i("Flex EXCEPTION", "type: ${type.name} url: $url funcName: $funcName msg: $msg")
+}
+
+// Listen to all events
+val AllListener = { view, type, url, funcName, msg ->
+    Log.i("Flex ALL Listen", "type: ${type.name} url: $url funcName: $funcName msg: $msg")
+}
+flexWebView.addFlexEventListener(AllListener)
+
+// Remove specific EventListener
+flexWebView.removeFlexEventListener(AllListener)
+
+// Remove all EventListeners
+flexWebView.removeAllFlexEventListener()
+```
+
+# FlexWebView features
+
+## Default WebSetting
+
+In FlexWebView, the following are basically declared among the WebSetting items of WebView.
+
+```kt
+settings.javaScriptEnabled = true
+settings.displayZoomControls = false
+settings.builtInZoomControls = false
+settings.setSupportZoom(false)
+settings.textZoom = 100
+settings.domStorageEnabled = true
+settings.loadWithOverviewMode = true
+settings.loadsImagesAutomatically = true
+settings.useWideViewPort = true
+settings.cacheMode = WebSettings.LOAD_DEFAULT
+settings.layoutAlgorithm = WebSettings.LayoutAlgorithm.SINGLE_COLUMN
+settings.mediaPlaybackRequiresUserGesture = false
+settings.enableSmoothTransition()
+settings.javaScriptCanOpenWindowsAutomatically = true
+settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+if(Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
+    setRendererPriorityPolicy(RENDERER_PRIORITY_IMPORTANT, true)
+}
+```
+
+## FlexWebViewClient and FlexWebChromeClient
+
+FlexWebView must use FlexWebViewClient and FlexWebChromeClient instead of WebViewClient and WebChromeClient.  
+FlexWebChromeClient provides full screen function, and FlexWebViewClient provides functions such as URL restriction and AssetLoader setting.
+
+## URL restrictions
+
+This is a function to prevent unintended loading of sites and set whether to allow interfaces by URL.
+
+### BaseUrl
+
+BaseUrl is a function that can be used to set only the availability of an interface without limiting the url.  
+If both AllowUrlList and BaseUrl are not set, FlexWebView allows access to all sites, but the interface function cannot be used.  
+If only BaseUrl is set, access to all sites is allowed and the interface function is opened only to URLs matching BaseUrl.
+
+```kt
+flexWebVeiw.baseUrl = "www.myurl.com"
+```
+
+If you want to specify a url that includes a wildcard subdomain, you can set the url starting with a '.'
+
+```kt
+flexWebVeiw.baseUrl = ".myurl.com"
+```
+
+### AllowUrlList
+
+If AllowUrlList is set, access to all urls except for the set urls and BaseUrl is blocked.
+
+```kt
+flexWebView.addAllowUrl(".myurl.com")
+```
+
+To allow the interface when setting the URL, add true to the second property of the addAllowUrl function.
+
+```kt
+flexWebView.addAllowUrl(".myurl.com", true)
+```
+
+FlexWebViewClient's notAllowedUrlLoad function can detect loading of restricted urls.
+
+```kt
+flexWebView.webViewClient = object : FlexWebViewClient() {
+    override fun notAllowedUrlLoad(
+        view: WebView,
+        request: WebResourceRequest?,
+        url: String?
+    ) {
+        super.notAllowedUrlLoad(view, request, url)
+    }
+}
+```
+
+## Local file load
+
+It provides comprehensive local file loading function of WebView.
+
+### AssetLoader
+
+AssetLoader simple configuration function to access files in Asset.
+
+```kt
+flexWebview.setAssetsLoaderUse(true, "/assets/")
+flexWebView.loadUrl("https://appassets.androidplatform.net/assets/my.html")
+```
+
+### FileAccess
+
+Ability to set allowFileAccess, allowFileAccessFromFileURLs, and allowUniversalAccessFromFileURLs items of basic WebSetting at once.
+
+```kt
+flexWebView.setAllowFileAccessAndUrlAccessInFile(true)
+```
+
+## Fullscreen
+
+Full-screen functions controlled by js can be used immediately.
+
+```js
+// in js
+document.documentElement.requestFullscreen();
+document.exitFullscreen();
+```
+
 # WebPage
 
 ## $flex Object
