@@ -127,38 +127,6 @@ flexWebView.setInterface("funcName") { args ->
 }
 ```
 
-## Action 인터페이스
-
-Web to Native 인터페이스시, 지정된 lambda 코드블럭 이외의 코드에서  
-값을 리턴할 수 있는 방식입니다.
-
-```kt
-var mAction: FlexAction? = null
-
-flexWebView.setAction("actionTest") { action, args ->
-    val mLocationRequest = getLocationRequest()
-    val mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-    if (mFusedLocationClient == null) {
-        action.reject("location client is null")
-        return@setAction
-    }
-    mAction = action
-    mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null)
-}
-
-private val mLocationCallback = object : LocationCallback() {
-    override fun onLocationResult(locationResult: LocationResult) {
-        var mLastLocation: Location = locationResult.lastLocation
-        val latitude = mLastLocation.latitude.toString()
-        mAction?.promiseReturn(latitude)
-    }
-}
-```
-
-Action객체를 통해 원하는 위치의 코드에서 값을 리턴 할 수 있습니다.  
-이때, Web에서는 응답이 발생할 때 까지 **pending** 상태가 됩니다.  
-또한, 한번 응답한 Action객체는 다시 사용할 수 없습니다.
-
 ## Model Class 활용
 
 인터페이스에 사용할 데이터를 Model Class로 사용 할 수 있습니다.  
@@ -189,7 +157,7 @@ flexWebView.setInterface("modelTest") { args ->
 }
 
 flexWebView.typeInterface("modelArgsTest") { req: ArgsTestModel ->
-    Log.i("ModelTest", req.data2.testInt)
+    Log.i("ModelTest", req.testModel.data2.testInt) // 2000
 }
 ```
 
@@ -197,9 +165,40 @@ flexWebView.typeInterface("modelArgsTest") { req: ArgsTestModel ->
 // in js
 const test = async () => {
   const model = await $flex.modelTest(); // model is { name: 'test', data2: { testInt: 2000 } }
-  await $flex.modelArgsTest(model);
+  await $flex.modelArgsTest({ testModel: model });
 };
 test();
+```
+
+## Action 인터페이스
+
+Web to Native 인터페이스시, 지정된 lambda 코드블럭 이외의 코드에서  
+값을 리턴할 수 있는 방식입니다.  
+Action객체를 통해 원하는 위치의 코드에서 값을 리턴 할 수 있습니다.  
+이때, Web에서는 응답이 발생할 때 까지 **pending** 상태가 됩니다.  
+또한, 한번 응답한 Action객체는 다시 사용할 수 없습니다.
+
+```kt
+var mAction: FlexAction? = null
+
+flexWebView.setAction("actionTest") { action, args ->
+    val mLocationRequest = getLocationRequest()
+    val mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+    if (mFusedLocationClient == null) {
+        action.reject("location client is null")
+        return@setAction
+    }
+    mAction = action
+    mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null)
+}
+
+private val mLocationCallback = object : LocationCallback() {
+    override fun onLocationResult(locationResult: LocationResult) {
+        var mLastLocation: Location = locationResult.lastLocation
+        val latitude = mLastLocation.latitude.toString()
+        mAction?.promiseReturn(latitude)
+    }
+}
 ```
 
 ## lambda를 별도 선언하여 사용

@@ -123,38 +123,6 @@ flexWebView.setInterface("funcName") { args ->
 }
 ```
 
-## Action Object
-
-In the Web to Native interface, in code other than the specified lambda code block
-A way to return a value.
-
-```kt
-var mAction: FlexAction? = null
-
-flexWebView.setAction("actionTest") { action, args ->
-    val mLocationRequest = getLocationRequest()
-    val mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-    if (mFusedLocationClient == null) {
-        action.reject("location client is null")
-        return@setAction
-    }
-    mAction = action
-    mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null)
-}
-
-private val mLocationCallback = object : LocationCallback() {
-    override fun onLocationResult(locationResult: LocationResult) {
-        var mLastLocation: Location = locationResult.lastLocation
-        val latitude = mLastLocation.latitude.toString()
-        mAction?.promiseReturn(latitude)
-    }
-}
-```
-
-Can return a value from the code at any location through the Action object.
-At this time, the web will be in **pending** state until a response occurs.
-Also, the Action object once responded to cannot be used again.
-
 ## Model Class
 
 Data to be used for the interface can be used as a Model Class.  
@@ -185,7 +153,7 @@ flexWebView.setInterface("modelTest") { args ->
 }
 
 flexWebView.typeInterface("modelArgsTest") { req: ArgsTestModel ->
-    Log.i("ModelTest", req.data2.testInt)
+    Log.i("ModelTest", req.testModel.data2.testInt) // 2000
 }
 ```
 
@@ -193,9 +161,39 @@ flexWebView.typeInterface("modelArgsTest") { req: ArgsTestModel ->
 // in js
 const test = async () => {
   const model = await $flex.modelTest(); // model is { name: 'test', data2: { testInt: 2000 } }
-  await $flex.modelArgsTest(model);
+  await $flex.modelArgsTest({ testModel: model });
 };
 test();
+```
+
+## Action Object
+
+In the Web to Native interface, this is a method that can return a value from code other than the specified lambda code block.  
+Can return a value from the code at any location through the Action object.  
+At this time, the web will be in **pending** state until a response occurs.
+Also, the Action object once responded to cannot be used again.
+
+```kt
+var mAction: FlexAction? = null
+
+flexWebView.setAction("actionTest") { action, args ->
+    val mLocationRequest = getLocationRequest()
+    val mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+    if (mFusedLocationClient == null) {
+        action.reject("location client is null")
+        return@setAction
+    }
+    mAction = action
+    mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null)
+}
+
+private val mLocationCallback = object : LocationCallback() {
+    override fun onLocationResult(locationResult: LocationResult) {
+        var mLastLocation: Location = locationResult.lastLocation
+        val latitude = mLastLocation.latitude.toString()
+        mAction?.promiseReturn(latitude)
+    }
+}
 ```
 
 ## Separately declare lambda
