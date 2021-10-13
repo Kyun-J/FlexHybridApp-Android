@@ -388,7 +388,7 @@ document.documentElement.requestFullscreen();
 document.exitFullscreen();
 ```
 
-# WebPage
+# Use in js
 
 ## $flex Object
 
@@ -406,10 +406,9 @@ $flex.web; // Object used to add and use functions to be used for NativeToWeb
 $flex.device; // Current Device Info
 $flex.isAndroid; // true
 $flex.isiOS; // false
+$fles.isScript; // false
 ```
 
 # ToDo
 
-Rewriting ReadMe
-
-and Flutter version
+Flutter version

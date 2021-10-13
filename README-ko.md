@@ -1,7 +1,5 @@
 [iOS Version](https://github.com/Kyun-J/FlexHybridApp-iOS)
 
-# README 작성중...
-
 # FlexibleHybrid
 
 Webview와 Native간 인터페이스 간소화, 비동기 처리를 비롯하여  
@@ -395,12 +393,12 @@ document.documentElement.requestFullscreen();
 document.exitFullscreen();
 ```
 
-# WebPage
+# js에서의 사용
 
 ## $flex Object
 
 \$flex Object는 FlexWebView를 와 Promise 형태로 상호간 인터페이스가 구성되어있는 객체입니다.  
-\$flex는 웹뷰에 웹페이지 로드 시, 런타임으로 웹페이지에 선언됩니다.  
+\$flex는 웹뷰에 웹페이지 로드 후, 런타임으로 웹페이지에 선언됩니다.  
 \$flex가 로드 완료되는 시점은, window.onFlexLoad함수를 통해 확인할 수 있습니다.
 \$flex는 액세스 가능한 모든 하위 프레임에서도 사용 할 수 있습니다. (Ex)Cross-Origin을 위반하지 않는 iframe)  
 \$flex Object의 구성 요소는 다음과 같습니다.
@@ -413,6 +411,7 @@ $flex.web; // Object used to add and use functions to be used for NativeToWeb
 $flex.device; // Current Device Info
 $flex.isAndroid; // true
 $flex.isiOS; // false
+$fles.isScript; // false
 ```
 
 # ToDo
