@@ -73,6 +73,19 @@ test(200);
 
 ### Interface registration
 
+1. When [FlexHybridApp-Script](https://github.com/Kyun-J/FlexHybridApp-Scripts) is applied
+
+```js
+// in js
+$flex.web.funcName = async (req) => {
+  return await new Promise((resolve) => {
+    setTimeout(() => resolve(`received from web - ${req}`), 100);
+  });
+};
+```
+
+2. Not applied
+
 ```js
 // in js
 window.onFlexLoad = () => {

@@ -30,7 +30,7 @@ import kotlin.reflect.full.*
 open class FlexWebView: WebView {
 
     companion object {
-        private const val VERSION = "1.0"
+        private const val VERSION = "1.0.1"
         private val UNIQUE = UUID.randomUUID().toString()
         internal const val FLEX = "flex"
 

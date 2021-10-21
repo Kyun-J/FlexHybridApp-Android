@@ -1,108 +1,145 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui,, viewport-fit=cover, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimal-ui,, viewport-fit=cover, user-scalable=no"
+    />
     <script src="https://unpkg.com/vconsole/dist/vconsole.min.js"></script>
-</head>
-<script type="text/javascript">
+    <script
+      type="application/javascript"
+      src="https://cdn.jsdelivr.net/npm/flex-hybrid-app-scripts@0.0.2/dist/script.min.js"
+    ></script>
+  </head>
+  <script type="text/javascript">
     new window.VConsole();
 
     let t = 0;
     const t1 = async () => {
-        console.log('Send to Native --- ' + t);
-        const z = await $flex.test1(t);
-        console.log('Return by Native --- ' + z);
-        t = z
-    }
+      console.log("Send to Native --- " + t);
+      const z = await $flex.test1(t);
+      console.log("Return by Native --- " + z);
+      t = z;
+    };
     const t2 = async () => {
-        const d1 = Date.now();
-        console.log("Call Action at -- " + d1);
-        await $flex.test2();
-        const d2 = Date.now();
-        console.log("Receive at -- " + d2);
-        console.log("Delay time -- " + (d2 - d1));
-    }
+      const d1 = Date.now();
+      console.log("Call Action at -- " + d1);
+      await $flex.test2();
+      const d2 = Date.now();
+      console.log("Receive at -- " + d2);
+      console.log("Delay time -- " + (d2 - d1));
+    };
     const t3 = () => {
-        const data = {
-            stringData: "hi",
-            intData: 1,
-            floatData: 100.001,
-            boolData: true,
-            arrayData: [1,2,3,4],
-            nullData: null,
-            objectData: {o1: 1, o2: 2, o3: {o5: null}}
-        }
-        console.log("Send to native -- " + JSON.stringify(data));
-        $flex.test3(data);
-    }
+      const data = {
+        stringData: "hi",
+        intData: 1,
+        floatData: 100.001,
+        boolData: true,
+        arrayData: [1, 2, 3, 4],
+        nullData: null,
+        objectData: { o1: 1, o2: 2, o3: { o5: null } },
+      };
+      console.log("Send to native -- " + JSON.stringify(data));
+      $flex.test3(data);
+    };
     const t4 = async () => {
-        const data = await $flex.test4();
-        console.log("Receive from native -- " + JSON.stringify(data));
-    }
+      const data = await $flex.test4();
+      console.log("Receive from native -- " + JSON.stringify(data));
+    };
     const t5 = () => {
-        $flex.test5();
-    }
+      $flex.test5();
+    };
     const t6 = () => {
-        $flex.test6();
-    }
+      $flex.test6();
+    };
     const t7 = async () => {
-        const z = await $flex.test7();
-        console.log("Data from Action --- " + z);
-    }
+      const z = await $flex.test7();
+      console.log("Data from Action --- " + z);
+    };
     const t8 = async () => {
-        try {
-            const z = await $flex.test8("test");
-        } catch (e) {
-            console.log(e);
-        }
-    }
+      try {
+        const z = await $flex.test8("test");
+      } catch (e) {
+        console.log(e);
+      }
+    };
     const t9 = async () => {
-        try {
-            const z = await $flex.test9();
-        } catch (e) {
-            console.log(e);
-        }
-    }
+      try {
+        const z = await $flex.test9();
+      } catch (e) {
+        console.log(e);
+      }
+    };
     const t10 = async () => {
-        const z = await $flex.test10({ data: [{ test: 'wow' }], testLong: 2147483647 });
-        console.log(z)
-    }
+      const z = await $flex.test10({
+        data: [{ test: "wow" }],
+        testLong: 2147483647,
+      });
+      console.log(z);
+    };
     const t11 = () => {
-        window.location.href = "https://google.com"
-    }
+      window.location.href = "https://google.com";
+    };
     const t12 = () => {
-        window.location.href = "https://facebook.com"
-    }
+      window.location.href = "https://facebook.com";
+    };
     const t13 = () => {
-        window.location.href = "https://microsoft.com"
-    }
+      window.location.href = "https://microsoft.com";
+    };
 
-    window.onFlexLoad = function() {
-        console.log('$flex is load complete!')
-        $flex.web.webtest = function(data) {
-            console.log('Received from native ---- ' + data);
-            return Promise.resolve(["hi",1,{"o1":1}]);
-        }
-        $flex.web.notAllowed = (data) => {
-            console.log('Not Allowed Url Load ---- ' + data);
-        }
-    }
-</script>
-<body style="width: 100%;">
-<button onclick='t1()' style="width: 100%; height: 50px;">test1 value change in native</button>
-<button onclick='t2()' style="width: 100%; height: 50px;">test2 Action with 1s delay</button>
-<button onclick='t3()' style="width: 100%; height: 50px;">test3 object send to native</button>
-<button onclick='t4()' style="width: 100%; height: 50px;">test4 object receive from native</button>
-<button onclick='t5()' style="width: 100%; height: 50px;">test5 $flex.web func call</button>
-<button onclick='t6()' style="width: 100%; height: 50px;">test6 popup dialog with Annotation interface</button>
-<button onclick='t7()' style="width: 100%; height: 50px;">test7 Action interface</button>
-<button onclick='t8()' style="width: 100%; height: 50px;">test8 Annotation Interface reject</button>
-<button onclick='t9()' style="width: 100%; height: 50px;">test9 Annotation Action reject</button>
-<button onclick='t10()' style="width: 100%; height: 50px;">test10 Model Interface</button>
-<button onclick='t11()' style="width: 100%; height: 50px;">test11 AllowUrl test(google)</button>
-<button onclick='t12()' style="width: 100%; height: 50px;">test12 AllowUrl test(facebook)</button>
-<button onclick='t13()' style="width: 100%; height: 50px;">test13 AllowUrl test(microsoft)</button>
-<iframe src="./frame.html"></iframe>
-</body>
+    $flex.web.webtest = function (data) {
+      console.log("Received from native ---- " + data);
+      return Promise.resolve(["hi", 1, { o1: 1 }]);
+    };
+    $flex.web.notAllowed = (data) => {
+      console.log("Not Allowed Url Load ---- " + data);
+    };
+
+    window.onFlexLoad = function () {
+      console.log("$flex is load complete!");
+    };
+  </script>
+  <body style="width: 100%">
+    <button onclick="t1()" style="width: 100%; height: 50px">
+      test1 value change in native
+    </button>
+    <button onclick="t2()" style="width: 100%; height: 50px">
+      test2 Action with 1s delay
+    </button>
+    <button onclick="t3()" style="width: 100%; height: 50px">
+      test3 object send to native
+    </button>
+    <button onclick="t4()" style="width: 100%; height: 50px">
+      test4 object receive from native
+    </button>
+    <button onclick="t5()" style="width: 100%; height: 50px">
+      test5 $flex.web func call
+    </button>
+    <button onclick="t6()" style="width: 100%; height: 50px">
+      test6 popup dialog with Annotation interface
+    </button>
+    <button onclick="t7()" style="width: 100%; height: 50px">
+      test7 Action interface
+    </button>
+    <button onclick="t8()" style="width: 100%; height: 50px">
+      test8 Annotation Interface reject
+    </button>
+    <button onclick="t9()" style="width: 100%; height: 50px">
+      test9 Annotation Action reject
+    </button>
+    <button onclick="t10()" style="width: 100%; height: 50px">
+      test10 Model Interface
+    </button>
+    <button onclick="t11()" style="width: 100%; height: 50px">
+      test11 AllowUrl test(google)
+    </button>
+    <button onclick="t12()" style="width: 100%; height: 50px">
+      test12 AllowUrl test(facebook)
+    </button>
+    <button onclick="t13()" style="width: 100%; height: 50px">
+      test13 AllowUrl test(microsoft)
+    </button>
+    <iframe src="./frame.html"></iframe>
+  </body>
 </html>

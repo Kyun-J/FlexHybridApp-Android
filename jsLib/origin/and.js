@@ -45,6 +45,10 @@
     });
   };
   setOptions();
+  let _preSetWeb = {};
+  if (window.$flex && typeof window.$flex.web === "object") {
+    _preSetWeb = window.$flex.web;
+  }
   Object.defineProperty(window, "$flex", {
     value: {},
     writable: false,
@@ -64,7 +68,7 @@
       writable: false,
       enumerable: false,
     },
-    web: { value: {}, writable: false, enumerable: true },
+    web: { value: _preSetWeb, writable: false, enumerable: true },
     options: { value: _option, writable: false, enumerable: true },
     flex: { value: {}, writable: false, enumerable: false },
   });

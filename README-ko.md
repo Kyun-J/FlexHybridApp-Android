@@ -78,6 +78,19 @@ test(200);
 
 ### 인터페이스 등록
 
+1. [FlexHybridApp-Script](https://github.com/Kyun-J/FlexHybridApp-Scripts) 적용시
+
+```js
+// in js
+$flex.web.funcName = async (req) => {
+  return await new Promise((resolve) => {
+    setTimeout(() => resolve(`received from web - ${req}`), 100);
+  });
+};
+```
+
+2. 미적용시
+
 ```js
 // in js
 window.onFlexLoad = () => {
