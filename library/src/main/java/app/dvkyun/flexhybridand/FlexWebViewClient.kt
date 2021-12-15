@@ -39,8 +39,8 @@ open class FlexWebViewClient: WebViewClient(), FlexWebViewClientInterface {
         if(view is FlexWebView && url != null) {
             if(FlexUtil.checkAllowSite(view.baseUrl, url)) view.flexInitInPage()
             else {
-                view.allowUrlList.forEach {
-                    if(it.second && FlexUtil.checkAllowSite(it.first, url)) {
+                view.allowUrlMap.forEach {
+                    if(it.value && FlexUtil.checkAllowSite(it.key, url)) {
                         view.flexInitInPage()
                         return@forEach
                     }
@@ -101,10 +101,10 @@ open class FlexWebViewClient: WebViewClient(), FlexWebViewClientInterface {
 
     private fun checkAllowedUrl(view: FlexWebView, requestUrl: String?, request: WebResourceRequest? = null): Boolean {
         if(requestUrl == null) return true
-        if(view.baseUrl == null && view.allowUrlList.size == 0) return true
+        if(view.baseUrl == null && view.allowUrlMap.size == 0) return true
         if(view.baseUrl != null && FlexUtil.checkAllowSite(view.baseUrl, requestUrl)) return true
-        view.allowUrlList.forEach {
-            if(FlexUtil.checkAllowSite(it.first, requestUrl)) return true
+        view.allowUrlMap.forEach {
+            if(FlexUtil.checkAllowSite(it.key, requestUrl)) return true
         }
         view.activity?.runOnUiThread {
             notAllowedUrlLoad(view, request, requestUrl)

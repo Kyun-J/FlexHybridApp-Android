@@ -12,6 +12,7 @@ import java.io.BufferedReader
 import java.io.InputStream
 import java.io.Reader
 import java.lang.reflect.ParameterizedType
+import java.util.regex.PatternSyntaxException
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.*
@@ -394,8 +395,13 @@ internal object FlexUtil {
 
     internal fun checkAllowSite(origin: String?, input: String?): Boolean {
         if(origin == null) return true
-        if(origin == input) return true
         if(input == null) return false
+        if(origin == input) return true
+        try {
+            if (origin.toRegex().containsMatchIn(input)) return true
+        } catch(e: PatternSyntaxException) {
+            e.stackTrace
+        }
         val originUri = Uri.parse(origin)
         val inputUri = Uri.parse(input)
         if(originUri.scheme == null) {

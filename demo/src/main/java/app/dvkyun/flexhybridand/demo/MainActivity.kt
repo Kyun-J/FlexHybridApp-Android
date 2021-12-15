@@ -69,13 +69,13 @@ class MainActivity : AppCompatActivity() {
         flexWebView?.setInterface("test5", lambda = test5)
 
 //        flexWebView?.setBaseUrl("file:///android_asset")
-//        flexWebView?.addAllowUrl(".google.com", true)
+//        flexWebView?.setAllowUrl(".google.com", true)
 //        flexWebView?.setAllowFileAccessAndUrlAccessInFile(true)
 //        flexWebView?.loadUrl("file:///android_asset/html/test.html")
         flexWebView?.baseUrl = "appassets.androidplatform.net"
         flexWebView?.setAssetsLoaderUse(true, "/assets/")
-        flexWebView?.addAllowUrl(".google.com", true)
-        flexWebView?.addAllowUrl(".facebook.com", false)
+        flexWebView?.setAllowUrl(".google.com", true)
+        flexWebView?.setAllowUrl(".*facebook.com", false)
         flexWebView?.loadUrl("https://appassets.androidplatform.net/assets/html/test.html")
     }
 

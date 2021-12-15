@@ -30,7 +30,7 @@ import kotlin.reflect.full.*
 open class FlexWebView: WebView {
 
     companion object {
-        private const val VERSION = "1.0.1"
+        private const val VERSION = "1.0.2"
         private val UNIQUE = UUID.randomUUID().toString()
         internal const val FLEX = "flex"
 
@@ -96,10 +96,14 @@ open class FlexWebView: WebView {
             baseUri = Uri.parse(value)
         }
     var baseUri: Uri? = null
-    internal val allowUrlList: ArrayList<Pair<String, Boolean>> = ArrayList()
+    internal val allowUrlMap: HashMap<String, Boolean> = HashMap()
 
-    fun addAllowUrl(url: String, canUseFlex: Boolean = false) {
-        allowUrlList.add(Pair(url, canUseFlex))
+    fun setAllowUrl(url: String, canUseFlex: Boolean = false) {
+        allowUrlMap[url] = canUseFlex
+    }
+
+    fun removeAllowUrl(url: String) {
+        allowUrlMap.remove(url)
     }
 
     private var flexEventList : ArrayList<Pair<FlexEvent, FlexListener>> = ArrayList()
