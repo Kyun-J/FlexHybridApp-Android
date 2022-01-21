@@ -285,6 +285,7 @@ open class FlexWebView: WebView {
         if(flexInterfaces is FlexInterfaces) {
             interfaceObj.interfaces.putAll(flexInterfaces.interfaces)
             interfaceObj.actions.putAll(flexInterfaces.actions)
+            interfaceObj.iTimeouts.putAll(flexInterfaces.iTimeouts)
         }
     }
 
