@@ -10,7 +10,7 @@ import app.dvkyun.flexhybridand.demo.model.ActionDataTest
 import java.util.HashMap
 
 class MainActivity : AppCompatActivity() {
-    
+
     private var flexWebView: FlexWebView? = null
 
     private val test4 = FlexLambda.action { action, _: FlexArguments ->
@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
             )
         }
     }
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -68,14 +68,15 @@ class MainActivity : AppCompatActivity() {
         flexWebView?.setAction("test4", action = test4)
         flexWebView?.setInterface("test5", lambda = test5)
 
-//        flexWebView?.setBaseUrl("file:///android_asset")
-//        flexWebView?.setAllowUrl(".google.com", true)
-//        flexWebView?.setAllowFileAccessAndUrlAccessInFile(true)
-//        flexWebView?.loadUrl("file:///android_asset/html/test.html")
-        flexWebView?.baseUrl = "appassets.androidplatform.net"
-        flexWebView?.setAssetsLoaderUse(true, "/assets/")
         flexWebView?.setAllowUrl(".google.com", true)
         flexWebView?.setAllowUrl(".*facebook.com", false)
+
+//        flexWebView?.baseUrl = "file:///android_asset"
+//        flexWebView?.setAllowFileAccessAndUrlAccessInFile(true)
+//        flexWebView?.loadUrl("file:///android_asset/html/test.html")
+
+        flexWebView?.baseUrl = "appassets.androidplatform.net"
+        flexWebView?.setAssetsLoaderUse(true, "/assets/")
         flexWebView?.loadUrl("https://appassets.androidplatform.net/assets/html/test.html")
     }
 

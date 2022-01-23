@@ -32,25 +32,27 @@ internal object FlexUtil {
     }
 
     internal fun evaluateJavaScript(webView: WebView?, javascript: String) {
-        if(webView == null) {
+        if (webView == null) {
             throw FlexException(FlexException.ERROR4)
         }
         webView.post {
             val js = "javascript:$javascript; void 0;"
-            webView.evaluateJavascript(js,null)
+            webView.evaluateJavascript(js, null)
         }
     }
 
     internal fun responsePromise(webView: WebView?, funName: String, response: Any? = null) {
-        if(webView == null) {
+        if (webView == null) {
             throw FlexException(FlexException.ERROR4)
         }
         webView.post {
             try {
-                val eval = if(response != null ) "\$flex.flex.$funName(true, null, ${convertInput(response)})"
-                else "\$flex.flex.$funName(true)"
-                val js = "javascript:if(typeof \$flex.flex.$funName === 'function'){ $eval }; void 0;"
-                webView.evaluateJavascript(js,null)
+                val eval =
+                    if (response != null) "\$flex.flex.$funName(true, null, ${convertInput(response)})"
+                    else "\$flex.flex.$funName(true)"
+                val js =
+                    "javascript:if(typeof \$flex.flex.$funName === 'function'){ $eval }; void 0;"
+                webView.evaluateJavascript(js, null)
             } catch (e: Exception) {
                 ERR(e)
                 rejectPromise(webView, funName, e.cause?.message)
@@ -125,9 +127,9 @@ internal object FlexUtil {
                     vString.append("${it},")
                 } else if (it is String || it is Char) {
                     vString.append("`${it}`,")
-                } else if (it is Array<*> || it is Iterable<*> || it is Map<*,*> || it is JSONArray || it is JSONObject) {
+                } else if (it is Array<*> || it is Iterable<*> || it is Map<*, *> || it is JSONArray || it is JSONObject) {
                     vString.append("${convertInput(it)},")
-                } else if(it is FlexType) {
+                } else if (it is FlexType) {
                     vString.append("${convertInput(objectToMap(it))},")
                 } else {
                     throw FlexException(FlexException.ERROR3)
@@ -145,9 +147,9 @@ internal object FlexUtil {
                     vString.append("${it},")
                 } else if (it is String || it is Char) {
                     vString.append("`${it}`,")
-                } else if (it is Array<*> || it is Iterable<*> || it is Map<*,*> || it is JSONArray || it is JSONObject) {
+                } else if (it is Array<*> || it is Iterable<*> || it is Map<*, *> || it is JSONArray || it is JSONObject) {
                     vString.append("${convertInput(it)},")
-                } else if(it is FlexType) {
+                } else if (it is FlexType) {
                     vString.append("${convertInput(objectToMap(it))},")
                 } else {
                     throw FlexException(FlexException.ERROR3)
@@ -158,7 +160,7 @@ internal object FlexUtil {
         } else if (value is JSONArray) {
             val vString = StringBuilder()
             vString.append("[")
-            for(i in 0 until value.length()) {
+            for (i in 0 until value.length()) {
                 val element = value[i]
                 if (element == null) {
                     vString.append("null,")
@@ -166,9 +168,9 @@ internal object FlexUtil {
                     vString.append("${element},")
                 } else if (element is String || element is Char) {
                     vString.append("`${element}`,")
-                } else if (element is Array<*> || element is Iterable<*> || element is Map<*,*> || element is JSONArray || element is JSONObject) {
+                } else if (element is Array<*> || element is Iterable<*> || element is Map<*, *> || element is JSONArray || element is JSONObject) {
                     vString.append("${convertInput(element)},")
-                } else if(element is FlexType) {
+                } else if (element is FlexType) {
                     vString.append("${convertInput(objectToMap(element))},")
                 } else {
                     throw FlexException(FlexException.ERROR3)
@@ -176,7 +178,7 @@ internal object FlexUtil {
             }
             vString.append("]")
             vString.toString()
-        } else if (value is Map<*,*>) {
+        } else if (value is Map<*, *>) {
             val vString = StringBuilder()
             vString.append("{")
             value.forEach {
@@ -191,9 +193,9 @@ internal object FlexUtil {
                     vString.append("${localKey}:${localValue},")
                 } else if (localValue is String || localValue is Char) {
                     vString.append("${localKey}:`${localValue}`,")
-                } else if (localValue is Array<*> || localValue is Iterable<*> || localValue is Map<*,*> || localValue is JSONArray || localValue is JSONObject) {
+                } else if (localValue is Array<*> || localValue is Iterable<*> || localValue is Map<*, *> || localValue is JSONArray || localValue is JSONObject) {
                     vString.append("${localKey}:${convertInput(localValue)},")
-                } else if(localValue is FlexType) {
+                } else if (localValue is FlexType) {
                     vString.append("${localKey}:${convertInput(objectToMap(localValue))},")
                 } else {
                     throw FlexException(FlexException.ERROR3)
@@ -205,17 +207,17 @@ internal object FlexUtil {
             val vString = StringBuilder()
             vString.append("{")
             value.keys().forEach {
-                if(value.isNull(it)) {
+                if (value.isNull(it)) {
                     vString.append("${it}: null,")
                 } else {
                     val element = value[it]
-                    if (element is Int || element  is Long || element  is Double || element is Float || element  is Boolean) {
+                    if (element is Int || element is Long || element is Double || element is Float || element is Boolean) {
                         vString.append("${it}:${element},")
                     } else if (element is String || element is Char) {
                         vString.append("${it}:`${element}`,")
-                    } else if (element is Array<*> || element is Iterable<*> || element is Map<*,*> || element is JSONArray || element is JSONObject) {
+                    } else if (element is Array<*> || element is Iterable<*> || element is Map<*, *> || element is JSONArray || element is JSONObject) {
                         vString.append("${it}:${convertInput(element)},")
-                    } else if(element is FlexType) {
+                    } else if (element is FlexType) {
                         vString.append("${it}:${convertInput(objectToMap(element))},")
                     } else {
                         throw FlexException(FlexException.ERROR3)
@@ -224,9 +226,9 @@ internal object FlexUtil {
             }
             vString.append("}")
             vString.toString()
-        } else if(value == null) {
+        } else if (value == null) {
             "null"
-        } else if(value is FlexType) {
+        } else if (value is FlexType) {
             convertInput(objectToMap(value))
         } else {
             throw FlexException(FlexException.ERROR3)
@@ -234,10 +236,10 @@ internal object FlexUtil {
     }
 
     internal fun jsonArrayToFlexArguments(value: JSONArray?): FlexArguments {
-        if(value == null) return FlexArguments(emptyArray())
+        if (value == null) return FlexArguments(emptyArray())
         val res = FlexArguments(Array(value.length()) { FlexData() })
-        for(i in 0 until value.length()) {
-            when(val ele = value[i]) {
+        for (i in 0 until value.length()) {
+            when (val ele = value[i]) {
                 is Int -> res[i] = FlexData(ele)
                 is String -> res[i] = FlexData(ele)
                 is Long -> res[i] = FlexData(ele)
@@ -251,10 +253,10 @@ internal object FlexUtil {
     }
 
     internal fun jsonArrayToFlexData(value: JSONArray?): Array<FlexData> {
-        if(value == null) return emptyArray()
+        if (value == null) return emptyArray()
         val res = Array(value.length()) { FlexData() }
-        for(i in 0 until value.length()) {
-            when(val ele = value[i]) {
+        for (i in 0 until value.length()) {
+            when (val ele = value[i]) {
                 is Int -> res[i] = FlexData(ele)
                 is String -> res[i] = FlexData(ele)
                 is Long -> res[i] = FlexData(ele)
@@ -269,9 +271,9 @@ internal object FlexUtil {
 
     internal fun jsonObjectToFlexData(value: JSONObject?): Map<String, FlexData> {
         val res = HashMap<String, FlexData>()
-        if(value == null) return res
+        if (value == null) return res
         value.keys().forEach {
-            when(val ele = value[it]) {
+            when (val ele = value[it]) {
                 is Int -> res[it] = FlexData(ele)
                 is String -> res[it] = FlexData(ele)
                 is Long -> res[it] = FlexData(ele)
@@ -286,7 +288,7 @@ internal object FlexUtil {
     }
 
     internal fun anyToFlexData(value: Any?): FlexData {
-        return when(value) {
+        return when (value) {
             is Int -> FlexData(value)
             is String -> FlexData(value)
             is Long -> FlexData(value)
@@ -317,7 +319,8 @@ internal object FlexUtil {
         val clazz = type.classifier as KClass<*>
         return when {
             clazz.allSuperclasses.contains(Iterable::class.starProjectedType.classifier as KClass<*>) -> {
-                val arrGenericType = ((type.javaType as ParameterizedType).actualTypeArguments[0] as Class<*>).kotlin.starProjectedType
+                val arrGenericType =
+                    ((type.javaType as ParameterizedType).actualTypeArguments[0] as Class<*>).kotlin.starProjectedType
                 val arrValue = value as Array<*>
                 val listResult: ArrayList<Any?> = ArrayList()
                 arrValue.forEach { any ->
@@ -326,16 +329,20 @@ internal object FlexUtil {
                 listResult
             }
             clazz.allSuperclasses.contains(Map::class.starProjectedType.classifier as KClass<*>) -> {
-                val keyGenericType = ((type.javaType as ParameterizedType).actualTypeArguments[0] as Class<*>).kotlin.starProjectedType
+                val keyGenericType =
+                    ((type.javaType as ParameterizedType).actualTypeArguments[0] as Class<*>).kotlin.starProjectedType
                 if (String::class.starProjectedType != keyGenericType) throw Exception()
                 mapToObject(value as Map<String, Any?>, clazz)
             }
-            clazz.allSuperclasses.contains(FlexType::class.starProjectedType.classifier as KClass<*>) -> mapToObject(value as Map<String, Any?>, clazz)
+            clazz.allSuperclasses.contains(FlexType::class.starProjectedType.classifier as KClass<*>) -> mapToObject(
+                value as Map<String, Any?>,
+                clazz
+            )
             else -> value
         }
     }
 
-    internal fun <T: Any> objectToMap(data: T) : Map<String, Any?> {
+    internal fun <T : Any> objectToMap(data: T): Map<String, Any?> {
         val props = data::class.memberProperties.associateBy { it.name }
         return props.keys.associateWith { props[it]?.getter?.call(data) }
     }
@@ -394,34 +401,34 @@ internal object FlexUtil {
     }
 
     internal fun checkAllowSite(origin: String?, input: String?): Boolean {
-        if(origin == null) return true
-        if(input == null) return false
-        if(origin == input) return true
+        if (origin == null) return true
+        if (input == null) return false
+        if (origin == input) return true
         try {
             if (origin.toRegex().containsMatchIn(input)) return true
-        } catch(e: PatternSyntaxException) {
+        } catch (e: PatternSyntaxException) {
             e.stackTrace
         }
         val originUri = Uri.parse(origin)
         val inputUri = Uri.parse(input)
-        if(originUri.scheme == null) {
+        if (originUri.scheme == null) {
             val isOriginWild = origin.startsWith(".")
-            val originRealDomain = if(isOriginWild) origin.substring(1) else origin
-            if(originRealDomain == inputUri.host) return true
-            else if(isOriginWild) {
+            val originRealDomain = if (isOriginWild) origin.substring(1) else origin
+            if (originRealDomain == inputUri.host) return true
+            else if (isOriginWild) {
                 val originDomains = origin.split(".")
                 val inputDomains = inputUri.host?.split(".")
-                if(originDomains.size != inputDomains?.size) return false
+                if (originDomains.size != inputDomains?.size) return false
                 var isAllow = true
                 inputDomains.forEachIndexed { i, domain ->
-                    if(i != 0 && originDomains[i] != domain) {
+                    if (i != 0 && originDomains[i] != domain) {
                         isAllow = false
                         return@forEachIndexed
                     }
                 }
                 return isAllow
             }
-        } else if(originUri.scheme.equals(inputUri.scheme) && originUri.host.equals(inputUri.host)) return true
+        } else if (originUri.scheme.equals(inputUri.scheme) && originUri.host.equals(inputUri.host)) return true
         return false
     }
 }

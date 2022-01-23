@@ -11,7 +11,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.RequiresApi
 import androidx.webkit.WebViewAssetLoader
 
-open class FlexWebViewClient: WebViewClient(), FlexWebViewClientInterface {
+open class FlexWebViewClient : WebViewClient(), FlexWebViewClientInterface {
 
     private var assetLoader: WebViewAssetLoader? = null
 
@@ -20,7 +20,7 @@ open class FlexWebViewClient: WebViewClient(), FlexWebViewClientInterface {
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-        if(view is FlexWebView) {
+        if (view is FlexWebView) {
             return !checkAllowedUrl(view, request)
         }
         return false
@@ -28,7 +28,7 @@ open class FlexWebViewClient: WebViewClient(), FlexWebViewClientInterface {
 
     @Suppress("DEPRECATION")
     override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-        if(view is FlexWebView) {
+        if (view is FlexWebView) {
             return !checkAllowedUrl(view, url)
         }
         return false
@@ -36,11 +36,11 @@ open class FlexWebViewClient: WebViewClient(), FlexWebViewClientInterface {
 
     @CallSuper
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-        if(view is FlexWebView && url != null) {
-            if(FlexUtil.checkAllowSite(view.baseUrl, url)) view.flexInitInPage()
+        if (view is FlexWebView && url != null) {
+            if (FlexUtil.checkAllowSite(view.baseUrl, url)) view.flexInitInPage()
             else {
                 view.allowUrlMap.forEach {
-                    if(it.value && FlexUtil.checkAllowSite(it.key, url)) {
+                    if (it.value && FlexUtil.checkAllowSite(it.key, url)) {
                         view.flexInitInPage()
                         return@forEach
                     }
@@ -52,8 +52,8 @@ open class FlexWebViewClient: WebViewClient(), FlexWebViewClientInterface {
 
     @Suppress("DEPRECATION")
     override fun shouldInterceptRequest(view: WebView?, url: String?): WebResourceResponse? {
-        if(isAssetLoaderUse && view != null && url != null) {
-            if(assetLoader == null) {
+        if (isAssetLoaderUse && view != null && url != null) {
+            if (assetLoader == null) {
                 assetLoader = WebViewAssetLoader
                     .Builder()
                     .addPathHandler(
@@ -72,11 +72,11 @@ open class FlexWebViewClient: WebViewClient(), FlexWebViewClientInterface {
         view: WebView?,
         request: WebResourceRequest?
     ): WebResourceResponse? {
-        if(request?.isForMainFrame == true && view is FlexWebView) {
+        if (request?.isForMainFrame == true && view is FlexWebView) {
             checkAllowedUrl(view, request)
         }
-        if(isAssetLoaderUse && view != null && request?.url != null) {
-            if(assetLoader == null) {
+        if (isAssetLoaderUse && view != null && request?.url != null) {
+            if (assetLoader == null) {
                 assetLoader = WebViewAssetLoader
                     .Builder()
                     .addPathHandler(
@@ -99,12 +99,16 @@ open class FlexWebViewClient: WebViewClient(), FlexWebViewClientInterface {
         return checkAllowedUrl(view, request?.url?.toString(), request)
     }
 
-    private fun checkAllowedUrl(view: FlexWebView, requestUrl: String?, request: WebResourceRequest? = null): Boolean {
-        if(requestUrl == null) return true
-        if(view.baseUrl == null && view.allowUrlMap.size == 0) return true
-        if(view.baseUrl != null && FlexUtil.checkAllowSite(view.baseUrl, requestUrl)) return true
+    private fun checkAllowedUrl(
+        view: FlexWebView,
+        requestUrl: String?,
+        request: WebResourceRequest? = null
+    ): Boolean {
+        if (requestUrl == null) return true
+        if (view.baseUrl == null && view.allowUrlMap.size == 0) return true
+        if (view.baseUrl != null && FlexUtil.checkAllowSite(view.baseUrl, requestUrl)) return true
         view.allowUrlMap.forEach {
-            if(FlexUtil.checkAllowSite(it.key, requestUrl)) return true
+            if (FlexUtil.checkAllowSite(it.key, requestUrl)) return true
         }
         view.activity?.runOnUiThread {
             notAllowedUrlLoad(view, request, requestUrl)

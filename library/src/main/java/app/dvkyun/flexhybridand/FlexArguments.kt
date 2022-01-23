@@ -1,6 +1,6 @@
 package app.dvkyun.flexhybridand
 
-class FlexArguments internal constructor(private val array: Array<FlexData>): FlexType {
+class FlexArguments internal constructor(private val array: Array<FlexData>) : FlexType {
 
     operator fun get(index: Int): FlexData? {
         return try {
@@ -48,9 +48,12 @@ class FlexArguments internal constructor(private val array: Array<FlexData>): Fl
         override val size: Int get() = array.size
         override fun isEmpty(): Boolean = array.isEmpty()
         override fun contains(element: FlexData): Boolean = array.contains(element)
-        override fun containsAll(elements: Collection<FlexData>): Boolean = elements.all { contains(it) }
+        override fun containsAll(elements: Collection<FlexData>): Boolean =
+            elements.all { contains(it) }
+
         override fun iterator(): Iterator<FlexData> = array.iterator()
-        fun toArray(): Array<FlexData> = java.util.Arrays.copyOf(array, this.size, Array<FlexData>::class.java)
+        fun toArray(): Array<FlexData> =
+            java.util.Arrays.copyOf(array, this.size, Array<FlexData>::class.java)
     }
 
 }

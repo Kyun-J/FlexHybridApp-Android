@@ -14,14 +14,14 @@ class FlexAction internal constructor(name: String, webView: FlexWebView) {
     var onFinished: (() -> Unit)? = null
 
     private fun pReturn(response: Any?) {
-        if(isFinished) {
+        if (isFinished) {
             FlexUtil.INFO(FlexException.ERROR9)
             return
         }
-        if(response is BrowserException) {
-            val reason = if(response.reason == null) null else "\"${response.reason}\""
+        if (response is BrowserException) {
+            val reason = if (response.reason == null) null else "\"${response.reason}\""
             FlexUtil.rejectPromise(flexWebView, funName, reason)
-        } else if(response == null || response is Unit || response is Void) {
+        } else if (response == null || response is Unit || response is Void) {
             FlexUtil.responsePromise(flexWebView, funName)
         } else {
             FlexUtil.responsePromise(flexWebView, funName, response)
@@ -77,7 +77,7 @@ class FlexAction internal constructor(name: String, webView: FlexWebView) {
         pReturn(response)
     }
 
-    fun <T: FlexType> promiseReturn(response: T) {
+    fun <T : FlexType> promiseReturn(response: T) {
         pReturn(response)
     }
 
@@ -98,7 +98,7 @@ class FlexAction internal constructor(name: String, webView: FlexWebView) {
     }
 
     fun resolveVoid() {
-        if(isFinished) {
+        if (isFinished) {
             FlexUtil.INFO(FlexException.ERROR9)
             return
         }
@@ -107,17 +107,17 @@ class FlexAction internal constructor(name: String, webView: FlexWebView) {
     }
 
     fun reject(reason: BrowserException) {
-        if(isFinished) {
+        if (isFinished) {
             FlexUtil.INFO(FlexException.ERROR9)
             return
         }
-        val rejectReason = if(reason.reason == null) null else "\"${reason.reason}\""
+        val rejectReason = if (reason.reason == null) null else "\"${reason.reason}\""
         FlexUtil.rejectPromise(flexWebView, funName, rejectReason)
         finish()
     }
 
     fun reject(reason: String) {
-        if(isFinished) {
+        if (isFinished) {
             FlexUtil.INFO(FlexException.ERROR9)
             return
         }
@@ -126,7 +126,7 @@ class FlexAction internal constructor(name: String, webView: FlexWebView) {
     }
 
     fun reject() {
-        if(isFinished) {
+        if (isFinished) {
             FlexUtil.INFO(FlexException.ERROR9)
             return
         }

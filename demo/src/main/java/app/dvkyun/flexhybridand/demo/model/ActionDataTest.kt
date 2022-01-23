@@ -9,4 +9,4 @@ data class ActionDataTest(
     val boolData: Boolean,
     val arrayData: ArrayList<Int>,
     val objectData: HashMap<String, Any?>
-) :FlexType
+) : FlexType

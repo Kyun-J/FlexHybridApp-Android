@@ -4,4 +4,4 @@ import app.dvkyun.flexhybridand.FlexType
 
 data class DataTest3(
     val test: String
-): FlexType
+) : FlexType
