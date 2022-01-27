@@ -7,20 +7,16 @@
       content="width=device-width, initial-scale=1, minimal-ui,, viewport-fit=cover, user-scalable=no"
     />
     <script src="https://unpkg.com/vconsole/dist/vconsole.min.js"></script>
-    <script
-      type="application/javascript"
-      src="https://cdn.jsdelivr.net/npm/flex-hybrid-app-scripts@0.0.2/dist/script.min.js"
-    ></script>
   </head>
   <script type="text/javascript">
     new window.VConsole();
 
-    let t = 0;
+    let num = 0;
     const t1 = async () => {
-      console.log("Send to Native --- " + t);
-      const z = await $flex.test1(t);
-      console.log("Return by Native --- " + z);
-      t = z;
+      console.log("Send to Native --- " + num);
+      const addNum = await $flex.test1(num);
+      console.log("Return by Native --- " + addNum);
+      num = addNum;
     };
     const t2 = async () => {
       const d1 = Date.now();
@@ -88,16 +84,15 @@
       window.location.href = "https://microsoft.com";
     };
 
-    $flex.web.webtest = function (data) {
-      console.log("Received from native ---- " + data);
-      return Promise.resolve(["hi", 1, { o1: 1 }]);
-    };
-    $flex.web.notAllowed = (data) => {
-      console.log("Not Allowed Url Load ---- " + data);
-    };
-
     window.onFlexLoad = function () {
       console.log("$flex is load complete!");
+      $flex.web.webtest = function (data) {
+        console.log("Received from native ---- " + data);
+        return Promise.resolve(["hi", 1, { o1: 1 }]);
+      };
+      $flex.web.notAllowed = (data) => {
+        console.log("Not Allowed Url Load ---- " + data);
+      };
     };
   </script>
   <body style="width: 100%">

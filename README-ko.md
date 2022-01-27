@@ -1,5 +1,7 @@
 [iOS Version](https://github.com/Kyun-J/FlexHybridApp-iOS)
 
+[Typescript support](https://github.com/Kyun-J/FlexHybridApp-Scripts)
+
 # FlexibleHybrid
 
 Webview와 Native간 인터페이스 간소화, 비동기 처리를 비롯하여  
@@ -78,18 +80,7 @@ test(200);
 
 ### 인터페이스 등록
 
-1. [FlexHybridApp-Script](https://github.com/Kyun-J/FlexHybridApp-Scripts) 적용시
-
-```js
-// in js
-$flex.web.funcName = async (req) => {
-  return await new Promise((resolve) => {
-    setTimeout(() => resolve(`received from web - ${req}`), 100);
-  });
-};
-```
-
-2. 미적용시
+\$flex 객체가 로드 된 후 \$flex.web 객체에 인터페이스를 등록합니다.
 
 ```js
 // in js
@@ -346,6 +337,8 @@ flexWebVeiw.baseUrl = "www.myurl.com"
 ```kt
 flexWebVeiw.baseUrl = ".myurl.com"
 ```
+
+또한, 정규식으로 url을 지정할 수도 있습니다.
 
 ### AllowUrlList
 

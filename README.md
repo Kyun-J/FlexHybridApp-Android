@@ -2,9 +2,11 @@
 
 [iOS Version](https://github.com/Kyun-J/FlexHybridApp-iOS)
 
+[Typescript support](https://github.com/Kyun-J/FlexHybridApp-Scripts)
+
 # FlexibleHybrid
 
-Including simplifying the interface between Webview and Native and asynchronous processing,
+Including simplifying the interface between Webview and Native and asynchronous processing,  
 It is a library that provides multiple convenience features for Webview use.
 
 # How to add libraries
@@ -73,18 +75,7 @@ test(200);
 
 ### Interface registration
 
-1. When [FlexHybridApp-Script](https://github.com/Kyun-J/FlexHybridApp-Scripts) is applied
-
-```js
-// in js
-$flex.web.funcName = async (req) => {
-  return await new Promise((resolve) => {
-    setTimeout(() => resolve(`received from web - ${req}`), 100);
-  });
-};
-```
-
-2. Not applied
+\$flex after the object is loaded.Register the interface on the \$flex.web object.
 
 ```js
 // in js
@@ -341,6 +332,8 @@ If you want to specify a url that includes a wildcard subdomain, you can set the
 ```kt
 flexWebVeiw.baseUrl = ".myurl.com"
 ```
+
+You can also specify a URL in a regular expression.
 
 ### AllowUrlList
 

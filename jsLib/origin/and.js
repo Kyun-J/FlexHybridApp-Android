@@ -46,7 +46,9 @@
   };
   setOptions();
   let _preSetWeb = {};
-  if (window.$flex && typeof window.$flex.web === "object") {
+  if (window.__flexScript && typeof window.__flexScript === "object") {
+    Object.assign(_preSetWeb, window.__flexScript.web);
+  } else if (window.$flex && typeof window.$flex.web === "object") {
     _preSetWeb = window.$flex.web;
   }
   Object.defineProperty(window, "$flex", {
@@ -162,35 +164,39 @@
         return window._onFlexLoad;
       },
     });
-    window.onFlexLoad = f;
     const evalFrames = (w) => {
       for (let i = 0; i < w.frames.length; i++) {
-        delete w.frames[i].flexdefine;
-        if (typeof w.frames[i].$flex === "undefined") {
-          Object.defineProperty(w.frames[i], "$flex", {
+        const wf = w.frames[i];
+        delete wf.flexdefine;
+        if (typeof wf.$flex === "undefined") {
+          Object.defineProperty(wf, "$flex", {
             value: window.$flex,
             writable: false,
             enumerable: true,
           });
           let f = undefined;
-          if (typeof w.frames[i].onFlexLoad === "function") {
-            f = w.frames[i].onFlexLoad;
+          if (typeof wf.onFlexLoad === "function") {
+            f = wf.onFlexLoad;
           }
-          Object.defineProperty(w.frames[i], "onFlexLoad", {
+          Object.defineProperty(wf, "onFlexLoad", {
             set: function (val) {
-              window.onFlexLoad = val;
+              if (typeof val === "function") {
+                wf._onFlexLoad = val;
+                val();
+              }
             },
             get: function () {
-              return window._onFlexLoad;
+              return wf._onFlexLoad;
             },
           });
           if (typeof f === "function") {
-            w.frames[i].onFlexLoad = f;
+            wf.onFlexLoad = f;
           }
         }
-        evalFrames(w.frames[i]);
+        evalFrames(wf);
       }
     };
+    window.onFlexLoad = f;
     evalFrames(window);
     $flex.flexInit("INIT", location.href);
   }, 0);

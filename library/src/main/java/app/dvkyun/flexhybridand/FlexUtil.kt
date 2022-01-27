@@ -407,7 +407,7 @@ internal object FlexUtil {
         try {
             if (origin.toRegex().containsMatchIn(input)) return true
         } catch (e: PatternSyntaxException) {
-            e.stackTrace
+            e.printStackTrace()
         }
         val originUri = Uri.parse(origin)
         val inputUri = Uri.parse(input)
