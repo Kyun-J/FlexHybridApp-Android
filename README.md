@@ -75,7 +75,7 @@ test(200);
 
 ### Interface registration
 
-\$flex after the object is loaded.Register the interface on the \$flex.web object.
+After the \$flex object is loaded (the `window.onFlexLoad` function can be checked on the \$flex Load time), register the interface.
 
 ```js
 // in js
